@@ -31,7 +31,7 @@ class TutorProfileServiceTest {
     @Test
     void save_success() {
         TutorProfileSaveDto tutorProfileSaveDto = TutorProfileSaveDto.of()
-                .userNo(1)
+                .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
                 .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))
@@ -56,7 +56,7 @@ class TutorProfileServiceTest {
     @DisplayName("저장 실패 - 레슨 카테고리 최소 1개 이상 선택")
     void save_fail_because_lesson() {
         TutorProfileSaveDto tutorProfileSaveDto = TutorProfileSaveDto.of()
-                .userNo(1)
+                .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
                 .lessonSubcategoryList(List.of())
@@ -76,7 +76,7 @@ class TutorProfileServiceTest {
     @DisplayName("저장 실패 - 수업 지역은 최소 1개 이상 선택")
     void save_fail_because_lesson_count() {
         TutorProfileSaveDto tutorProfileSaveDto = TutorProfileSaveDto.of()
-                .userNo(1)
+                .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
                 .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))
@@ -95,7 +95,7 @@ class TutorProfileServiceTest {
     @DisplayName("저장 실패 - 기본 수업단위는 30분보다 커야함")
     void save_fail_because_duration_min() {
         TutorProfileSaveDto tutorProfileSaveDto = TutorProfileSaveDto.of()
-                .userNo(1)
+                .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
                 .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))
@@ -115,7 +115,7 @@ class TutorProfileServiceTest {
     @DisplayName("저장 실패 - 기본 수업단위는 30분 단위여야 함")
     void save_fail_because_duration_min_not_multiple_of_30() {
         TutorProfileSaveDto tutorProfileSaveDto = TutorProfileSaveDto.of()
-                .userNo(1)
+                .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
                 .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))

@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class TutorProfileSaveDto {
-    private Integer userNo;
+    private Long userNo;
     private String introduce;
     private LessonCategory lessonCategory;
     private List<LessonSubcategory> lessonSubcategoryList;
@@ -21,7 +21,7 @@ public class TutorProfileSaveDto {
     private Integer durationMin;
 
     @Builder(builderMethodName = "of")
-    public TutorProfileSaveDto(Integer userNo, String introduce, LessonCategory lessonCategory, List<LessonSubcategory> lessonSubcategoryList, List<String> regionList, Integer careerYears, Integer pricePerHour, Integer durationMin) {
+    public TutorProfileSaveDto(Long userNo, String introduce, LessonCategory lessonCategory, List<LessonSubcategory> lessonSubcategoryList, List<String> regionList, Integer careerYears, Integer pricePerHour, Integer durationMin) {
         this.userNo = userNo;
         this.introduce = introduce;
         this.lessonCategory = lessonCategory;
