@@ -15,10 +15,7 @@ public class TutorHoliday {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tutorHolidayNo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tutor_profile_no", nullable = false)
-    private TutorProfile tutorProfile;
+    private Long tutorProfileNo;
     private LocalDate startHolidayDate;
     private LocalDate endHolidayDate;
     private String reason;
@@ -26,9 +23,9 @@ public class TutorHoliday {
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-    public TutorHoliday(Long tutorHolidayNo, TutorProfile tutorProfile, LocalDate startHolidayDate, LocalDate endHolidayDate, String reason, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public TutorHoliday(Long tutorHolidayNo, Long tutorProfileNo, LocalDate startHolidayDate, LocalDate endHolidayDate, String reason, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.tutorHolidayNo = tutorHolidayNo;
-        this.tutorProfile = tutorProfile;
+        this.tutorProfileNo = tutorProfileNo;
         this.startHolidayDate = startHolidayDate;
         this.endHolidayDate = endHolidayDate;
         this.reason = reason;

@@ -3,6 +3,7 @@ package com.tunit.domain.tutor.service;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,5 +19,9 @@ public class TutorProfileService {
         TutorProfile save = tutorProfileRepository.save(tutorProfile);
 
         return save.getTutorProfileNo();
+    }
+
+    public TutorProfile findByUserNo(@NonNull Long userNo) {
+        return tutorProfileRepository.findByUserNo(userNo);
     }
 }

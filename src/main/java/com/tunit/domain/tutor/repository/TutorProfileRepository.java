@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TutorProfileRepository extends JpaRepository<TutorProfile, Long> {
+    TutorProfile findByUserNo(Long userNo);
 }

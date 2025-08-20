@@ -20,7 +20,7 @@ public class TutorProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tutorProfileNo;
-    private Integer userNo;
+    private Long userNo;
     private String introduce;
     private LessonCategory lessonCategory;
 
@@ -39,7 +39,7 @@ public class TutorProfile {
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-    public TutorProfile(Long tutorProfileNo, Integer userNo, String introduce, LessonCategory lessonCategory, List<TutorLessons> tutorLessons, List<TutorRegion> tutorRegions,
+    public TutorProfile(Long tutorProfileNo, Long userNo, String introduce, LessonCategory lessonCategory, List<TutorLessons> tutorLessons, List<TutorRegion> tutorRegions,
                         Integer careerYears, Integer pricePerHour, Integer durationMin, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.tutorProfileNo = tutorProfileNo;
         this.userNo = userNo;
