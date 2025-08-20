@@ -1,0 +1,31 @@
+package com.tunit.domain.user.controller;
+
+import com.tunit.domain.user.define.UserProvider;
+import com.tunit.domain.user.entity.User;
+import com.tunit.domain.user.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        String providerId = attributes.get("id").toString();
+
+        User user = userService.getUserProviderInfo(User.findFrom(UserProvider.NAVER, providerId));
+        return ResponseEntity.ok(user);
+    }
+}
