@@ -1,29 +1,24 @@
 package com.tunit.domain.tutor.service;
 
 import com.tunit.domain.tutor.dto.TutorAvailableTimeSaveDto;
-import com.tunit.domain.tutor.dto.TutorHolidaySaveDto;
+import com.tunit.domain.tutor.dto.TutorAvailableTimeUpdateDto;
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
-import com.tunit.domain.tutor.entity.TutorHoliday;
+import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
-import com.tunit.domain.tutor.repository.TutorHolidayRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class TutorLessonTimeService {
+public class TutorAvailableTimeService {
 
     private final TutorProfileService tutorProfileService;
     private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
-    private final TutorHolidayRepository tutorHolidayRepository;
 
     @Transactional
     public void saveAvailableTime(@NonNull Long userNo, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {
@@ -37,6 +32,54 @@ public class TutorLessonTimeService {
         validateAvailableTimeList(list);
         tutorAvailableTimeRepository.saveAll(list);
     }
+
+    @Transactional
+    public void deleteAvailableTime(@NonNull Long userNo, List<Long> tutorAvailableTimeNos) {
+        if (tutorAvailableTimeNos.isEmpty()) {
+            throw new TutorProfileException("삭제할 수업 정보를 선택해주세요.");
+        }
+
+        TutorProfile tutorProfile = tutorProfileService.findByUserNo(userNo);
+        if (!tutorAvailableTimeRepository.existsByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfile.getTutorProfileNo(), tutorAvailableTimeNos)) {
+            throw new TutorProfileException("존재하지 않는 시간대입니다.");
+        }
+
+        tutorAvailableTimeRepository.deleteAllByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfile.getTutorProfileNo(), tutorAvailableTimeNos);
+    }
+
+    @Transactional
+    public void updateAvailableTime(@NonNull Long userNo, TutorAvailableTimeUpdateDto updateDto) {
+        TutorProfile tutorProfile = tutorProfileService.findByUserNo(userNo);
+        Long tutorProfileNo = tutorProfile.getTutorProfileNo();
+
+        TutorAvailableTime time = getTutorAvailableTime(updateDto.getTutorAvailableTimeNo());
+
+        time.validateTime();
+
+        // 2. 겹치는 시간대가 있는지 확인 (본인 것만)
+        boolean overlaps = tutorAvailableTimeRepository.existsOverlappingTime(
+                tutorProfileNo,
+                updateDto.getDayOfWeek(),
+                updateDto.getStartTime(),
+                updateDto.getEndTime(),
+                updateDto.getTutorAvailableTimeNo()
+        );
+        if (overlaps) {
+            throw new TutorProfileException("겹치는 시간대가 이미 존재합니다.");
+        }
+
+        time.update(
+                updateDto.getDayOfWeek(),
+                updateDto.getStartTime(),
+                updateDto.getEndTime()
+        );
+    }
+
+    public TutorAvailableTime getTutorAvailableTime(Long tutorAvailableTimeNo) {
+        return tutorAvailableTimeRepository.findById(tutorAvailableTimeNo)
+                .orElseThrow(() -> new TutorProfileException("존재하지 않는 시간대입니다."));
+    }
+
 
     private void validateAvailableTimeList(List<TutorAvailableTime> list) {
         for (int i = 0; i < list.size(); i++) {
@@ -59,14 +102,6 @@ public class TutorLessonTimeService {
     public List<TutorAvailableTime> findAvailableTimeByUserNo(Long userNo) {
         Long tutorProfileNo = tutorProfileService.findByUserNo(userNo).getTutorProfileNo();
         return tutorAvailableTimeRepository.findAllByTutorProfileNo(tutorProfileNo);
-    }
-
-    @Transactional
-    public void saveHoliday(@NonNull Long userNo, List<TutorHolidaySaveDto> tutorHolidaySaveDtoList) {
-        Long tutorProfileNo = tutorProfileService.findByUserNo(userNo).getTutorProfileNo();
-
-        List<TutorHoliday> list = tutorHolidaySaveDtoList.stream().map(dto -> dto.toEntity(tutorProfileNo)).toList();
-        tutorHolidayRepository.saveAll(list);
     }
 
 }

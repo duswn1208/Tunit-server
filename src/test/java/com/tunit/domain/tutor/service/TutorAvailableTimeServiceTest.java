@@ -21,10 +21,10 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class TutorLessonTimeServiceTest {
+class TutorAvailableTimeServiceTest {
 
     @Autowired
-    private TutorLessonTimeService tutorLessonTimeService;
+    private TutorAvailableTimeService tutorAvailableTimeService;
 
     @MockitoBean
     private TutorProfileService tutorProfileService;
@@ -49,10 +49,10 @@ class TutorLessonTimeServiceTest {
         });
 
         //when
-        tutorLessonTimeService.saveAvailableTime(1L, saveDtos);
+        tutorAvailableTimeService.saveAvailableTime(1L, saveDtos);
 
         // then
-        List<TutorAvailableTime> savedTimes = tutorLessonTimeService.findAvailableTimeByUserNo(1L);
+        List<TutorAvailableTime> savedTimes = tutorAvailableTimeService.findAvailableTimeByUserNo(1L);
 
         assertEquals(7, savedTimes.size()); // 요일 수만큼 저장되었는지 확인
         assertTrue(savedTimes.stream().allMatch(t ->
@@ -80,7 +80,7 @@ class TutorLessonTimeServiceTest {
 
         //when & then
         assertThrows(TutorProfileException.class, () -> {
-            tutorLessonTimeService.saveAvailableTime(1L, saveDtos);
+            tutorAvailableTimeService.saveAvailableTime(1L, saveDtos);
         });
     }
 
@@ -108,11 +108,57 @@ class TutorLessonTimeServiceTest {
 
         //when & then
         assertThrows(TutorProfileException.class, () -> {
-            tutorLessonTimeService.saveAvailableTime(1L, saveDtos);
+            tutorAvailableTimeService.saveAvailableTime(1L, saveDtos);
         });
     }
 
     @Test
-    void saveHoliday() {
+    @DisplayName("삭제 성공 - 존재하는 시간대 삭제")
+    void deleteAvailableTime_success() {
+        //given
+        TutorProfile tutorProfile = TutorProfile.of()
+                .userNo(1L)
+                .tutorProfileNo(1L)
+                .build();
+        when(tutorProfileService.findByUserNo(any())).thenReturn(tutorProfile);
+
+        List<TutorAvailableTimeSaveDto> saveDtos = new ArrayList<>();
+        Arrays.stream(DayOfWeek.values()).forEach(dayOfWeek -> {
+            TutorAvailableTimeSaveDto build = TutorAvailableTimeSaveDto.of()
+                    .dayOfWeek(dayOfWeek)
+                    .startTime(LocalTime.MIN)
+                    .endTime(LocalTime.MAX)
+                    .build();
+            saveDtos.add(build);
+        });
+        tutorAvailableTimeService.saveAvailableTime(1L, saveDtos);
+
+        List<Long> deleteNos = new ArrayList<>();
+        deleteNos.add(tutorAvailableTimeService.findAvailableTimeByUserNo(1L).get(0).getTutorAvailableTimeNo());
+
+        //when
+        tutorAvailableTimeService.deleteAvailableTime(1L, deleteNos);
+
+        // then
+        assertEquals(6, tutorAvailableTimeService.findAvailableTimeByUserNo(1L).size());
+    }
+
+    @Test
+    @DisplayName("삭제 실패 - 존재하지 않는 시간대 삭제 시도")
+    void deleteAvailableTime_fail_notExist() {
+        //given
+        TutorProfile tutorProfile = TutorProfile.of()
+                .userNo(1L)
+                .tutorProfileNo(1L)
+                .build();
+        when(tutorProfileService.findByUserNo(any())).thenReturn(tutorProfile);
+
+        List<Long> deleteNos = new ArrayList<>();
+        deleteNos.add(999L); // 존재하지 않는 시간대 번호
+
+        //when & then
+        assertThrows(TutorProfileException.class, () -> {
+            tutorAvailableTimeService.deleteAvailableTime(1L, deleteNos);
+        });
     }
 }

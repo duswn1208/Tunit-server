@@ -48,4 +48,12 @@ public class TutorAvailableTime {
             throw new TutorProfileException("수업 가능 시간은 최소 30분 이상이어야 합니다.");
         }
     }
+
+    public void update(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

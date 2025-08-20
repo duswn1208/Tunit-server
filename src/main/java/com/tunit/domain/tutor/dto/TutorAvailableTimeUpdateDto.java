@@ -6,28 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
 @NoArgsConstructor
-public class TutorAvailableTimeSaveDto {
+public class TutorAvailableTimeUpdateDto {
+    private Long tutorAvailableTimeNo;
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
 
     @Builder(builderMethodName = "of")
-    public TutorAvailableTimeSaveDto(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    public TutorAvailableTimeUpdateDto(Long tutorAvailableTimeNo, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.tutorAvailableTimeNo = tutorAvailableTimeNo;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public TutorAvailableTime toEntity(Long tutorProfileNo) {
-        return TutorAvailableTime.of()
-                .tutorProfileNo(tutorProfileNo)
-                .dayOfWeek(dayOfWeek)
-                .startTime(startTime)
-                .endTime(endTime)
-                .build();
-    }
 }
