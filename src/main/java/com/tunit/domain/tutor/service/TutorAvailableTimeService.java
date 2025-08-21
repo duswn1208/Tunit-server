@@ -1,7 +1,9 @@
 package com.tunit.domain.tutor.service;
 
+import com.tunit.domain.tutor.dto.TutorAvailableTimeResponseDto;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeSaveDto;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeUpdateDto;
+import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
@@ -16,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TutorAvailableTimeService {
 
-    private final TutorProfileService tutorProfileService;
     private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
 
     @Transactional
@@ -96,4 +97,10 @@ public class TutorAvailableTimeService {
         return tutorAvailableTimeRepository.findAllByTutorProfileNo(tutorProfileNo);
     }
 
+    public List<TutorAvailableTimeResponseDto> findByTutorProfileNo(@NonNull Long tutorProfileNo) {
+        return tutorAvailableTimeRepository.findAllByTutorProfileNo(tutorProfileNo)
+                .stream()
+                .map(TutorAvailableTimeResponseDto::from)
+                .toList();
+    }
 }
