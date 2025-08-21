@@ -1,10 +1,10 @@
 package com.tunit.domain.lesson.define;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum LessonSubCategory {
@@ -32,6 +32,12 @@ public enum LessonSubCategory {
     COOKING("요리", LessonCategory.COOKING),
     ;
 
-    private final String title;
+    private final String label;
+
+    @JsonIgnore
+    @Getter
     private final LessonCategory parent;
+
+    public String getCode() { return name(); }
+    public String getLabel() { return label; }
 }
