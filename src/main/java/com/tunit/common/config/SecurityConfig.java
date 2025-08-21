@@ -5,6 +5,7 @@ import com.tunit.domain.user.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,6 +24,9 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()   // ✅ preflight 허용
+                        .requestMatchers("/api/lessons/**").permitAll()           // ✅ 공개 조회
+                        .requestMatchers("/api/regions/**").permitAll()           // ✅ 공개 조회
                         .requestMatchers("/", "/login/**", "/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )

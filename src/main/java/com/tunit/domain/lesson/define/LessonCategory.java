@@ -1,6 +1,7 @@
 package com.tunit.domain.lesson.define;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-@Getter
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum LessonCategory {
@@ -25,7 +25,10 @@ public enum LessonCategory {
     OTHER("기타"),
     ;
 
-    private final String title;
+    private final String label;
+
+    public String getCode() { return name(); }
+    public String getLabel() { return label; }
 
     public List<LessonSubCategory> getSubCategories() {
         return Arrays.stream(LessonSubCategory.values())
@@ -33,6 +36,7 @@ public enum LessonCategory {
                 .toList();
     }
 
+    @JsonIgnore
     public static LessonCategory fromCode(String code) {
             try { return LessonCategory.valueOf(code.toUpperCase(Locale.ROOT)); }
             catch (IllegalArgumentException e) {
