@@ -1,8 +1,10 @@
 package com.tunit.domain.tutor.entity;
 
-import com.tunit.domain.tutor.dto.TutorAvailableTimeSaveDto;
 import com.tunit.domain.tutor.exception.TutorProfileException;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +30,7 @@ public class TutorAvailableTime {
 
     @Builder(builderMethodName = "of")
     private TutorAvailableTime(Long tutorAvailableTimeNo, Long tutorProfileNo, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime,
-                              LocalDateTime createdAt, LocalDateTime updatedAt) {
+                               LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.tutorAvailableTimeNo = tutorAvailableTimeNo;
         this.tutorProfileNo = tutorProfileNo;
         this.dayOfWeek = dayOfWeek;
