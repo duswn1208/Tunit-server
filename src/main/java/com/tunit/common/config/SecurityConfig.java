@@ -1,5 +1,6 @@
 package com.tunit.common.config;
 
+import com.tunit.common.handler.CustomOAuth2SuccessHandler;
 import com.tunit.domain.user.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -27,7 +29,9 @@ public class SecurityConfig {
                 .oauth2Login(oauth -> oauth
                         .defaultSuccessUrl("/api/users/me", true)
                         .userInfoEndpoint(info -> info
-                                .userService(customOAuth2UserService)));
+                                .userService(customOAuth2UserService))
+                        .successHandler(customOAuth2SuccessHandler)
+                );
 
         return http.build();
     }

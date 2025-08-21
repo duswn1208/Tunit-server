@@ -1,6 +1,6 @@
 package com.tunit.domain.tutor.entity;
 
-import com.tunit.domain.tutor.define.LessonSubcategory;
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,12 +21,12 @@ public class TutorLessons {
     @JoinColumn(name = "tutor_profile_no", nullable = false)
     private TutorProfile tutorProfile;
 
-    private LessonSubcategory lessonSubCategory;
+    private LessonSubCategory lessonSubCategory;
     private Boolean isMain;
     private LocalDateTime createdAt;
 
     @Builder(builderMethodName = "of")
-    public TutorLessons(Integer tutorLessonNo, TutorProfile tutorProfile, LessonSubcategory lessonSubCategory, Boolean isMain, LocalDateTime createdAt) {
+    public TutorLessons(Integer tutorLessonNo, TutorProfile tutorProfile, LessonSubCategory lessonSubCategory, Boolean isMain, LocalDateTime createdAt) {
         this.tutorLessonNo = tutorLessonNo;
         this.tutorProfile = tutorProfile;
         this.lessonSubCategory = lessonSubCategory;
@@ -34,7 +34,7 @@ public class TutorLessons {
         this.createdAt = createdAt;
     }
 
-    public static TutorLessons saveFrom(TutorProfile tutorProfile, LessonSubcategory lessonSubCategory) {
+    public static TutorLessons saveFrom(TutorProfile tutorProfile, LessonSubCategory lessonSubCategory) {
         return TutorLessons.of()
                 .tutorProfile(tutorProfile)
                 .lessonSubCategory(lessonSubCategory)

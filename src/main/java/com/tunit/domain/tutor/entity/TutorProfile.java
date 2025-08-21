@@ -1,6 +1,6 @@
 package com.tunit.domain.tutor.entity;
 
-import com.tunit.domain.tutor.define.LessonCategory;
+import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import jakarta.persistence.*;
@@ -66,7 +66,7 @@ public class TutorProfile {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        List<TutorLessons> tutorLessons = tutorProfileSaveDto.getLessonSubcategoryList().stream()
+        List<TutorLessons> tutorLessons = tutorProfileSaveDto.getLessonSubCategoryList().stream()
                 .map(sub -> TutorLessons.saveFrom(tutorProfile, sub))
                 .toList();
         tutorProfile.setTutorLessons(tutorLessons);
