@@ -17,7 +17,7 @@ public class UserService {
                 .orElseThrow(UserException::new);
     }
 
-    public void saveUser(User user) {
-        userRepository.save(user);
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 }
