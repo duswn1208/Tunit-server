@@ -3,7 +3,6 @@ package com.tunit.domain.tutor.service;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeSaveDto;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeUpdateDto;
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
-import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
 import lombok.NonNull;
@@ -21,12 +20,10 @@ public class TutorAvailableTimeService {
     private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
 
     @Transactional
-    public void saveAvailableTime(@NonNull Long userNo, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {
+    public void saveAvailableTime(@NonNull Long tutorProfileNo, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {
         if (tutorAvailableTimeSaveDtoList.isEmpty()) {
             throw new TutorProfileException("수업 가능 시간을 하나 이상 등록해야 합니다.");
         }
-
-        Long tutorProfileNo = tutorProfileService.findByUserNo(userNo).getTutorProfileNo();
 
         List<TutorAvailableTime> list = tutorAvailableTimeSaveDtoList.stream().map(dto -> dto.toEntity(tutorProfileNo)).toList();
         validateAvailableTimeList(list);
@@ -34,24 +31,20 @@ public class TutorAvailableTimeService {
     }
 
     @Transactional
-    public void deleteAvailableTime(@NonNull Long userNo, List<Long> tutorAvailableTimeNos) {
+    public void deleteAvailableTime(@NonNull Long tutorProfileNo, List<Long> tutorAvailableTimeNos) {
         if (tutorAvailableTimeNos.isEmpty()) {
             throw new TutorProfileException("삭제할 수업 정보를 선택해주세요.");
         }
 
-        TutorProfile tutorProfile = tutorProfileService.findByUserNo(userNo);
-        if (!tutorAvailableTimeRepository.existsByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfile.getTutorProfileNo(), tutorAvailableTimeNos)) {
+        if (!tutorAvailableTimeRepository.existsByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfileNo, tutorAvailableTimeNos)) {
             throw new TutorProfileException("존재하지 않는 시간대입니다.");
         }
 
-        tutorAvailableTimeRepository.deleteAllByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfile.getTutorProfileNo(), tutorAvailableTimeNos);
+        tutorAvailableTimeRepository.deleteAllByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfileNo, tutorAvailableTimeNos);
     }
 
     @Transactional
-    public void updateAvailableTime(@NonNull Long userNo, TutorAvailableTimeUpdateDto updateDto) {
-        TutorProfile tutorProfile = tutorProfileService.findByUserNo(userNo);
-        Long tutorProfileNo = tutorProfile.getTutorProfileNo();
-
+    public void updateAvailableTime(@NonNull Long tutorProfileNo, TutorAvailableTimeUpdateDto updateDto) {
         TutorAvailableTime time = getTutorAvailableTime(updateDto.getTutorAvailableTimeNo());
 
         time.validateTime();
@@ -99,8 +92,7 @@ public class TutorAvailableTimeService {
         }
     }
 
-    public List<TutorAvailableTime> findAvailableTimeByUserNo(Long userNo) {
-        Long tutorProfileNo = tutorProfileService.findByUserNo(userNo).getTutorProfileNo();
+    public List<TutorAvailableTime> findAvailableTimeByTutorProfileNo(Long tutorProfileNo) {
         return tutorAvailableTimeRepository.findAllByTutorProfileNo(tutorProfileNo);
     }
 

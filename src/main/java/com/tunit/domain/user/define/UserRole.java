@@ -8,5 +8,17 @@ import lombok.RequiredArgsConstructor;
 public enum UserRole {
     TUTOR,
     STUDENT,
+    ADMIN,
     ;
+
+    public boolean isTutor() {
+        return this == TUTOR;
+    }
+    public boolean isStudent() {
+        return this == STUDENT;
+    }
+    public boolean isAdmin() {
+        return this == ADMIN;
+    }
+
 }

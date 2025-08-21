@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.DayOfWeek;
@@ -30,6 +31,7 @@ class TutorAvailableTimeServiceTest {
     private TutorProfileService tutorProfileService;
 
     @Test
+    @Rollback
     void saveAvailableTime() {
         //given
         TutorProfile tutorProfile = TutorProfile.of()
@@ -42,8 +44,8 @@ class TutorAvailableTimeServiceTest {
         Arrays.stream(DayOfWeek.values()).forEach(dayOfWeek -> {
             TutorAvailableTimeSaveDto build = TutorAvailableTimeSaveDto.of()
                     .dayOfWeek(dayOfWeek)
-                    .startTime(LocalTime.NOON)
-                    .endTime(LocalTime.MIDNIGHT)
+                    .startTime(LocalTime.of(12, 0))
+                    .endTime(LocalTime.of(17, 0))
                     .build();
             saveDtos.add(build);
         });
@@ -52,17 +54,18 @@ class TutorAvailableTimeServiceTest {
         tutorAvailableTimeService.saveAvailableTime(1L, saveDtos);
 
         // then
-        List<TutorAvailableTime> savedTimes = tutorAvailableTimeService.findAvailableTimeByUserNo(1L);
+        List<TutorAvailableTime> savedTimes = tutorAvailableTimeService.findAvailableTimeByTutorProfileNo(1L);
 
         assertEquals(7, savedTimes.size()); // 요일 수만큼 저장되었는지 확인
         assertTrue(savedTimes.stream().allMatch(t ->
-                t.getStartTime().equals(LocalTime.NOON) &&
-                        t.getEndTime().equals(LocalTime.MIDNIGHT)
+                t.getStartTime().equals(LocalTime.of(12, 0)) &&
+                        t.getEndTime().equals(LocalTime.of(17, 0))
         ));
     }
 
     @Test
     @DisplayName("저장 실패 - 시작 시간이 끝 시간보다 늦으면 안됨")
+    @Rollback
     void saveAvailableTime_fail_startAfterEnd() {
         //given
         TutorProfile tutorProfile = TutorProfile.of()
@@ -86,6 +89,7 @@ class TutorAvailableTimeServiceTest {
 
     @Test
     @DisplayName("저장 실패 - 같은 요일의 시간이 겹치면 안됨")
+    @Rollback
     void saveAvailableTime_fail_overlap() {
         //given
         TutorProfile tutorProfile = TutorProfile.of()
@@ -114,6 +118,7 @@ class TutorAvailableTimeServiceTest {
 
     @Test
     @DisplayName("삭제 성공 - 존재하는 시간대 삭제")
+    @Rollback
     void deleteAvailableTime_success() {
         //given
         TutorProfile tutorProfile = TutorProfile.of()
@@ -134,17 +139,18 @@ class TutorAvailableTimeServiceTest {
         tutorAvailableTimeService.saveAvailableTime(1L, saveDtos);
 
         List<Long> deleteNos = new ArrayList<>();
-        deleteNos.add(tutorAvailableTimeService.findAvailableTimeByUserNo(1L).get(0).getTutorAvailableTimeNo());
+        deleteNos.add(tutorAvailableTimeService.findAvailableTimeByTutorProfileNo(1L).get(0).getTutorAvailableTimeNo());
 
         //when
         tutorAvailableTimeService.deleteAvailableTime(1L, deleteNos);
 
         // then
-        assertEquals(6, tutorAvailableTimeService.findAvailableTimeByUserNo(1L).size());
+        assertEquals(6, tutorAvailableTimeService.findAvailableTimeByTutorProfileNo(1L).size());
     }
 
     @Test
     @DisplayName("삭제 실패 - 존재하지 않는 시간대 삭제 시도")
+    @Rollback
     void deleteAvailableTime_fail_notExist() {
         //given
         TutorProfile tutorProfile = TutorProfile.of()

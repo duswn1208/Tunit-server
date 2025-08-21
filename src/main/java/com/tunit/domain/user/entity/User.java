@@ -17,9 +17,10 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userNo;
+    private Long userNo;
     private String userId;
     private String name;
+    private String nickname;
     private String phone;
     private UserProvider provider;
     private String providerId;
@@ -31,11 +32,12 @@ public class User {
 
     @Builder(builderMethodName = "of")
 
-    public User(Integer userNo, String userId, String name, String phone,
+    public User(Long userNo, String userId, String name, String nickname, String phone,
                 UserProvider provider, String providerId, Boolean isPhoneVerified, UserStatus userStatus, UserRole userRole, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userNo = userNo;
         this.userId = userId;
         this.name = name;
+        this.nickname = nickname;
         this.phone = phone;
         this.provider = provider;
         this.providerId = providerId;
@@ -53,6 +55,7 @@ public class User {
                 .provider(UserProvider.NAVER)
                 .providerId(providerId)
                 .name(name)
+                .nickname(name)
                 .phone(phone)
                 .isPhoneVerified(false)
                 .userStatus(UserStatus.ACTIVE)

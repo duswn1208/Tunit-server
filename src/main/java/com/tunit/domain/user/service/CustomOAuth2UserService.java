@@ -1,8 +1,11 @@
 package com.tunit.domain.user.service;
 
+import com.tunit.common.session.dto.SessionUser;
+import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.entity.User;
 import com.tunit.domain.user.exception.UserException;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +25,9 @@ import java.util.Map;
 @Slf4j
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    private final HttpSession httpSession;
     private final UserService userService;
+    private final TutorProfileService tutorProfileService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -37,11 +42,21 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String phone = (String) response.get("mobile");
 
         log.info("OAuth2User loaded: provider={}, providerId={}, name={}", provider, providerId, name);
+        User user;
+        Long tutorProfileNo = null;
         try {
-            userService.getUserProviderInfo(User.findFrom(UserProvider.NAVER, providerId));
+            user = userService.getUserProviderInfo(User.findFrom(UserProvider.NAVER, providerId));
+
+            if (user.getUserRole().isTutor()) {
+                tutorProfileNo = tutorProfileService.findByUserNo(user.getUserNo()).getTutorProfileNo();
+
+            }
+
         } catch (UserException e) {
-            userService.saveUser(User.saveOAuthNaver(name, phone, providerId));
+            user = userService.saveUser(User.saveOAuthNaver(name, phone, providerId));
         }
+
+        httpSession.setAttribute("LOGIN_USER", new SessionUser(user, tutorProfileNo));
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                 response,

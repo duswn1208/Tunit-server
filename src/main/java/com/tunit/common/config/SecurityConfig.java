@@ -1,4 +1,4 @@
-package com.tunit.common.security;
+package com.tunit.common.config;
 
 import com.tunit.domain.user.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
