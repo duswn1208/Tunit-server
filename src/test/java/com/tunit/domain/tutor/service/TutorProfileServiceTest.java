@@ -1,7 +1,7 @@
 package com.tunit.domain.tutor.service;
 
-import com.tunit.domain.tutor.define.LessonCategory;
-import com.tunit.domain.tutor.define.LessonSubcategory;
+import com.tunit.domain.lesson.define.LessonCategory;
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.entity.TutorRegion;
@@ -34,7 +34,7 @@ class TutorProfileServiceTest {
                 .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
-                .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))
+                .lessonSubCategoryList(List.of(LessonSubCategory.BASE, LessonSubCategory.GUITAR))
                 .regionList(List.of("Seoul", "Seongnam"))
                 .careerYears(5)
                 .pricePerHour(30000)
@@ -47,7 +47,7 @@ class TutorProfileServiceTest {
         var savedProfile = tutorProfileRepository.findById(tutorProfileNo);
         assertTrue(savedProfile.isPresent());
 
-        Assertions.assertEquals(savedProfile.get().getTutorLessons().stream().map(TutorLessons::getLessonSubCategory).toList(), tutorProfileSaveDto.getLessonSubcategoryList());
+        Assertions.assertEquals(savedProfile.get().getTutorLessons().stream().map(TutorLessons::getLessonSubCategory).toList(), tutorProfileSaveDto.getLessonSubCategoryList());
         Assertions.assertEquals(savedProfile.get().getTutorRegions().stream().map(TutorRegion::getRegion).toList(), tutorProfileSaveDto.getRegionList());
     }
 
@@ -59,7 +59,7 @@ class TutorProfileServiceTest {
                 .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
-                .lessonSubcategoryList(List.of())
+                .lessonSubCategoryList(List.of())
                 .regionList(List.of("Seoul", "Seongnam"))
                 .careerYears(5)
                 .pricePerHour(30000)
@@ -79,7 +79,7 @@ class TutorProfileServiceTest {
                 .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
-                .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))
+                .lessonSubCategoryList(List.of(LessonSubCategory.BASE, LessonSubCategory.GUITAR))
                 .regionList(List.of())
                 .careerYears(5)
                 .pricePerHour(30000)
@@ -98,7 +98,7 @@ class TutorProfileServiceTest {
                 .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
-                .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))
+                .lessonSubCategoryList(List.of(LessonSubCategory.BASE, LessonSubCategory.GUITAR))
                 .regionList(List.of("Seoul", "Seongnam"))
                 .careerYears(5)
                 .pricePerHour(30000)
@@ -118,7 +118,7 @@ class TutorProfileServiceTest {
                 .userNo(1L)
                 .introduce("Test Tutor")
                 .lessonCategory(LessonCategory.INSTRUMENT)
-                .lessonSubcategoryList(List.of(LessonSubcategory.BASE, LessonSubcategory.GUITAR))
+                .lessonSubCategoryList(List.of(LessonSubCategory.BASE, LessonSubCategory.GUITAR))
                 .regionList(List.of("Seoul", "Seongnam"))
                 .careerYears(5)
                 .pricePerHour(30000)

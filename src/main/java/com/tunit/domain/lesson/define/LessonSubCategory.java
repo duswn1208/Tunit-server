@@ -1,11 +1,13 @@
-package com.tunit.domain.tutor.define;
+package com.tunit.domain.lesson.define;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum LessonSubcategory {
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+public enum LessonSubCategory {
 
     PT("1:1 PT", LessonCategory.EXERCISE),
     GROUP_PT("그룹 PT", LessonCategory.EXERCISE),
@@ -31,5 +33,5 @@ public enum LessonSubcategory {
     ;
 
     private final String title;
-    private final LessonCategory firstLessonCategory;
+    private final LessonCategory parent;
 }

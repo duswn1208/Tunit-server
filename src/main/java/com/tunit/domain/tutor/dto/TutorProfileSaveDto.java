@@ -1,7 +1,7 @@
 package com.tunit.domain.tutor.dto;
 
-import com.tunit.domain.tutor.define.LessonCategory;
-import com.tunit.domain.tutor.define.LessonSubcategory;
+import com.tunit.domain.lesson.define.LessonCategory;
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ public class TutorProfileSaveDto {
     private Long userNo;
     private String introduce;
     private LessonCategory lessonCategory;
-    private List<LessonSubcategory> lessonSubcategoryList;
+    private List<LessonSubCategory> lessonSubCategoryList;
     private List<String> regionList;
     private Integer careerYears;
     private Integer pricePerHour;
@@ -24,12 +24,12 @@ public class TutorProfileSaveDto {
     private List<TutorHolidaySaveDto> tutorHolidaySaveDtoList;
 
     @Builder(builderMethodName = "of")
-    public TutorProfileSaveDto(Long userNo, String introduce, LessonCategory lessonCategory, List<LessonSubcategory> lessonSubcategoryList, List<String> regionList,
+    public TutorProfileSaveDto(Long userNo, String introduce, LessonCategory lessonCategory, List<LessonSubCategory> lessonSubCategoryList, List<String> regionList,
                                Integer careerYears, Integer pricePerHour, Integer durationMin, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList, List<TutorHolidaySaveDto> tutorHolidaySaveDtoList) {
         this.userNo = userNo;
         this.introduce = introduce;
         this.lessonCategory = lessonCategory;
-        this.lessonSubcategoryList = lessonSubcategoryList;
+        this.lessonSubCategoryList = lessonSubCategoryList;
         this.regionList = regionList;
         this.careerYears = careerYears;
         this.pricePerHour = pricePerHour;

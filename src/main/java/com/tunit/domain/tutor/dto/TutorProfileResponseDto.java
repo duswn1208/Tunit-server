@@ -1,6 +1,6 @@
 package com.tunit.domain.tutor.dto;
 
-import com.tunit.domain.tutor.define.LessonCategory;
+import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
