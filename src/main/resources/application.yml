@@ -3,7 +3,10 @@ server:
   servlet:
     session:
       cookie:
-        same-site: none
+#        로컬 환경에서만 적용
+        same-site: Lax
+        secure: false
+        http-only: true
 
 logging:
   level:
@@ -46,6 +49,7 @@ spring:
               - name
               - email
             client-name: Naver
+            client-authentication-method: client_secret_post
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
