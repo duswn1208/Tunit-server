@@ -1,8 +1,8 @@
 package com.tunit.domain.tutor.service;
 
-import com.tunit.domain.tutor.dto.TutorHolidayResponseDto;
-import com.tunit.domain.tutor.dto.TutorHolidaySaveDto;
-import com.tunit.domain.tutor.repository.TutorHolidayRepository;
+import com.tunit.domain.tutor.dto.TutorAvailExceptionResponseDto;
+import com.tunit.domain.tutor.dto.TutorAvailExceptionSaveDto;
+import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,15 +14,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TutorHolidayService {
 
-    private final TutorHolidayRepository tutorHolidayRepository;
+    private final TutorAvailExceptionRepository tutorAvailExceptionRepository;
 
     @Transactional
-    public void saveHoliday(Long tutorProfileNo, List<TutorHolidaySaveDto> tutorHolidaySaveDtoList) {
-        if (tutorHolidaySaveDtoList.isEmpty()) {
+    public void saveHoliday(Long tutorProfileNo, List<TutorAvailExceptionSaveDto> tutorAvailExceptionSaveDtoList) {
+        if (tutorAvailExceptionSaveDtoList.isEmpty()) {
             throw new IllegalArgumentException("휴일 정보가 없습니다.");
         }
 
-        tutorHolidayRepository.saveAll(tutorHolidaySaveDtoList.stream()
+        tutorAvailExceptionRepository.saveAll(tutorAvailExceptionSaveDtoList.stream()
                 .map(dto -> dto.toEntity(tutorProfileNo))
                 .toList());
     }
@@ -32,10 +32,10 @@ public class TutorHolidayService {
 
     }
 
-    public List<TutorHolidayResponseDto> findByTutorProfileNo(@NonNull Long tutorProfileNo) {
-        return tutorHolidayRepository.findByTutorProfileNo(tutorProfileNo)
+    public List<TutorAvailExceptionResponseDto> findByTutorProfileNo(@NonNull Long tutorProfileNo) {
+        return tutorAvailExceptionRepository.findByTutorProfileNo(tutorProfileNo)
                 .stream()
-                .map(TutorHolidayResponseDto::from)
+                .map(TutorAvailExceptionResponseDto::from)
                 .toList();
     }
 }

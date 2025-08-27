@@ -21,12 +21,12 @@ public interface TutorAvailableTimeRepository extends JpaRepository<TutorAvailab
                 FROM TutorAvailableTime t
                 WHERE t.tutorAvailableTimeNo <> :excludeId
                   AND t.tutorProfileNo = :tutorProfileNo
-                  AND t.dayOfWeek = :dayOfWeek
+                  AND t.dayOfWeekNum = :dayOfWeekNum
                   AND t.startTime < :endTime
                   AND t.endTime > :startTime
             """)
     boolean existsOverlappingTime(@Param("tutorProfileNo") Long tutorProfileNo,
-                                  @Param("dayOfWeek") DayOfWeek dayOfWeek,
+                                  @Param("dayOfWeekNum") Integer dayOfWeekNum,
                                   @Param("startTime") LocalTime startTime,
                                   @Param("endTime") LocalTime endTime,
                                   @Param("excludeId") Long excludeId);
