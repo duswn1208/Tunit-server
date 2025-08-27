@@ -13,14 +13,14 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class TutorAvailableTimeUpdateDto {
     private Long tutorAvailableTimeNo;
-    private DayOfWeek dayOfWeek;
+    private Integer dayOfWeekNum;
     private LocalTime startTime;
     private LocalTime endTime;
 
     @Builder(builderMethodName = "of")
-    public TutorAvailableTimeUpdateDto(Long tutorAvailableTimeNo, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    public TutorAvailableTimeUpdateDto(Long tutorAvailableTimeNo, Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime) {
         this.tutorAvailableTimeNo = tutorAvailableTimeNo;
-        this.dayOfWeek = dayOfWeek;
+        this.dayOfWeekNum = dayOfWeekNum;
         this.startTime = startTime;
         this.endTime = endTime;
     }

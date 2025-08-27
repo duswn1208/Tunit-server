@@ -36,8 +36,8 @@ public class TutorProfileService {
             tutorAvailableTimeService.saveAvailableTime(save.getTutorProfileNo(), tutorProfileSaveDto.getTutorAvailableTimeSaveDtoList());
         }
 
-        if (!tutorProfileSaveDto.getTutorHolidaySaveDtoList().isEmpty()) {
-            tutorHolidayService.saveHoliday(save.getTutorProfileNo(), tutorProfileSaveDto.getTutorHolidaySaveDtoList());
+        if (!tutorProfileSaveDto.getTutorAvailExceptionSaveDtoList().isEmpty()) {
+            tutorHolidayService.saveHoliday(save.getTutorProfileNo(), tutorProfileSaveDto.getTutorAvailExceptionSaveDtoList());
         }
 
         return save.getTutorProfileNo();

@@ -15,12 +15,12 @@ public record TutorProfileResponseDto(
         List<TutorLessons> lessonSubcategoryList,
         List<TutorRegion> regionList,
         List<TutorAvailableTimeResponseDto> tutorAvailableTimeList,
-        List<TutorHolidayResponseDto> tutorHolidayList,
+        List<TutorAvailExceptionResponseDto> tutorHolidayList,
         Integer careerYears,
         Integer pricePerHour,
         Integer durationMin) {
 
-    public static TutorProfileResponseDto from(TutorProfile tutorProfile, List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList, List<TutorHolidayResponseDto> tutorHolidayResponseList) {
+    public static TutorProfileResponseDto from(TutorProfile tutorProfile, List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList, List<TutorAvailExceptionResponseDto> tutorHolidayResponseList) {
         return new TutorProfileResponseDto(
                 tutorProfile.getUserNo(),
                 tutorProfile.getTutorProfileNo(),

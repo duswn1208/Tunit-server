@@ -53,7 +53,7 @@ public class TutorAvailableTimeService {
         // 2. 겹치는 시간대가 있는지 확인 (본인 것만)
         boolean overlaps = tutorAvailableTimeRepository.existsOverlappingTime(
                 tutorProfileNo,
-                updateDto.getDayOfWeek(),
+                updateDto.getDayOfWeekNum(),
                 updateDto.getStartTime(),
                 updateDto.getEndTime(),
                 updateDto.getTutorAvailableTimeNo()
@@ -63,7 +63,7 @@ public class TutorAvailableTimeService {
         }
 
         time.update(
-                updateDto.getDayOfWeek(),
+                updateDto.getDayOfWeekNum(),
                 updateDto.getStartTime(),
                 updateDto.getEndTime()
         );
@@ -73,7 +73,6 @@ public class TutorAvailableTimeService {
         return tutorAvailableTimeRepository.findById(tutorAvailableTimeNo)
                 .orElseThrow(() -> new TutorProfileException("존재하지 않는 시간대입니다."));
     }
-
 
     private void validateAvailableTimeList(List<TutorAvailableTime> list) {
         for (int i = 0; i < list.size(); i++) {

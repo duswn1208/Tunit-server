@@ -22,6 +22,7 @@ public class TutorAvailableTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tutorAvailableTimeNo;
     private Long tutorProfileNo;
+    private Integer dayOfWeekNum;
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -29,10 +30,11 @@ public class TutorAvailableTime {
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-    private TutorAvailableTime(Long tutorAvailableTimeNo, Long tutorProfileNo, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime,
+    private TutorAvailableTime(Long tutorAvailableTimeNo, Long tutorProfileNo, Integer dayOfWeekNum, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime,
                                LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.tutorAvailableTimeNo = tutorAvailableTimeNo;
         this.tutorProfileNo = tutorProfileNo;
+        this.dayOfWeekNum = dayOfWeekNum;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -51,8 +53,9 @@ public class TutorAvailableTime {
         }
     }
 
-    public void update(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        this.dayOfWeek = dayOfWeek;
+    public void update(Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime) {
+        this.dayOfWeekNum = dayOfWeekNum;
+        this.dayOfWeek = DayOfWeek.of(dayOfWeekNum);
         this.startTime = startTime;
         this.endTime = endTime;
         this.updatedAt = LocalDateTime.now();

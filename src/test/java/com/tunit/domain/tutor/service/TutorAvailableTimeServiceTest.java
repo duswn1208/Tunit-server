@@ -43,7 +43,7 @@ class TutorAvailableTimeServiceTest {
         List<TutorAvailableTimeSaveDto> saveDtos = new ArrayList<>();
         Arrays.stream(DayOfWeek.values()).forEach(dayOfWeek -> {
             TutorAvailableTimeSaveDto build = TutorAvailableTimeSaveDto.of()
-                    .dayOfWeek(dayOfWeek)
+                    .dayOfWeekNum(dayOfWeek.getValue())
                     .startTime(LocalTime.of(12, 0))
                     .endTime(LocalTime.of(17, 0))
                     .build();
@@ -76,7 +76,7 @@ class TutorAvailableTimeServiceTest {
 
         List<TutorAvailableTimeSaveDto> saveDtos = new ArrayList<>();
         saveDtos.add(TutorAvailableTimeSaveDto.of()
-                .dayOfWeek(DayOfWeek.MONDAY)
+                .dayOfWeekNum(DayOfWeek.MONDAY.getValue())
                 .startTime(LocalTime.MAX)
                 .endTime(LocalTime.MIN)
                 .build());
@@ -100,12 +100,12 @@ class TutorAvailableTimeServiceTest {
 
         List<TutorAvailableTimeSaveDto> saveDtos = new ArrayList<>();
         saveDtos.add(TutorAvailableTimeSaveDto.of()
-                .dayOfWeek(DayOfWeek.MONDAY)
+                .dayOfWeekNum(DayOfWeek.MONDAY.getValue())
                 .startTime(LocalTime.NOON)
                 .endTime(LocalTime.MIDNIGHT.minusHours(5))
                 .build());
         saveDtos.add(TutorAvailableTimeSaveDto.of()
-                .dayOfWeek(DayOfWeek.MONDAY)
+                .dayOfWeekNum(DayOfWeek.MONDAY.getValue())
                 .startTime(LocalTime.NOON.plusHours(1))
                 .endTime(LocalTime.MIDNIGHT.minusHours(3))
                 .build());
@@ -130,7 +130,7 @@ class TutorAvailableTimeServiceTest {
         List<TutorAvailableTimeSaveDto> saveDtos = new ArrayList<>();
         Arrays.stream(DayOfWeek.values()).forEach(dayOfWeek -> {
             TutorAvailableTimeSaveDto build = TutorAvailableTimeSaveDto.of()
-                    .dayOfWeek(dayOfWeek)
+                    .dayOfWeekNum(dayOfWeek.getValue())
                     .startTime(LocalTime.MIN)
                     .endTime(LocalTime.MAX)
                     .build();
