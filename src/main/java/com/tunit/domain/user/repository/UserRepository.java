@@ -1,14 +1,14 @@
 package com.tunit.domain.user.repository;
 
 import com.tunit.domain.user.define.UserProvider;
-import com.tunit.domain.user.entity.User;
+import com.tunit.domain.user.entity.UserMain;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<UserMain, Long> {
 
-    Optional<User> findByProviderAndProviderId(UserProvider provider, String providerId);
+    Optional<UserMain> findByProviderAndProviderId(UserProvider provider, String providerId);
 }

@@ -19,6 +19,7 @@ public class TutorRegion {
     @JoinColumn(name = "tutor_profile_no", nullable = false)
     private TutorProfile tutorProfile;
 
+
     private String region;
     private LocalDateTime createdAt;
 

@@ -1,7 +1,7 @@
 package com.tunit.domain.user.controller;
 
 import com.tunit.domain.user.define.UserProvider;
-import com.tunit.domain.user.entity.User;
+import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class UserController {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String providerId = attributes.get("id").toString();
 
-        User user = userService.getUserProviderInfo(User.findFrom(UserProvider.NAVER, providerId));
-        return ResponseEntity.ok(user);
+        UserMain userMain = userService.getUserProviderInfo(UserMain.findFrom(UserProvider.NAVER, providerId));
+        return ResponseEntity.ok(userMain);
     }
 }

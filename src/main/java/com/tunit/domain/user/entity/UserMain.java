@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Getter
-@Table(name = "users")
-public class User {
+public class UserMain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userNo;
@@ -32,8 +31,8 @@ public class User {
 
     @Builder(builderMethodName = "of")
 
-    public User(Long userNo, String userId, String name, String nickname, String phone,
-                UserProvider provider, String providerId, Boolean isPhoneVerified, UserStatus userStatus, UserRole userRole, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public UserMain(Long userNo, String userId, String name, String nickname, String phone,
+                    UserProvider provider, String providerId, Boolean isPhoneVerified, UserStatus userStatus, UserRole userRole, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userNo = userNo;
         this.userId = userId;
         this.name = name;
@@ -48,9 +47,9 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    public static User saveOAuthNaver(String name, String phone, String providerId) {
+    public static UserMain saveOAuthNaver(String name, String phone, String providerId) {
         String userId = UserProvider.NAVER.name() + "_" + providerId; // e.g., "naver_1234567890"
-        return User.of()
+        return UserMain.of()
                 .userId(userId)
                 .provider(UserProvider.NAVER)
                 .providerId(providerId)
@@ -65,8 +64,8 @@ public class User {
                 .build();
     }
 
-    public static User findFrom(UserProvider provider, String providerId) {
-        return User.of()
+    public static UserMain findFrom(UserProvider provider, String providerId) {
+        return UserMain.of()
                 .provider(provider)
                 .providerId(providerId)
                 .build();

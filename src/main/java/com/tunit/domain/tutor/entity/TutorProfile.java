@@ -58,7 +58,7 @@ public class TutorProfile {
         TutorProfile tutorProfile = TutorProfile.of()
                 .userNo(tutorProfileSaveDto.getUserNo())
                 .introduce(tutorProfileSaveDto.getIntroduce())
-                .lessonCategory(tutorProfileSaveDto.getLessonCategory())
+                .lessonCategory(tutorProfileSaveDto.getMainCategory())
                 .careerYears(tutorProfileSaveDto.getCareerYears())
                 .pricePerHour(tutorProfileSaveDto.getPricePerHour())
                 .durationMin(tutorProfileSaveDto.getDurationMin())
@@ -66,7 +66,7 @@ public class TutorProfile {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        List<TutorLessons> tutorLessons = tutorProfileSaveDto.getLessonSubCategoryList().stream()
+        List<TutorLessons> tutorLessons = tutorProfileSaveDto.getSubCategoryList().stream()
                 .map(sub -> TutorLessons.saveFrom(tutorProfile, sub))
                 .toList();
         tutorProfile.setTutorLessons(tutorLessons);

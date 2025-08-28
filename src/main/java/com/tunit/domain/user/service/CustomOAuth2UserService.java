@@ -3,7 +3,7 @@ package com.tunit.domain.user.service;
 import com.tunit.common.session.dto.SessionUser;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserProvider;
-import com.tunit.domain.user.entity.User;
+import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.exception.UserException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -42,21 +42,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String phone = (String) response.get("mobile");
 
         log.info("OAuth2User loaded: provider={}, providerId={}, name={}", provider, providerId, name);
-        User user;
+        UserMain userMain;
         Long tutorProfileNo = null;
         try {
-            user = userService.getUserProviderInfo(User.findFrom(UserProvider.NAVER, providerId));
+            userMain = userService.getUserProviderInfo(UserMain.findFrom(UserProvider.NAVER, providerId));
 
-            if (user.getUserRole().isTutor()) {
-                tutorProfileNo = tutorProfileService.findByUserNo(user.getUserNo()).getTutorProfileNo();
-
+            if (userMain.getUserRole().isTutor()) {
+                tutorProfileNo = tutorProfileService.findByUserNo(userMain.getUserNo()).getTutorProfileNo();
             }
 
         } catch (UserException e) {
-            user = userService.saveUser(User.saveOAuthNaver(name, phone, providerId));
+            userMain = userService.saveUser(UserMain.saveOAuthNaver(name, phone, providerId));
         }
 
-        httpSession.setAttribute("LOGIN_USER", new SessionUser(user, tutorProfileNo));
+        httpSession.setAttribute("LOGIN_USER", new SessionUser(userMain, tutorProfileNo));
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                 response,

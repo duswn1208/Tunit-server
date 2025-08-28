@@ -27,17 +27,13 @@ public class TutorProfileService {
     }
 
     @Transactional
-    public Long save(TutorProfileSaveDto tutorProfileSaveDto) {
+    public Long save(Long userNo, TutorProfileSaveDto tutorProfileSaveDto) {
         TutorProfile tutorProfile = TutorProfile.saveFrom(tutorProfileSaveDto);
 
         TutorProfile save = tutorProfileRepository.save(tutorProfile);
 
         if (!tutorProfileSaveDto.getTutorAvailableTimeSaveDtoList().isEmpty()) {
             tutorAvailableTimeService.saveAvailableTime(save.getTutorProfileNo(), tutorProfileSaveDto.getTutorAvailableTimeSaveDtoList());
-        }
-
-        if (!tutorProfileSaveDto.getTutorAvailExceptionSaveDtoList().isEmpty()) {
-            tutorHolidayService.saveHoliday(save.getTutorProfileNo(), tutorProfileSaveDto.getTutorAvailExceptionSaveDtoList());
         }
 
         return save.getTutorProfileNo();
