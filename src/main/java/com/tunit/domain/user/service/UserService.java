@@ -1,6 +1,6 @@
 package com.tunit.domain.user.service;
 
-import com.tunit.domain.user.entity.User;
+import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.exception.UserException;
 import com.tunit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +12,12 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User getUserProviderInfo(User user) {
-        return userRepository.findByProviderAndProviderId(user.getProvider(), user.getProviderId())
+    public UserMain getUserProviderInfo(UserMain userMain) {
+        return userRepository.findByProviderAndProviderId(userMain.getProvider(), userMain.getProviderId())
                 .orElseThrow(UserException::new);
     }
 
-    public User saveUser(User user) {
-        return userRepository.save(user);
+    public UserMain saveUser(UserMain userMain) {
+        return userRepository.save(userMain);
     }
 }

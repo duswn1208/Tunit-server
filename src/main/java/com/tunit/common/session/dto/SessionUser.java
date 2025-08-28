@@ -2,7 +2,7 @@ package com.tunit.common.session.dto;
 
 import com.tunit.domain.user.define.UserRole;
 import com.tunit.domain.user.define.UserStatus;
-import com.tunit.domain.user.entity.User;
+import com.tunit.domain.user.entity.UserMain;
 
 public class SessionUser {
 
@@ -13,12 +13,12 @@ public class SessionUser {
     private UserStatus userStatus;
     private Long tutorProfileNo;
 
-    public SessionUser(User user, Long tutorProfileNo) {
-        this.userNo = user.getUserNo();
-        this.userRole = user.getUserRole();
-        this.userId = user.getUserId();
-        this.name = user.getName();
-        this.userStatus = user.getUserStatus();
+    public SessionUser(UserMain userMain, Long tutorProfileNo) {
+        this.userNo = userMain.getUserNo();
+        this.userRole = userMain.getUserRole();
+        this.userId = userMain.getUserId();
+        this.name = userMain.getName();
+        this.userStatus = userMain.getUserStatus();
         this.tutorProfileNo = tutorProfileNo;
     }
 
