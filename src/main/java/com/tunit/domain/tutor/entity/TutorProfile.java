@@ -59,9 +59,9 @@ public class TutorProfile {
         this.updatedAt = updatedAt;
     }
 
-    public static TutorProfile saveFrom(TutorProfileSaveDto tutorProfileSaveDto) {
+    public static TutorProfile saveFrom(Long userNo, TutorProfileSaveDto tutorProfileSaveDto) {
         TutorProfile tutorProfile = TutorProfile.of()
-                .userNo(tutorProfileSaveDto.getUserNo())
+                .userNo(userNo)
                 .introduce(tutorProfileSaveDto.getIntroduce())
                 .lessonCategory(tutorProfileSaveDto.getMainCategory())
                 .careerYears(tutorProfileSaveDto.getCareerYears())

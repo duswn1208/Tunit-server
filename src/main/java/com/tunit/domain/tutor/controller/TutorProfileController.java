@@ -6,6 +6,7 @@ import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/tutor")
@@ -41,4 +42,17 @@ public class TutorProfileController {
 //        return ResponseEntity.ok(exists);
 //    }
 
+
+    @GetMapping("/lessons/upload")
+    public ResponseEntity<?> canUploadLessons(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
+        boolean exists = tutorProfileService.existsLessons(tutorProfileNo);
+        return ResponseEntity.ok(!exists);
+    }
+
+    @PostMapping("/lessons/upload/excel")
+    public ResponseEntity<?> uploadLessonsExcel(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+                                                @RequestParam("file") MultipartFile file) {
+        int savedCount = tutorProfileService.uploadLessonsFromExcel(tutorProfileNo, file);
+        return ResponseEntity.ok("저장된 레슨 수: " + savedCount);
+    }
 }
