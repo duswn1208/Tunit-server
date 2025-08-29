@@ -3,6 +3,7 @@ package com.tunit.domain.tutor.entity;
 import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.exception.TutorProfileException;
+import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +38,10 @@ public class TutorProfile {
     private Integer durationMin;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+//
+//    @OneToOne
+//    @JoinColumn(name = "user_no", referencedColumnName = "userNo", insertable = false, updatable = false)
+//    private UserMain userMain;
 
     @Builder(builderMethodName = "of")
     public TutorProfile(Long tutorProfileNo, Long userNo, String introduce, LessonCategory lessonCategory, List<TutorLessons> tutorLessons, List<TutorRegion> tutorRegions,

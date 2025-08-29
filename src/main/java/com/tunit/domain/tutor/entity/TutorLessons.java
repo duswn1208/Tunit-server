@@ -1,5 +1,6 @@
 package com.tunit.domain.tutor.entity;
 
+import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -38,6 +39,7 @@ public class TutorLessons {
         return TutorLessons.of()
                 .tutorProfile(tutorProfile)
                 .lessonSubCategory(lessonSubCategory)
+                .isMain(false)
                 .createdAt(LocalDateTime.now())
                 .build();
     }

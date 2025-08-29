@@ -35,7 +35,6 @@ class TutorAvailableTimeServiceTest {
     void saveAvailableTime() {
         //given
         TutorProfile tutorProfile = TutorProfile.of()
-                .userNo(1L)
                 .tutorProfileNo(1L)
                 .build();
         when(tutorProfileService.findByUserNo(any())).thenReturn(tutorProfile);

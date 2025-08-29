@@ -1,5 +1,6 @@
 package com.tunit.domain.tutor.entity;
 
+import com.tunit.domain.region.dto.RegionSaveDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,22 +20,34 @@ public class TutorRegion {
     @JoinColumn(name = "tutor_profile_no", nullable = false)
     private TutorProfile tutorProfile;
 
+    private Integer code;
+    private String label;
+    private String type;
+    private Integer parentCode;
+    private String parentLabel;
 
-    private String region;
     private LocalDateTime createdAt;
 
     @Builder(builderMethodName = "of")
-    private TutorRegion(Integer tutorRegionNo, TutorProfile tutorProfile, String region, LocalDateTime createdAt) {
+    private TutorRegion(Integer tutorRegionNo, TutorProfile tutorProfile, Integer code, String label, String type, Integer parentCode, String parentLabel, LocalDateTime createdAt) {
         this.tutorRegionNo = tutorRegionNo;
         this.tutorProfile = tutorProfile;
-        this.region = region;
+        this.code = code;
+        this.label = label;
+        this.type = type;
+        this.parentCode = parentCode;
+        this.parentLabel = parentLabel;
         this.createdAt = createdAt;
     }
 
-    public static TutorRegion saveFrom(TutorProfile tutorProfile, String region) {
+    public static TutorRegion saveFrom(TutorProfile tutorProfile, RegionSaveDto regionSaveDto) {
         return TutorRegion.of()
                 .tutorProfile(tutorProfile)
-                .region(region)
+                .code(regionSaveDto.code())
+                .label(regionSaveDto.label())
+                .type(regionSaveDto.type())
+                .parentCode(regionSaveDto.parentCode())
+                .parentLabel(regionSaveDto.parentLabel())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

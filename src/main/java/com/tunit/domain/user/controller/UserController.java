@@ -1,5 +1,6 @@
 package com.tunit.domain.user.controller;
 
+import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
@@ -27,5 +28,11 @@ public class UserController {
 
         UserMain userMain = userService.getUserProviderInfo(UserMain.findFrom(UserProvider.NAVER, providerId));
         return ResponseEntity.ok(userMain);
+    }
+
+    @GetMapping("/auth/me")
+    public ResponseEntity<?> authMe(@LoginUser(field = "userNo") Long userNo) {
+        UserMain user = userService.findByUserNo(userNo);
+        return ResponseEntity.ok(user);
     }
 }

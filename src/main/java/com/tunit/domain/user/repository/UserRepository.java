@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserMain, Long> {
 
     Optional<UserMain> findByProviderAndProviderId(UserProvider provider, String providerId);
+
+    Optional<UserMain> findByProviderId(String providerId);
 }

@@ -13,6 +13,14 @@ public class SessionUser {
     private UserStatus userStatus;
     private Long tutorProfileNo;
 
+    public SessionUser(UserMain userMain) {
+        this.userNo = userMain.getUserNo();
+        this.userRole = userMain.getUserRole();
+        this.userId = userMain.getUserId();
+        this.name = userMain.getName();
+        this.userStatus = userMain.getUserStatus();
+    }
+
     public SessionUser(UserMain userMain, Long tutorProfileNo) {
         this.userNo = userMain.getUserNo();
         this.userRole = userMain.getUserRole();

@@ -20,4 +20,12 @@ public class UserService {
     public UserMain saveUser(UserMain userMain) {
         return userRepository.save(userMain);
     }
+
+    public UserMain findByProviderId(String providerId) {
+        return userRepository.findByProviderId(providerId).orElse(null);
+    }
+
+    public UserMain findByUserNo(Long userNo) {
+        return userRepository.findById(userNo).orElseThrow(UserException::new);
+    }
 }
