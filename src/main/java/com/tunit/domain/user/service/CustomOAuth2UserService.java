@@ -56,9 +56,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
 
         if (tutorProfileNo != null) {
-            httpSession.setAttribute("LOGIN_USER", new SessionUser(userMain, tutorProfileNo));
+            httpSession.setAttribute("LOGIN_USER", SessionUser.create(userMain, tutorProfileNo));
         } else {
-            httpSession.setAttribute("LOGIN_USER", new SessionUser(userMain));
+            httpSession.setAttribute("LOGIN_USER", SessionUser.create(userMain));
         }
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
