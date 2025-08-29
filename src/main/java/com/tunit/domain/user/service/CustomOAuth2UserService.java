@@ -1,6 +1,7 @@
 package com.tunit.domain.user.service;
 
 import com.tunit.common.session.dto.SessionUser;
+import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.entity.UserMain;
@@ -48,7 +49,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             userMain = userService.getUserProviderInfo(UserMain.findFrom(UserProvider.NAVER, providerId));
 
             if (userMain.getUserRole().isTutor()) {
-                tutorProfileNo = tutorProfileService.findByUserNo(userMain.getUserNo()).getTutorProfileNo();
+                TutorProfile byUserNo = tutorProfileService.findByUserNo(userMain.getUserNo());
+                tutorProfileNo = byUserNo.getTutorProfileNo();
             }
 
         } catch (UserException e) {

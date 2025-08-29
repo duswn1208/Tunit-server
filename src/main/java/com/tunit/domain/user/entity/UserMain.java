@@ -30,7 +30,6 @@ public class UserMain {
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-
     public UserMain(Long userNo, String userId, String name, String nickname, String phone,
                     UserProvider provider, String providerId, Boolean isPhoneVerified, UserStatus userStatus, UserRole userRole, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userNo = userNo;
