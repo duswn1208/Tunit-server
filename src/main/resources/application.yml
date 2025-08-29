@@ -13,6 +13,12 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2.client: DEBUG
 
+
+service-url:
+  web: http://localhost:5173
+  server: http://localhost:8080
+
+
 spring:
   datasource:
     url: jdbc:h2:mem:tunitdb
@@ -26,15 +32,13 @@ spring:
     show-sql: true
     properties:
       hibernate:
+        ddl-auto: update
         format_sql: true
 
   h2:
     console:
       enabled: true
 
-  service-url:
-    web: http://localhost:5173
-    server: http://localhost:8080
 
   security:
     oauth2:

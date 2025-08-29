@@ -55,7 +55,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             userMain = userService.saveUser(UserMain.saveOAuthNaver(name, phone, providerId));
         }
 
-        httpSession.setAttribute("LOGIN_USER", new SessionUser(userMain, tutorProfileNo));
+        if (tutorProfileNo != null) {
+            httpSession.setAttribute("LOGIN_USER", new SessionUser(userMain, tutorProfileNo));
+        } else {
+            httpSession.setAttribute("LOGIN_USER", new SessionUser(userMain));
+        }
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                 response,
