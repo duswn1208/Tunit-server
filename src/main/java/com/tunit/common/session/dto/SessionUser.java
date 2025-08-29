@@ -3,31 +3,26 @@ package com.tunit.common.session.dto;
 import com.tunit.domain.user.define.UserRole;
 import com.tunit.domain.user.define.UserStatus;
 import com.tunit.domain.user.entity.UserMain;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.Session;
 
-public class SessionUser {
+public record SessionUser (
+        Long userNo,
+        UserRole userRole,
+        String userId,
+        String name,
+        UserStatus userStatus,
+        Long tutorProfileNo
+) {
 
-    private Long userNo;
-    private UserRole userRole;
-    private String userId;
-    private String name;
-    private UserStatus userStatus;
-    private Long tutorProfileNo;
-
-    public SessionUser(UserMain userMain) {
-        this.userNo = userMain.getUserNo();
-        this.userRole = userMain.getUserRole();
-        this.userId = userMain.getUserId();
-        this.name = userMain.getName();
-        this.userStatus = userMain.getUserStatus();
+    public static SessionUser create(UserMain userMain) {
+        return new SessionUser(userMain.getUserNo(), userMain.getUserRole(), userMain.getUserId(), userMain.getName(), userMain.getUserStatus(), null);
     }
 
-    public SessionUser(UserMain userMain, Long tutorProfileNo) {
-        this.userNo = userMain.getUserNo();
-        this.userRole = userMain.getUserRole();
-        this.userId = userMain.getUserId();
-        this.name = userMain.getName();
-        this.userStatus = userMain.getUserStatus();
-        this.tutorProfileNo = tutorProfileNo;
+    public static SessionUser create(UserMain userMain, Long tutorProfileNo) {
+        return new SessionUser(userMain.getUserNo(), userMain.getUserRole(), userMain.getUserId(), userMain.getName(), userMain.getUserStatus(), tutorProfileNo);
     }
 
     public boolean isTutor() {
