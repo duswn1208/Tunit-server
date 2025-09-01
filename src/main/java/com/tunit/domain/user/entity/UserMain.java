@@ -69,4 +69,18 @@ public class UserMain {
                 .providerId(providerId)
                 .build();
     }
+
+    public static UserMain saveWaitingStudent(String name, String phone) {
+        return UserMain.of()
+                .userId("student_" + phone) // e.g., "student_01012345678"
+                .name(name)
+                .nickname(name)
+                .phone(phone)
+                .isPhoneVerified(false)
+                .userStatus(UserStatus.WAITING)
+                .userRole(UserRole.STUDENT)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 }

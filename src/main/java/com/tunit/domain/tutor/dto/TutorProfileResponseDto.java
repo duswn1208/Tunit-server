@@ -6,14 +6,15 @@ import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
 
 import java.util.List;
+import java.util.Set;
 
 public record TutorProfileResponseDto(
         Long userNo,
         Long tutorProfileNo,
         String introduce,
         LessonCategory lessonCategory,
-        List<TutorLessons> lessonSubcategoryList,
-        List<TutorRegion> regionList,
+        Set<TutorLessons> lessonSubcategoryList,
+        Set<TutorRegion> regionList,
         List<TutorAvailableTimeResponseDto> tutorAvailableTimeList,
         List<TutorAvailExceptionResponseDto> tutorHolidayList,
         Integer careerYears,

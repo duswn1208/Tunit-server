@@ -28,4 +28,12 @@ public class UserService {
     public UserMain findByUserNo(Long userNo) {
         return userRepository.findById(userNo).orElseThrow(UserException::new);
     }
+
+    public UserMain findByNameAndPhone(String name, String phone) {
+        return userRepository.findByNameAndPhone(name, phone).orElse(null);
+    }
+
+    public UserMain saveWaitingStudent(String name, String phone) {
+        return userRepository.save(UserMain.saveWaitingStudent(name, phone));
+    }
 }
