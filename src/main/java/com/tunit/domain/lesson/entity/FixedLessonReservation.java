@@ -1,11 +1,20 @@
 package com.tunit.domain.lesson.entity;
 
+import com.tunit.common.util.KoreanDayOfWeekUtil;
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
+import com.tunit.domain.lesson.dto.FixedLessonExcelDto;
+import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
+import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import static com.tunit.domain.lesson.define.ReservationStatus.ACTIVE;
 
 @Entity
 @Table(name = "fixed_lesson_reservation")
@@ -49,6 +58,28 @@ public class FixedLessonReservation {
     @Column(name = "next_materialize_date")
     private LocalDate nextMaterializeDate;
 
-    @Column(name = "field", length = 50)
-    private String field; // 자유 필드(비고용)
+    private LessonSubCategory subCategory;
+
+    @Column(name = "memo", length = 255)
+    private String memo; // 엑셀에서 받은 메모 필드
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public static FixedLessonReservation getFixedLessonReservation(FixedLessonExcelDto dto, UserMain student, TutorProfileResponseDto tutorProfileInfo) {
+        return FixedLessonReservation.builder()
+                .tutorProfileNo(tutorProfileInfo.tutorProfileNo())
+                .userNo(student.getUserNo())
+                .dayOfWeekNum(KoreanDayOfWeekUtil.getDayOfWeekNum(dto.getDayOfWeek()))
+                .startTime(LocalTime.parse(dto.getStartTime()))
+                .endTime(LocalTime.parse(dto.getStartTime()).plusMinutes(tutorProfileInfo.durationMin()))
+                .status(ACTIVE)
+                .startDate(LocalDate.parse(dto.getFirstLessonDate()))
+                .memo(dto.getMemo())
+                .subCategory(LessonSubCategory.fromLabel(dto.getLesson()))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
 }

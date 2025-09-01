@@ -2,6 +2,7 @@ package com.tunit.domain.lesson.define;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +31,7 @@ public enum LessonSubCategory {
     VOCAL("보컬", LessonCategory.MUSIC),
     BAKING("베이킹", LessonCategory.COOKING),
     COOKING("요리", LessonCategory.COOKING),
+    ETC("기타", LessonCategory.OTHER),
     ;
 
     private final String label;
@@ -40,4 +42,14 @@ public enum LessonSubCategory {
 
     public String getCode() { return name(); }
     public String getLabel() { return label; }
+
+    public static LessonSubCategory fromLabel(String label) {
+        for (LessonSubCategory subCategory : LessonSubCategory.values()) {
+            if (subCategory.getLabel().equals(label)) {
+                return subCategory;
+            }
+        }
+
+        throw new LessonNotFoundException("No enum constant with label " + label);
+    }
 }

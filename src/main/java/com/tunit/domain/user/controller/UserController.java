@@ -32,8 +32,9 @@ public class UserController {
 
     @GetMapping("/auth/me")
     public ResponseEntity<?> authMe(@LoginUser(field = "userNo") Long userNo) {
-        UserMain user = userService.findByUserNo(userNo);
-        return ResponseEntity.ok(user);
+        if (userNo == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        return ResponseEntity.ok().build(); // user 정보 반환하지 않고, 로그인 상태만 체크
     }
 }
-

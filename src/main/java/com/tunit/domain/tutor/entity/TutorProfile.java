@@ -3,7 +3,6 @@ package com.tunit.domain.tutor.entity;
 import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.exception.TutorProfileException;
-import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -27,11 +26,11 @@ public class TutorProfile {
 
     @Setter
     @OneToMany(mappedBy = "tutorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TutorLessons> tutorLessons;
+    private Set<TutorLessons> tutorLessons;
 
     @Setter
     @OneToMany(mappedBy = "tutorProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TutorRegion> tutorRegions;
+    private Set<TutorRegion> tutorRegions;
 
     private Integer careerYears;
     private Integer pricePerHour;
@@ -44,7 +43,7 @@ public class TutorProfile {
 //    private UserMain userMain;
 
     @Builder(builderMethodName = "of")
-    public TutorProfile(Long tutorProfileNo, Long userNo, String introduce, LessonCategory lessonCategory, List<TutorLessons> tutorLessons, List<TutorRegion> tutorRegions,
+    public TutorProfile(Long tutorProfileNo, Long userNo, String introduce, LessonCategory lessonCategory, Set<TutorLessons> tutorLessons, Set<TutorRegion> tutorRegions,
                         Integer careerYears, Integer pricePerHour, Integer durationMin, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.tutorProfileNo = tutorProfileNo;
         this.userNo = userNo;
@@ -71,13 +70,13 @@ public class TutorProfile {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        List<TutorLessons> tutorLessons = tutorProfileSaveDto.getSubCategoryList().stream()
+        Set<TutorLessons> tutorLessons = tutorProfileSaveDto.getSubCategoryList().stream()
                 .map(sub -> TutorLessons.saveFrom(tutorProfile, sub))
-                .toList();
+                .collect(java.util.stream.Collectors.toSet());
         tutorProfile.setTutorLessons(tutorLessons);
-        List<TutorRegion> tutorRegions = tutorProfileSaveDto.getRegionList().stream()
+        Set<TutorRegion> tutorRegions = tutorProfileSaveDto.getRegionList().stream()
                 .map(region -> TutorRegion.saveFrom(tutorProfile, region))
-                .toList();
+                .collect(java.util.stream.Collectors.toSet());
         tutorProfile.setTutorRegions(tutorRegions);
 
         tutorProfile.validate();
