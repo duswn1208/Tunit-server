@@ -2,6 +2,7 @@ package com.tunit.common.session.service;
 
 import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.common.session.dto.SessionUser;
+import com.tunit.common.session.exception.SessionNotFoundException;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.exception.UserException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,7 +44,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         assert request != null;
         SessionUser sessionUserObj = (SessionUser) request.getSession().getAttribute("LOGIN_USER");
         if (sessionUserObj == null) {
-            throw new UserException("No logged-in user found in session.");
+            throw new SessionNotFoundException();
         }
         Class<?> paramType = parameter.getParameterType();
         if (paramType.equals(SessionUser.class)) {

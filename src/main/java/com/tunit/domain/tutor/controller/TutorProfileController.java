@@ -21,15 +21,15 @@ public class TutorProfileController {
         session.setAttribute("tutorProfileNo", tutorProfileNo); // 세션에 tutorProfileNo 저장
         return ResponseEntity.ok(tutorProfileNo);
     }
-
-    @GetMapping("/profile/me")
-    public ResponseEntity<?> getMyProfileByUserNo(@LoginUser(field = "userNo") Long userNo) {
-        return ResponseEntity.ok(tutorProfileService.findByUserNo(userNo));
-    }
 //
-//    @GetMapping("/profile/me")
-//    public ResponseEntity<?> getMyProfile(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
-//        return ResponseEntity.ok(tutorProfileService.findTutorProfileInfo(tutorProfileNo));
+//    @GetMapping("/me")
+//    public ResponseEntity<?> getMyProfileByUserNo(@LoginUser(field = "userNo") Long userNo) {
+//        return ResponseEntity.ok(tutorProfileService.findByUserNo(userNo));
 //    }
-//
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyProfile(@LoginUser(field = "userNo") Long userNo) {
+        return ResponseEntity.ok(tutorProfileService.findTutorProfileInfo(userNo));
+    }
+
 }

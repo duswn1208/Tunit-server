@@ -5,6 +5,8 @@ import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
+import com.tunit.domain.user.entity.UserMain;
+import com.tunit.domain.user.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,13 +20,10 @@ public class TutorProfileService {
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
 
-    public TutorProfileResponseDto findTutorProfileInfo(@NonNull Long tutorProfileNo) {
-        TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
-                .orElseThrow(() -> new IllegalArgumentException("Tutor profile not found"));
+    public TutorProfileResponseDto findTutorProfileInfo(@NonNull Long userNo) {
+        TutorProfile tutorProfile = tutorProfileRepository.findByUserNo(userNo);
 
-        return TutorProfileResponseDto.from(tutorProfile,
-                tutorAvailableTimeService.findByTutorProfileNo(tutorProfileNo),
-                tutorHolidayService.findByTutorProfileNo(tutorProfileNo));
+        return TutorProfileResponseDto.from( tutorProfile);
     }
 
     @Transactional
