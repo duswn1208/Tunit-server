@@ -1,7 +1,9 @@
 package com.tunit.domain.user.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
+import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserProvider;
+import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,8 @@ public class UserController {
 
     private final UserService userService;
 
+    private final TutorProfileService tutorProfileService;
+
     @GetMapping("/me")
     public ResponseEntity<?> me(@AuthenticationPrincipal OAuth2User oAuth2User) {
         Map<String, Object> attributes = oAuth2User.getAttributes();
@@ -30,11 +34,21 @@ public class UserController {
         return ResponseEntity.ok(userMain);
     }
 
+    @GetMapping("/profile/me")
+    public ResponseEntity<?> profileMe(@LoginUser(field = "userNo") Long userNo) {
+        UserMain userMain = userService.findByUserNo(userNo);
+
+        if (userMain.getUserRole().isTutor()) {
+            var tutorProfileInfo = tutorProfileService.findTutorProfileInfo(userNo);
+            return ResponseEntity.ok(UserMainResponseDto.from(userMain, tutorProfileInfo));
+        }
+
+        return ResponseEntity.ok(userMain);
+    }
+
     @GetMapping("/auth/me")
     public ResponseEntity<?> authMe(@LoginUser(field = "userNo") Long userNo) {
-        if (userNo == null) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
-        return ResponseEntity.ok().build(); // user 정보 반환하지 않고, 로그인 상태만 체크
+        UserMain userMain = userService.findByUserNo(userNo);
+        return ResponseEntity.ok(userMain);
     }
 }

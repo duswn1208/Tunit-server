@@ -4,6 +4,7 @@ import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
+import com.tunit.domain.user.entity.UserMain;
 
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,22 @@ public record TutorProfileResponseDto(
         Integer careerYears,
         Integer pricePerHour,
         Integer durationMin) {
+
+    public static TutorProfileResponseDto from(TutorProfile tutorProfile) {
+        return new TutorProfileResponseDto(
+                tutorProfile.getUserNo(),
+                tutorProfile.getTutorProfileNo(),
+                tutorProfile.getIntroduce(),
+                tutorProfile.getLessonCategory(),
+                Set.of(),
+                Set.of(),
+                List.of(),
+                List.of(),
+                tutorProfile.getCareerYears(),
+                tutorProfile.getPricePerHour(),
+                tutorProfile.getDurationMin()
+        );
+    }
 
     public static TutorProfileResponseDto from(TutorProfile tutorProfile, List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList, List<TutorAvailExceptionResponseDto> tutorHolidayResponseList) {
         return new TutorProfileResponseDto(
