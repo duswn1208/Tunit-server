@@ -3,6 +3,8 @@ package com.tunit.domain.lesson.controller;
 import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.lesson.define.LessonSubCategory;
+import com.tunit.domain.lesson.dto.LessonFindRequestDto;
+import com.tunit.domain.lesson.dto.LessonFindResponseDto;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,14 @@ import java.util.List;
 public class LessonController {
 
     private final LessonReserveService lessonReserveService;
+
+    @GetMapping("")
+    public ResponseEntity<?> getLessons(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+                                        @ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
+        lessonFindRequestDto.setTutorProfileNo(tutorProfileNo);
+        List<LessonFindResponseDto> lessons = lessonReserveService.getLessons(lessonFindRequestDto);
+        return ResponseEntity.ok(lessons);
+    }
 
     //todo: cache 적용 필요
     @GetMapping("/categories")
@@ -34,13 +44,6 @@ public class LessonController {
     @GetMapping("/exist")
     public ResponseEntity<?> existsLessons(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
         return ResponseEntity.ok(lessonReserveService.existsLessons(tutorProfileNo));
-    }
-
-    @PostMapping("/upload/excel")
-    public ResponseEntity<?> uploadLessonsExcel(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
-                                                @RequestParam("file") MultipartFile file) {
-        int savedCount = lessonReserveService.uploadLessonsFromExcel(tutorProfileNo, file);
-        return ResponseEntity.ok("저장된 레슨 수: " + savedCount);
     }
 
 }

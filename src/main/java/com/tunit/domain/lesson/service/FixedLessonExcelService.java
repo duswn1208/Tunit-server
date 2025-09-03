@@ -33,6 +33,7 @@ public class FixedLessonExcelService {
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
     private final FixedLessonExcelRowParser fixedLessonExcelRowParser;
+    private final LessonReserveService lessonReserveService;
 
     private static final Pattern PHONE_PATTERN = Pattern.compile("^01[016789]-?\\d{3,4}-?\\d{4}$");
 
@@ -58,7 +59,9 @@ public class FixedLessonExcelService {
 
             try {
                 TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfo(tutorProfileNo);
-                fixedLessonReservationRepository.save(FixedLessonReservation.getFixedLessonReservation(dto, student, tutorProfileInfo));
+                FixedLessonReservation fixedLessonReservation = FixedLessonReservation.getFixedLessonReservation(dto, student, tutorProfileInfo);
+                fixedLessonReservationRepository.save(fixedLessonReservation);
+                lessonReserveService.saveLessonFromFixedLesson(fixedLessonReservation);
             } catch (LessonNotFoundException e) {
                 addFailedStudent(failList, dto, LessonUploadFailReason.LESSON_NOT_FOUND);
             } catch (Exception e) {
