@@ -25,8 +25,8 @@ public class LessonReservation {
     @Column(name = "tutor_profile_no", nullable = false)
     private Long tutorProfileNo;
 
-    @Column(name = "user_no", nullable = false)
-    private Long userNo;  // 학생 user_no
+    @Column(name = "student_no", nullable = false)
+    private Long studentNo;  // 학생 user_no
 
     @Column(name = "fixed_lesson_reservation_no")
     private Long fixedLessonReservationNo;
@@ -58,12 +58,12 @@ public class LessonReservation {
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long userNo, Long fixedLessonReservationNo, LocalDate date,
+    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long studentNo, Long fixedLessonReservationNo, LocalDate date,
                              LocalTime startTime, LocalTime endTime, Integer dayOfWeekNum, ReservationStatus status, String idempotencyKey,
                              ReservationSource source, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.lessonReservationNo = lessonReservationNo;
         this.tutorProfileNo = tutorProfileNo;
-        this.userNo = userNo;
+        this.studentNo = studentNo;
         this.fixedLessonReservationNo = fixedLessonReservationNo;
         this.date = date;
         this.startTime = startTime;
@@ -76,18 +76,19 @@ public class LessonReservation {
         this.updatedAt = updatedAt;
     }
 
-    public static LessonReservation excelUpload(Long tutorProfileNo, Long userNo, LocalDate date, LocalTime startTime, LocalTime endTime, ReservationStatus status) {
+    public static LessonReservation fromFixedLesson(FixedLessonReservation fixedLessonReservation) {
         return LessonReservation.of()
-                .tutorProfileNo(tutorProfileNo)
-                .userNo(userNo)
-                .date(date)
-                .startTime(startTime)
-                .endTime(endTime)
-                .dayOfWeekNum(date.getDayOfWeek().getValue())
-                .status(status)
+                .tutorProfileNo(fixedLessonReservation.getTutorProfileNo())
+                .studentNo(fixedLessonReservation.getStudentNo())
+                .fixedLessonReservationNo(fixedLessonReservation.getFixedLessonReservationNo())
+                .date(fixedLessonReservation.getStartDate())
+                .startTime(fixedLessonReservation.getStartTime())
+                .endTime(fixedLessonReservation.getEndTime())
+                .dayOfWeekNum(fixedLessonReservation.getDayOfWeekNum())
+                .status(ReservationStatus.ACTIVE)
                 .source(ReservationSource.IMPORT)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
+
+
 }

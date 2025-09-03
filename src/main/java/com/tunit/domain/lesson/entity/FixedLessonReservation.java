@@ -33,8 +33,8 @@ public class FixedLessonReservation {
     @Column(name = "tutor_profile_no", nullable = false)
     private Long tutorProfileNo;
 
-    @Column(name = "user_no", nullable = false)
-    private Long userNo;
+    @Column(name = "student_no", nullable = false)
+    private Long studentNo;
 
     @Column(name = "day_of_week_num", nullable = false)
     private Integer dayOfWeekNum;
@@ -69,7 +69,7 @@ public class FixedLessonReservation {
     public static FixedLessonReservation getFixedLessonReservation(FixedLessonExcelDto dto, UserMain student, TutorProfileResponseDto tutorProfileInfo) {
         return FixedLessonReservation.builder()
                 .tutorProfileNo(tutorProfileInfo.tutorProfileNo())
-                .userNo(student.getUserNo())
+                .studentNo(student.getUserNo())
                 .dayOfWeekNum(KoreanDayOfWeekUtil.getDayOfWeekNum(dto.getDayOfWeek()))
                 .startTime(LocalTime.parse(dto.getStartTime()))
                 .endTime(LocalTime.parse(dto.getStartTime()).plusMinutes(tutorProfileInfo.durationMin()))
