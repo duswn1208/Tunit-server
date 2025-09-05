@@ -1,7 +1,8 @@
 package com.tunit.domain.lesson.util;
 
 import com.tunit.common.util.ExcelParser;
-import com.tunit.domain.lesson.dto.FixedLessonExcelDto;
+import com.tunit.domain.lesson.define.LessonSubCategory;
+import com.tunit.domain.lesson.dto.FixedLessonSaveDto;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -10,12 +11,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 @Component
 public class FixedLessonExcelRowParser {
-    public List<FixedLessonExcelDto> parse(MultipartFile file) {
-        List<FixedLessonExcelDto> rows = new ArrayList<>();
+    public List<FixedLessonSaveDto> parse(MultipartFile file) {
+        List<FixedLessonSaveDto> rows = new ArrayList<>();
         Map<String, Integer> headerMap = new HashMap<>();
         try (InputStream is = file.getInputStream(); Workbook workbook = WorkbookFactory.create(is)) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -28,14 +32,16 @@ public class FixedLessonExcelRowParser {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
-                FixedLessonExcelDto dto = new FixedLessonExcelDto();
-                dto.setName(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("name", -1))));
-                dto.setPhone(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("phone", -1))));
-                dto.setStartTime(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("start_time", -1))));
-                dto.setDayOfWeek(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("day_of_week", -1))));
-                dto.setLesson(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("lesson", -1))));
-                dto.setFirstLessonDate(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("first_lesson_date", -1))));
-                dto.setMemo(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("memo", -1))));
+
+                String name = ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("studentName", -1)));
+                String phone = ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("phone", -1)));
+                LocalTime startTime = LocalTime.parse(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("start_time", -1))));
+                DayOfWeek dayOfWeek = DayOfWeek.valueOf(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("day_of_week", -1))));
+                String lesson = ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("lesson", -1)));
+                LocalDate firstLessonDate = LocalDate.parse(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("first_lesson_date", -1))));
+                String memo = ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("memo", -1)));
+
+                FixedLessonSaveDto dto = new FixedLessonSaveDto(name, phone, startTime, new HashSet<>(Collections.singleton(dayOfWeek)), lesson, firstLessonDate, memo);
                 rows.add(dto);
             }
         } catch (Exception e) {

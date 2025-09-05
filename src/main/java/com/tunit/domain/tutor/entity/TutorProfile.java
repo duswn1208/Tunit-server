@@ -39,7 +39,7 @@ public class TutorProfile {
     private LocalDateTime updatedAt;
 //
 //    @OneToOne
-//    @JoinColumn(name = "user_no", referencedColumnName = "userNo", insertable = false, updatable = false)
+//    @JoinColumn(studentName = "user_no", referencedColumnName = "userNo", insertable = false, updatable = false)
 //    private UserMain userMain;
 
     @Builder(builderMethodName = "of")
