@@ -7,12 +7,14 @@ import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindResponseDto;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/lessons")
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class LessonController {
                                         @ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
         lessonFindRequestDto.setTutorProfileNo(tutorProfileNo);
         List<LessonFindResponseDto> lessons = lessonReserveService.getLessons(lessonFindRequestDto);
+        log.info("tutors lessons fetched. tutorProfileNo: {}, lessons count: {}", tutorProfileNo, lessons.size());
         return ResponseEntity.ok(lessons);
     }
 

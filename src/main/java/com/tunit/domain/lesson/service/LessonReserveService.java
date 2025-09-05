@@ -1,8 +1,6 @@
 package com.tunit.domain.lesson.service;
 
-import com.tunit.common.util.ExcelParser;
 import com.tunit.domain.lesson.define.LessonSubCategory;
-import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindResponseDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
@@ -11,11 +9,7 @@ import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -24,8 +18,13 @@ public class LessonReserveService {
 
     private final LessonReservationRepository lessonReservationRepository;
 
-    public void saveLessonFromFixedLesson(FixedLessonReservation fixedLessonReservation) {
-        LessonReservation lessonReservation = LessonReservation.fromFixedLesson(fixedLessonReservation);
+    public void saveLessonFromFixedLessonFromExcel(FixedLessonReservation fixedLessonReservation) {
+        LessonReservation lessonReservation = LessonReservation.fromFixedLessonExcelUpload(fixedLessonReservation);
+        lessonReservationRepository.save(lessonReservation);
+    }
+
+    public void saveLessonFromFixedLessonFromWeb(FixedLessonReservation fixedLessonReservation) {
+        LessonReservation lessonReservation = LessonReservation.fromFixedLessonFromWeb(fixedLessonReservation);
         lessonReservationRepository.save(lessonReservation);
     }
 

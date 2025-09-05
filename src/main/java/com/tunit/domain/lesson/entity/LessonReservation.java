@@ -76,7 +76,7 @@ public class LessonReservation {
         this.updatedAt = updatedAt;
     }
 
-    public static LessonReservation fromFixedLesson(FixedLessonReservation fixedLessonReservation) {
+    public static LessonReservation fromFixedLessonExcelUpload(FixedLessonReservation fixedLessonReservation) {
         return LessonReservation.of()
                 .tutorProfileNo(fixedLessonReservation.getTutorProfileNo())
                 .studentNo(fixedLessonReservation.getStudentNo())
@@ -87,6 +87,20 @@ public class LessonReservation {
                 .dayOfWeekNum(fixedLessonReservation.getDayOfWeekNum())
                 .status(ReservationStatus.ACTIVE)
                 .source(ReservationSource.IMPORT)
+                .build();
+    }
+
+    public static LessonReservation fromFixedLessonFromWeb(FixedLessonReservation fixedLessonReservation) {
+        return LessonReservation.of()
+                .tutorProfileNo(fixedLessonReservation.getTutorProfileNo())
+                .studentNo(fixedLessonReservation.getStudentNo())
+                .fixedLessonReservationNo(fixedLessonReservation.getFixedLessonReservationNo())
+                .date(fixedLessonReservation.getStartDate())
+                .startTime(fixedLessonReservation.getStartTime())
+                .endTime(fixedLessonReservation.getEndTime())
+                .dayOfWeekNum(fixedLessonReservation.getDayOfWeekNum())
+                .status(ReservationStatus.ACTIVE)
+                .source(ReservationSource.APP)
                 .build();
     }
 

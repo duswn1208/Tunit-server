@@ -1,9 +1,8 @@
 package com.tunit.domain.lesson.entity;
 
-import com.tunit.common.util.KoreanDayOfWeekUtil;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
-import com.tunit.domain.lesson.dto.FixedLessonExcelDto;
+import com.tunit.domain.lesson.dto.FixedLessonSaveDto;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
@@ -66,17 +65,17 @@ public class FixedLessonReservation {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static FixedLessonReservation getFixedLessonReservation(FixedLessonExcelDto dto, UserMain student, TutorProfileResponseDto tutorProfileInfo) {
+    public static FixedLessonReservation getFixedLessonReservation(FixedLessonSaveDto dto, DayOfWeek day, UserMain student, TutorProfileResponseDto tutorProfileInfo) {
         return FixedLessonReservation.builder()
                 .tutorProfileNo(tutorProfileInfo.tutorProfileNo())
                 .studentNo(student.getUserNo())
-                .dayOfWeekNum(KoreanDayOfWeekUtil.getDayOfWeekNum(dto.getDayOfWeek()))
-                .startTime(LocalTime.parse(dto.getStartTime()))
-                .endTime(LocalTime.parse(dto.getStartTime()).plusMinutes(tutorProfileInfo.durationMin()))
+                .dayOfWeekNum(day.getValue())
+                .startTime(dto.startTime())
+                .endTime(dto.startTime().plusMinutes(tutorProfileInfo.durationMin()))
                 .status(ACTIVE)
-                .startDate(LocalDate.parse(dto.getFirstLessonDate()))
-                .memo(dto.getMemo())
-                .subCategory(LessonSubCategory.fromLabel(dto.getLesson()))
+                .startDate(dto.firstLessonDate())
+                .memo(dto.memo())
+                .subCategory(LessonSubCategory.fromLabel(dto.lesson()))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
