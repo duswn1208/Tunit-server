@@ -2,6 +2,7 @@ package com.tunit.domain.lesson.util;
 
 import com.tunit.common.util.ExcelParser;
 import com.tunit.domain.lesson.define.LessonSubCategory;
+import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.FixedLessonSaveDto;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -41,7 +42,7 @@ public class FixedLessonExcelRowParser {
                 LocalDate firstLessonDate = LocalDate.parse(ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("first_lesson_date", -1))));
                 String memo = ExcelParser.getCellString(row.getCell(headerMap.getOrDefault("memo", -1)));
 
-                FixedLessonSaveDto dto = new FixedLessonSaveDto(name, phone, startTime, new HashSet<>(Collections.singleton(dayOfWeek)), lesson, firstLessonDate, memo);
+                FixedLessonSaveDto dto = new FixedLessonSaveDto(name, phone, startTime, new HashSet<>(Collections.singleton(dayOfWeek)), lesson, firstLessonDate, ReservationStatus.REQUESTED, memo);
                 rows.add(dto);
             }
         } catch (Exception e) {

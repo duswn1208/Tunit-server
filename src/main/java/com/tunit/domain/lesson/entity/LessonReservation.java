@@ -1,12 +1,18 @@
 package com.tunit.domain.lesson.entity;
 
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationSource;
 import com.tunit.domain.lesson.define.ReservationStatus;
+import com.tunit.domain.lesson.dto.LessonSaveDto;
+import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
+import com.tunit.domain.user.dto.UserMainResponseDto;
+import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -28,7 +34,9 @@ public class LessonReservation {
     @Column(name = "student_no", nullable = false)
     private Long studentNo;  // 학생 user_no
 
-    @Column(name = "fixed_lesson_reservation_no")
+    private LessonSubCategory lessonCategory;
+
+    @Column(name = "fixed_lesson_reservation_no", nullable = false)
     private Long fixedLessonReservationNo;
 
     @Column(name = "date", nullable = false)
@@ -58,12 +66,13 @@ public class LessonReservation {
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long studentNo, Long fixedLessonReservationNo, LocalDate date,
+    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long studentNo, LessonSubCategory lessonCategory, Long fixedLessonReservationNo, LocalDate date,
                              LocalTime startTime, LocalTime endTime, Integer dayOfWeekNum, ReservationStatus status, String idempotencyKey,
                              ReservationSource source, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.lessonReservationNo = lessonReservationNo;
         this.tutorProfileNo = tutorProfileNo;
         this.studentNo = studentNo;
+        this.lessonCategory = lessonCategory;
         this.fixedLessonReservationNo = fixedLessonReservationNo;
         this.date = date;
         this.startTime = startTime;
@@ -85,7 +94,7 @@ public class LessonReservation {
                 .startTime(fixedLessonReservation.getStartTime())
                 .endTime(fixedLessonReservation.getEndTime())
                 .dayOfWeekNum(fixedLessonReservation.getDayOfWeekNum())
-                .status(ReservationStatus.ACTIVE)
+                .status(fixedLessonReservation.getStatus())
                 .source(ReservationSource.IMPORT)
                 .build();
     }
@@ -99,8 +108,25 @@ public class LessonReservation {
                 .startTime(fixedLessonReservation.getStartTime())
                 .endTime(fixedLessonReservation.getEndTime())
                 .dayOfWeekNum(fixedLessonReservation.getDayOfWeekNum())
-                .status(ReservationStatus.ACTIVE)
+                .status(fixedLessonReservation.getStatus())
                 .source(ReservationSource.APP)
+                .build();
+    }
+
+    public static LessonReservation fromLessonSaveDto(TutorProfileResponseDto tutorProfileInfo, UserMain student, LessonSaveDto dto) {
+        LocalDateTime startDateTime = LocalDateTime.of(dto.lessonDate(), dto.startTime());
+        DayOfWeek day = DayOfWeek.of(startDateTime.getDayOfWeek().getValue());
+        return LessonReservation.of()
+                .tutorProfileNo(tutorProfileInfo.tutorProfileNo())
+                .studentNo(student.getUserNo())
+                .lessonCategory(LessonSubCategory.fromLabel(dto.lesson()))
+                .dayOfWeekNum(day.getValue())
+                .date(dto.lessonDate())
+                .startTime(dto.startTime())
+                .endTime(dto.startTime().plusMinutes(tutorProfileInfo.durationMin()))
+                .status(dto.reservationStatus())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
