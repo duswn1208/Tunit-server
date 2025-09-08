@@ -105,4 +105,13 @@ public class LessonReservation {
     }
 
 
+    public void changeStatus(ReservationStatus beforeStatus, ReservationStatus afterStatus) {
+        if (!this.status.equals(beforeStatus)) {
+            throw new IllegalStateException("현재 상태가 " + beforeStatus + "가 아닙니다. 현재 상태: " + this.status);
+        }
+        if (!beforeStatus.getAllowedNextStatuses().contains(afterStatus)) {
+            throw new IllegalStateException("상태를 " + beforeStatus + "에서 " + afterStatus + "로 변경할 수 없습니다.");
+        }
+        this.status = afterStatus;
+    }
 }
