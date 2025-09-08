@@ -5,10 +5,16 @@ import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
 import com.tunit.domain.lesson.dto.LessonResponsDto;
+import com.tunit.domain.lesson.dto.LessonSaveDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
+import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
+import com.tunit.domain.tutor.service.TutorProfileService;
+import com.tunit.domain.user.entity.UserMain;
+import com.tunit.domain.user.exception.UserException;
+import com.tunit.domain.user.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +27,27 @@ import java.util.List;
 public class LessonReserveService {
 
     private final LessonReservationRepository lessonReservationRepository;
+    private final UserService userService;
+    private final TutorProfileService tutorProfileService;
+
+    public void saveLesson(Long tutorProfileNo, LessonSaveDto lessonSaveDto) {
+        UserMain student = userService.getOrCreateWaitingStudent(lessonSaveDto.studentName(), lessonSaveDto.phone());
+
+        TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfo(tutorProfileNo);
+
+        LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, lessonSaveDto);
+        if (lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
+                tutorProfileNo,
+                lessonReservation.getDate(),
+                lessonReservation.getStartTime(),
+                lessonReservation.getEndTime(),
+                List.of(ReservationStatus.ACTIVE, ReservationStatus.TRIAL_ACTIVE, ReservationStatus.REQUESTED, ReservationStatus.COMPLETED)
+        )) {
+            throw new IllegalStateException("해당 시간대에 이미 예약된 레슨이 있습니다.");
+        }
+
+        lessonReservationRepository.save(lessonReservation);
+    }
 
     public void saveLessonFromFixedLessonFromExcel(FixedLessonReservation fixedLessonReservation) {
         LessonReservation lessonReservation = LessonReservation.fromFixedLessonExcelUpload(fixedLessonReservation);
@@ -68,4 +95,5 @@ public class LessonReserveService {
                 .orElseThrow(() -> new LessonNotFoundException("Lesson not found with lessonNo: " + lessonNo));
         lessonReservation.changeStatus(lessonReservation.getStatus(), status);
     }
+
 }

@@ -6,6 +6,7 @@ import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
+import com.tunit.domain.lesson.dto.LessonSaveDto;
 import com.tunit.domain.lesson.dto.LessonStatusRequestDto;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,13 @@ public class LessonController {
         LessonFindSummaryDto lessonSummary = lessonReserveService.getLessonSummary(lessonFindRequestDto);
         log.info("tutors lessonSummary fetched. tutorProfileNo: {}, lessonSummary count: {}", tutorProfileNo, lessonSummary.totalLessonCount());
         return ResponseEntity.ok(lessonSummary);
+    }
+
+    @PostMapping("/reserve")
+    public ResponseEntity<?> saveLesson(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+                                        @RequestBody LessonSaveDto lessonSaveDto) {
+        lessonReserveService.saveLesson(tutorProfileNo, lessonSaveDto);
+        return ResponseEntity.ok("레슨이 성공적으로 저장되었습니다.");
     }
 
     //todo: cache 적용 필요

@@ -72,7 +72,7 @@ public class FixedLessonReservation {
                 .dayOfWeekNum(day.getValue())
                 .startTime(dto.startTime())
                 .endTime(dto.startTime().plusMinutes(tutorProfileInfo.durationMin()))
-                .status(ACTIVE)
+                .status(dto.reservationStatus())
                 .startDate(dto.firstLessonDate())
                 .memo(dto.memo())
                 .subCategory(LessonSubCategory.fromLabel(dto.lesson()))

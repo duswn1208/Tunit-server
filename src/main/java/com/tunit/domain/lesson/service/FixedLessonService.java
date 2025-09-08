@@ -49,7 +49,7 @@ public class FixedLessonService {
 
             UserMain student;
             try {
-                student = getOrCreateWaitingStudent(dto.studentName(), dto.phone());
+                student = userService.getOrCreateWaitingStudent(dto.studentName(), dto.phone());
             } catch (Exception e) {
                 addFailedStudent(failList, dto, LessonUploadFailReason.USER_SIGNUP_FAIL);
                 continue;
@@ -77,10 +77,7 @@ public class FixedLessonService {
 
     @Transactional
     public void saveFixedLesson(Long tutorProfileNo, FixedLessonSaveDto fixedLessonSaveDto) {
-        UserMain student = getOrCreateWaitingStudent(fixedLessonSaveDto.studentName(), fixedLessonSaveDto.phone());
-        if (student == null) {
-            throw new UserException("학생 조회 혹은 생성에 실패했습니다.");
-        }
+        UserMain student = userService.getOrCreateWaitingStudent(fixedLessonSaveDto.studentName(), fixedLessonSaveDto.phone());
 
         // 2. 레슨 조회 및 저장
         TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfo(tutorProfileNo);
@@ -89,6 +86,8 @@ public class FixedLessonService {
             FixedLessonReservation fixedLessonReservation = FixedLessonReservation.getFixedLessonReservation(fixedLessonSaveDto, dayOfWeek, student, tutorProfileInfo);
             existLesson(tutorProfileNo, dayOfWeek.getValue(), student);
             fixedLessonReservationRepository.save(fixedLessonReservation);
+
+            //동일한 시간대 4번 반복 저장
             lessonReserveService.saveLessonFromFixedLessonFromWeb(fixedLessonReservation);
         });
 
@@ -104,14 +103,6 @@ public class FixedLessonService {
         if (exists) {
             throw new LessonNotFoundException("이미 동일한 요일에 등록된 학생이 있습니다. 중복 등록은 불가능합니다.");
         }
-    }
-
-    private UserMain getOrCreateWaitingStudent(String name, String phone) {
-        UserMain student = userService.findByNameAndPhone(name, phone);
-        if (student == null) {
-            student = userService.saveWaitingStudent(name, phone);
-        }
-        return student;
     }
 
     private void addFailedStudent(List<FailedStudentDto> failList, FixedLessonSaveDto dto, LessonUploadFailReason reason) {
