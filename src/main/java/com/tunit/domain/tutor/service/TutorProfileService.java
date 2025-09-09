@@ -26,6 +26,12 @@ public class TutorProfileService {
         return TutorProfileResponseDto.from( tutorProfile);
     }
 
+    public TutorProfileResponseDto findTutorProfileInfoByTutorProfileNo(@NonNull Long tutorProfileNo) {
+        TutorProfile tutorProfile = tutorProfileRepository.findById(tutorProfileNo).orElseThrow();
+
+        return TutorProfileResponseDto.from( tutorProfile);
+    }
+
     @Transactional
     public Long save(Long userNo, TutorProfileSaveDto tutorProfileSaveDto) {
         TutorProfile tutorProfile = TutorProfile.saveFrom(userNo, tutorProfileSaveDto);

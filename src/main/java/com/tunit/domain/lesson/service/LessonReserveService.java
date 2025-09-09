@@ -5,7 +5,7 @@ import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
 import com.tunit.domain.lesson.dto.LessonResponsDto;
-import com.tunit.domain.lesson.dto.LessonSaveDto;
+import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
@@ -13,7 +13,6 @@ import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
-import com.tunit.domain.user.exception.UserException;
 import com.tunit.domain.user.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +29,12 @@ public class LessonReserveService {
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
 
-    public void saveLesson(Long tutorProfileNo, LessonSaveDto lessonSaveDto) {
-        UserMain student = userService.getOrCreateWaitingStudent(lessonSaveDto.studentName(), lessonSaveDto.phone());
+    public void reserveLesson(Long tutorProfileNo, LessonReserveSaveDto lessonReserveSaveDto) {
+        UserMain student = userService.getOrCreateWaitingStudent(lessonReserveSaveDto.studentName(), lessonReserveSaveDto.phone());
 
         TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfo(tutorProfileNo);
 
-        LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, lessonSaveDto);
+        LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, lessonReserveSaveDto);
         if (lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
                 tutorProfileNo,
                 lessonReservation.getDate(),

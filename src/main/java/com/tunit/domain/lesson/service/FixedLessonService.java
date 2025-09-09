@@ -5,13 +5,13 @@ import com.tunit.domain.lesson.dto.FailedStudentDto;
 import com.tunit.domain.lesson.dto.FixedLessonSaveDto;
 import com.tunit.domain.lesson.dto.FixedLessonUploadResultDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
+import com.tunit.domain.lesson.exception.LessonDuplicationException;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.repository.FixedLessonReservationRepository;
 import com.tunit.domain.lesson.util.FixedLessonExcelRowParser;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
-import com.tunit.domain.user.exception.UserException;
 import com.tunit.domain.user.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -57,14 +56,16 @@ public class FixedLessonService {
             if (student == null) continue;
 
             try {
-
                 dto.dayOfWeekSet().forEach(dayOfWeek -> {
-                    TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfo(tutorProfileNo);
+                    TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo);
                     FixedLessonReservation fixedLessonReservation = FixedLessonReservation.getFixedLessonReservation(dto, dayOfWeek, student, tutorProfileInfo);
-                    existLesson(tutorProfileNo, dayOfWeek.getValue(), student);
+                    existLesson(fixedLessonReservation);
                     fixedLessonReservationRepository.save(fixedLessonReservation);
                     lessonReserveService.saveLessonFromFixedLessonFromExcel(fixedLessonReservation);
                 });
+
+            } catch (LessonDuplicationException e) {
+                addFailedStudent(failList, dto, LessonUploadFailReason.LESSON_DUPLICATION);
             } catch (LessonNotFoundException e) {
                 addFailedStudent(failList, dto, LessonUploadFailReason.LESSON_NOT_FOUND);
             } catch (Exception e) {
@@ -80,11 +81,11 @@ public class FixedLessonService {
         UserMain student = userService.getOrCreateWaitingStudent(fixedLessonSaveDto.studentName(), fixedLessonSaveDto.phone());
 
         // 2. 레슨 조회 및 저장
-        TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfo(tutorProfileNo);
+        TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo);
 
         fixedLessonSaveDto.dayOfWeekSet().forEach(dayOfWeek -> {
             FixedLessonReservation fixedLessonReservation = FixedLessonReservation.getFixedLessonReservation(fixedLessonSaveDto, dayOfWeek, student, tutorProfileInfo);
-            existLesson(tutorProfileNo, dayOfWeek.getValue(), student);
+            existLesson(fixedLessonReservation);
             fixedLessonReservationRepository.save(fixedLessonReservation);
 
             //동일한 시간대 4번 반복 저장
@@ -93,15 +94,16 @@ public class FixedLessonService {
 
     }
 
-    private void existLesson(Long tutorProfileNo, Integer dayOfWeekNum, UserMain student) {
+    private void existLesson(FixedLessonReservation fixedLessonReservation) {
         //기존 예약과 중복체크
-        boolean exists = fixedLessonReservationRepository.existsByTutorProfileNoAndStudentNoAndDayOfWeekNum(
-                tutorProfileNo,
-                student.getUserNo(),
-                dayOfWeekNum
+        boolean exists = fixedLessonReservationRepository.existsByTutorProfileNoAndDayOfWeekNumAndStartTimeAfterAndEndTimeBefore(
+                fixedLessonReservation.getTutorProfileNo(),
+                fixedLessonReservation.getDayOfWeekNum(),
+                fixedLessonReservation.getStartTime(),
+                fixedLessonReservation.getEndTime()
         );
         if (exists) {
-            throw new LessonNotFoundException("이미 동일한 요일에 등록된 학생이 있습니다. 중복 등록은 불가능합니다.");
+            throw new LessonDuplicationException();
         }
     }
 

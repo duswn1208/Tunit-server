@@ -65,11 +65,11 @@ public class FixedLessonReservation {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static FixedLessonReservation getFixedLessonReservation(FixedLessonSaveDto dto, DayOfWeek day, UserMain student, TutorProfileResponseDto tutorProfileInfo) {
+    public static FixedLessonReservation getFixedLessonReservation(FixedLessonSaveDto dto, Integer day, UserMain student, TutorProfileResponseDto tutorProfileInfo) {
         return FixedLessonReservation.builder()
                 .tutorProfileNo(tutorProfileInfo.tutorProfileNo())
                 .studentNo(student.getUserNo())
-                .dayOfWeekNum(day.getValue())
+                .dayOfWeekNum(day)
                 .startTime(dto.startTime())
                 .endTime(dto.startTime().plusMinutes(tutorProfileInfo.durationMin()))
                 .status(dto.reservationStatus())

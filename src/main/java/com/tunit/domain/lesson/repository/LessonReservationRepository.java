@@ -18,4 +18,6 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
     List<LessonResponsDto> findByTutorProfileNoAndDateBetweenWithUser(@Param("tutorProfileNo") Long tutorProfileNo, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     boolean existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(Long tutorProfileNo, LocalDate date, LocalTime startTime, LocalTime endTime, List<ReservationStatus> statuses);
+
+    List<LessonReservation> findByTutorProfileNoAndDateBetweenAndStatusIn(Long tutorProfileNo, LocalDate startDate, LocalDate endDate, List<ReservationStatus> statuses);
 }

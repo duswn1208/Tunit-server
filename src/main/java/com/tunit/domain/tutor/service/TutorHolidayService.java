@@ -2,6 +2,7 @@ package com.tunit.domain.tutor.service;
 
 import com.tunit.domain.tutor.dto.TutorAvailExceptionResponseDto;
 import com.tunit.domain.tutor.dto.TutorAvailExceptionSaveDto;
+import com.tunit.domain.tutor.entity.TutorAvailException;
 import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,10 @@ public class TutorHolidayService {
     @Transactional
     public void deleteHoliday(Long tutorProfileNo, List<Long> tutorHolidayNos) {
 
+    }
+
+    public List<TutorAvailException> findHolidaysByTutorProfileNo(Long tutorProfileNo) {
+        return tutorAvailExceptionRepository.findByTutorProfileNo(tutorProfileNo);
     }
 
     public List<TutorAvailExceptionResponseDto> findByTutorProfileNo(@NonNull Long tutorProfileNo) {
