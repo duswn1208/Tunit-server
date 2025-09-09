@@ -84,9 +84,11 @@ public class TutorAvailableTimeService {
                 if (tutorAvailableTime.getDayOfWeek() != otherAvailableTime.getDayOfWeek()) continue;
 
                 // 겹치는지 확인
-                if (tutorAvailableTime.getStartTime().isBefore(otherAvailableTime.getEndTime()) &&
-                        otherAvailableTime.getStartTime().isBefore(tutorAvailableTime.getEndTime())) {
-                    throw new TutorProfileException("같은 요일에 겹치는 시간이 존재합니다.");
+                if (tutorAvailableTime.getDayOfWeekNum().equals(otherAvailableTime.getDayOfWeekNum())) {
+                    if (tutorAvailableTime.getStartTime().isBefore(otherAvailableTime.getEndTime()) &&
+                            otherAvailableTime.getStartTime().isBefore(tutorAvailableTime.getEndTime())) {
+                        throw new TutorProfileException("같은 요일에 겹치는 시간이 존재합니다.");
+                    }
                 }
             }
         }

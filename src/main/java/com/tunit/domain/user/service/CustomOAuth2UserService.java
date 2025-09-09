@@ -50,7 +50,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
             if (userMain.getUserRole().isTutor()) {
                 TutorProfile byUserNo = tutorProfileService.findByUserNo(userMain.getUserNo());
-                tutorProfileNo = byUserNo.getTutorProfileNo();
+                if (byUserNo != null) {
+                    tutorProfileNo = byUserNo.getTutorProfileNo();
+                }
             }
 
         } catch (UserException e) {

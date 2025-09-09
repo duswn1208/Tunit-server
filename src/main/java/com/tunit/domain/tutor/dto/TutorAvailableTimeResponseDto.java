@@ -10,6 +10,7 @@ public record TutorAvailableTimeResponseDto(
         Long tutorAvailableTimeNo,
         Long tutorProfileNo,
         DayOfWeek dayOfWeek,
+        Integer dayOfWeekNum,
         LocalTime startTime,
         LocalTime endTime,
         LocalDateTime createdAt,
@@ -19,7 +20,8 @@ public record TutorAvailableTimeResponseDto(
         return new TutorAvailableTimeResponseDto(
                 tutorAvailableTime.getTutorAvailableTimeNo(),
                 tutorAvailableTime.getTutorProfileNo(),
-                tutorAvailableTime.getDayOfWeek(),
+                DayOfWeek.of(tutorAvailableTime.getDayOfWeekNum()),
+                tutorAvailableTime.getDayOfWeekNum(),
                 tutorAvailableTime.getStartTime(),
                 tutorAvailableTime.getEndTime(),
                 tutorAvailableTime.getCreatedAt(),

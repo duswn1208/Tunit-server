@@ -3,9 +3,8 @@ package com.tunit.domain.lesson.entity;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationSource;
 import com.tunit.domain.lesson.define.ReservationStatus;
-import com.tunit.domain.lesson.dto.LessonSaveDto;
+import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
-import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -90,6 +89,7 @@ public class LessonReservation {
                 .tutorProfileNo(fixedLessonReservation.getTutorProfileNo())
                 .studentNo(fixedLessonReservation.getStudentNo())
                 .fixedLessonReservationNo(fixedLessonReservation.getFixedLessonReservationNo())
+                .lessonCategory(fixedLessonReservation.getSubCategory())
                 .date(fixedLessonReservation.getStartDate())
                 .startTime(fixedLessonReservation.getStartTime())
                 .endTime(fixedLessonReservation.getEndTime())
@@ -104,6 +104,7 @@ public class LessonReservation {
                 .tutorProfileNo(fixedLessonReservation.getTutorProfileNo())
                 .studentNo(fixedLessonReservation.getStudentNo())
                 .fixedLessonReservationNo(fixedLessonReservation.getFixedLessonReservationNo())
+                .lessonCategory(fixedLessonReservation.getSubCategory())
                 .date(fixedLessonReservation.getStartDate())
                 .startTime(fixedLessonReservation.getStartTime())
                 .endTime(fixedLessonReservation.getEndTime())
@@ -113,7 +114,7 @@ public class LessonReservation {
                 .build();
     }
 
-    public static LessonReservation fromLessonSaveDto(TutorProfileResponseDto tutorProfileInfo, UserMain student, LessonSaveDto dto) {
+    public static LessonReservation fromLessonSaveDto(TutorProfileResponseDto tutorProfileInfo, UserMain student, LessonReserveSaveDto dto) {
         LocalDateTime startDateTime = LocalDateTime.of(dto.lessonDate(), dto.startTime());
         DayOfWeek day = DayOfWeek.of(startDateTime.getDayOfWeek().getValue());
         return LessonReservation.of()
