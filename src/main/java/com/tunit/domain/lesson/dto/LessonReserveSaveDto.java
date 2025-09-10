@@ -1,5 +1,6 @@
 package com.tunit.domain.lesson.dto;
 
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 
 import java.time.LocalDate;
@@ -9,7 +10,7 @@ public record LessonReserveSaveDto(
         String studentName,
         String phone,
         LocalTime startTime,
-        String lesson,
+        LessonSubCategory lesson,
         LocalDate lessonDate,
         ReservationStatus reservationStatus,
         String memo // 선택

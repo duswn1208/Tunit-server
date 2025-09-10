@@ -9,12 +9,17 @@ import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.dto.LessonStatusRequestDto;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.lesson.service.LessonService;
+import com.tunit.domain.tutor.dto.TutorLessonsResponseDto;
+import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
+import com.tunit.domain.tutor.entity.TutorLessons;
+import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -24,6 +29,7 @@ public class LessonController {
 
     private final LessonReserveService lessonReserveService;
     private final LessonService lessonService;
+    private final TutorProfileService tutorProfileService;
 
     @GetMapping("")
     public ResponseEntity<?> getLessonSummary(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
@@ -46,6 +52,11 @@ public class LessonController {
     @ResponseBody
     public ResponseEntity<List<LessonCategory>> getLessonCategories() {
         return ResponseEntity.ok(List.of(LessonCategory.values()));
+    }
+
+    @GetMapping("/tutor/categories")
+    public ResponseEntity<List<TutorLessonsResponseDto>> getTutorLessonCategories(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
+        return ResponseEntity.ok(tutorProfileService.findTutorLessonsByTutorProfileNo(tutorProfileNo));
     }
 
     @GetMapping("/categories/{code}/subcategories")

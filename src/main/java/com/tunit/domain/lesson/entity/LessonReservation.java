@@ -35,7 +35,7 @@ public class LessonReservation {
 
     private LessonSubCategory lessonCategory;
 
-    @Column(name = "fixed_lesson_reservation_no", nullable = false)
+    @Column(name = "fixed_lesson_reservation_no", nullable = true)
     private Long fixedLessonReservationNo;
 
     @Column(name = "date", nullable = false)
@@ -120,12 +120,13 @@ public class LessonReservation {
         return LessonReservation.of()
                 .tutorProfileNo(tutorProfileInfo.tutorProfileNo())
                 .studentNo(student.getUserNo())
-                .lessonCategory(LessonSubCategory.fromLabel(dto.lesson()))
+                .lessonCategory(dto.lesson())
                 .dayOfWeekNum(day.getValue())
                 .date(dto.lessonDate())
                 .startTime(dto.startTime())
                 .endTime(dto.startTime().plusMinutes(tutorProfileInfo.durationMin()))
                 .status(dto.reservationStatus())
+                .source(ReservationSource.APP)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
