@@ -6,6 +6,7 @@ import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.dto.TutorAvailExceptionResponseDto;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeResponseDto;
+import com.tunit.domain.tutor.repository.TutorLessonsRepository;
 import com.tunit.domain.tutor.service.TutorAvailableTimeService;
 import com.tunit.domain.tutor.service.TutorHolidayService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class LessonService {
     private final LessonReservationRepository lessonReservationRepository;
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
+    private final TutorLessonsRepository tutorLessonsRepository;
 
     public LessonScheduleStatusDto getLessonScheduleInfo(LessonFindRequestDto lessonFindRequestDto) {
 
@@ -34,5 +36,4 @@ public class LessonService {
         LessonScheduleStatusDto lessonScheduleStatusDto = new LessonScheduleStatusDto(availableTimes, holidayDates, lessonReservations);
         return lessonScheduleStatusDto;
     }
-
 }
