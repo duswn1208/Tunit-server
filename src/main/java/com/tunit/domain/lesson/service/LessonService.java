@@ -26,6 +26,7 @@ public class LessonService {
     private final FixedLessonReservationRepository fixedLessonReservationRepository;
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
+    private final TutorLessonsRepository tutorLessonsRepository;
 
     public LessonScheduleStatusDto getLessonScheduleInfo(LessonFindRequestDto lessonFindRequestDto) {
 
