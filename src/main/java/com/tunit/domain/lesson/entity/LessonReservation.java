@@ -54,9 +54,6 @@ public class LessonReservation {
     @Column(name = "status", length = 20, nullable = false)
     private ReservationStatus status;
 
-    @Column(name = "idempotency_key", length = 50, unique = true)
-    private String idempotencyKey;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "source", length = 10, nullable = false)
     private ReservationSource source;
@@ -66,7 +63,7 @@ public class LessonReservation {
 
     @Builder(builderMethodName = "of")
     public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long studentNo, LessonSubCategory lessonCategory, Long fixedLessonReservationNo, LocalDate date,
-                             LocalTime startTime, LocalTime endTime, Integer dayOfWeekNum, ReservationStatus status, String idempotencyKey,
+                             LocalTime startTime, LocalTime endTime, Integer dayOfWeekNum, ReservationStatus status,
                              ReservationSource source, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.lessonReservationNo = lessonReservationNo;
         this.tutorProfileNo = tutorProfileNo;
@@ -78,7 +75,6 @@ public class LessonReservation {
         this.endTime = endTime;
         this.dayOfWeekNum = dayOfWeekNum;
         this.status = status;
-        this.idempotencyKey = idempotencyKey;
         this.source = source;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
