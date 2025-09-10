@@ -1,16 +1,22 @@
 package com.tunit.domain.tutor.service;
 
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
+import com.tunit.domain.tutor.dto.TutorLessonsResponseDto;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
+import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
+import jakarta.persistence.SecondaryTable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +36,13 @@ public class TutorProfileService {
         TutorProfile tutorProfile = tutorProfileRepository.findById(tutorProfileNo).orElseThrow();
 
         return TutorProfileResponseDto.from( tutorProfile);
+    }
+
+    public List<TutorLessonsResponseDto> findTutorLessonsByTutorProfileNo(@NonNull Long tutorProfileNo) {
+        TutorProfile tutorProfile = tutorProfileRepository.findById(tutorProfileNo).orElseThrow();
+        List<TutorLessonsResponseDto> tutorLessons = tutorProfile.getTutorLessons().stream().map(TutorLessonsResponseDto ::from).toList();
+
+        return tutorLessons;
     }
 
     @Transactional
