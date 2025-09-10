@@ -1,6 +1,7 @@
 package com.tunit.domain.tutor.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
+import com.tunit.common.session.dto.SessionUser;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,9 @@ public class TutorProfileController {
     @PostMapping("/join")
     public ResponseEntity<?> join(@LoginUser(field = "userNo") Long userNo, @RequestBody TutorProfileSaveDto tutorProfileSaveDto, HttpSession session) {
         Long tutorProfileNo = tutorProfileService.save(userNo, tutorProfileSaveDto);
-        session.setAttribute("tutorProfileNo", tutorProfileNo); // 세션에 tutorProfileNo 저장
+        SessionUser loginUser = (SessionUser) session.getAttribute("LOGIN_USER");
+        SessionUser newSessionUser = loginUser.updateTutorProfileNo(tutorProfileNo);
+        session.setAttribute("LOGIN_USER", newSessionUser);
         return ResponseEntity.ok(tutorProfileNo);
     }
 //

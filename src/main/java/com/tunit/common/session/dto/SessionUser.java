@@ -25,6 +25,10 @@ public record SessionUser (
         return new SessionUser(userMain.getUserNo(), userMain.getUserRole(), userMain.getUserId(), userMain.getName(), userMain.getUserStatus(), tutorProfileNo);
     }
 
+    public SessionUser updateTutorProfileNo(Long tutorProfileNo) {
+        return new SessionUser(this.userNo, this.userRole, this.userId, this.name, this.userStatus, tutorProfileNo);
+    }
+
     public boolean isTutor() {
         return userRole.isTutor();
     }

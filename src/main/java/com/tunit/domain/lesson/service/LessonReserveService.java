@@ -19,33 +19,43 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class LessonReserveService {
+    private static final Logger log = LoggerFactory.getLogger(LessonReserveService.class);
 
     private final LessonReservationRepository lessonReservationRepository;
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
 
+    @Transactional
     public void reserveLesson(Long tutorProfileNo, LessonReserveSaveDto lessonReserveSaveDto) {
-        UserMain student = userService.getOrCreateWaitingStudent(lessonReserveSaveDto.studentName(), lessonReserveSaveDto.phone());
+        try {
+            UserMain student = userService.getOrCreateWaitingStudent(lessonReserveSaveDto.studentName(), lessonReserveSaveDto.phone());
 
-        TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo);
+            TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo);
 
-        LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, lessonReserveSaveDto);
-        if (lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
-                tutorProfileNo,
-                lessonReservation.getDate(),
-                lessonReservation.getStartTime(),
-                lessonReservation.getEndTime(),
-                List.of(ReservationStatus.ACTIVE, ReservationStatus.TRIAL_ACTIVE, ReservationStatus.REQUESTED, ReservationStatus.COMPLETED)
-        )) {
-            throw new IllegalStateException("해당 시간대에 이미 예약된 레슨이 있습니다.");
+            LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, lessonReserveSaveDto);
+            if (lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
+                    tutorProfileNo,
+                    lessonReservation.getDate(),
+                    lessonReservation.getStartTime(),
+                    lessonReservation.getEndTime(),
+                    List.of(ReservationStatus.ACTIVE, ReservationStatus.TRIAL_ACTIVE, ReservationStatus.REQUESTED, ReservationStatus.COMPLETED)
+            )) {
+                throw new IllegalStateException("해당 시간대에 이미 예약된 레슨이 있습니다.");
+            }
+
+            lessonReservationRepository.save(lessonReservation);
+        } catch (Exception e) {
+            log.error("레슨 예약 저장 중 에러 발생", e);
+            throw e;
         }
-
-        lessonReservationRepository.save(lessonReservation);
     }
 
     public void saveLessonFromFixedLessonFromExcel(FixedLessonReservation fixedLessonReservation) {
