@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/fixed-lessons")
 @RequiredArgsConstructor
-public class FixedLessonExcelController {
+public class FixedLessonController {
     private final FixedLessonService fixedLessonService;
 
     @PostMapping("/upload/excel")

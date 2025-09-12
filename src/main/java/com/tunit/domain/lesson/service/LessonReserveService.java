@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -60,21 +62,28 @@ public class LessonReserveService {
 
     public void saveLessonFromFixedLessonFromExcel(FixedLessonReservation fixedLessonReservation) {
         LessonReservation lessonReservation = LessonReservation.fromFixedLessonExcelUpload(fixedLessonReservation);
-        lessonReservationRepository.save(lessonReservation);
+        saveMonthlyLessonReservations(lessonReservation);
     }
 
     public void saveLessonFromFixedLessonFromWeb(FixedLessonReservation fixedLessonReservation) {
         LessonReservation lessonReservation = LessonReservation.fromFixedLessonFromWeb(fixedLessonReservation);
-        lessonReservationRepository.save(lessonReservation);
+        saveMonthlyLessonReservations(lessonReservation);
     }
 
-    private LessonSubCategory getLessonSubCategoryByLabel(String label) {
-        for (LessonSubCategory subCategory : LessonSubCategory.values()) {
-            if (subCategory.getLabel().equals(label)) {
-                return subCategory;
+    private void saveMonthlyLessonReservations(LessonReservation lessonReservation) {
+        LocalDate startDate = lessonReservation.getDate();
+        Integer dayOfWeekNum = lessonReservation.getDayOfWeekNum();
+        List<LessonReservation> reservations = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            // 요일이 같으려면 7일씩 더함
+            LocalDate targetDate = startDate.plusDays(i * 7);
+            if (targetDate.getDayOfWeek().getValue() == dayOfWeekNum) {
+                LessonReservation newLesson = lessonReservation.copyWithDate(targetDate);
+                tutorProfileService.checkBusinessAndHolidays(lessonReservation);
+                reservations.add(newLesson);
             }
         }
-        return null;
+        lessonReservationRepository.saveAll(reservations);
     }
 
     public boolean existsLessons(@NonNull Long tutorProfileNo) {

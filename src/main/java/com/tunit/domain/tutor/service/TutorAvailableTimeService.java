@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -19,6 +20,12 @@ import java.util.List;
 public class TutorAvailableTimeService {
 
     private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
+
+    public boolean isWithinAvailableTime(Long tutorProfileNo, Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime) {
+        return tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(
+                tutorProfileNo, dayOfWeekNum, startTime, endTime
+        );
+    }
 
     @Transactional
     public void saveAvailableTime(@NonNull Long tutorProfileNo, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {

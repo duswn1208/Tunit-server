@@ -75,7 +75,7 @@ public class FixedLessonReservation {
                 .status(dto.reservationStatus())
                 .startDate(dto.firstLessonDate())
                 .memo(dto.memo())
-                .subCategory(LessonSubCategory.fromLabel(dto.lesson()))
+                .subCategory(LessonSubCategory.fromName(dto.lesson()))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
