@@ -35,4 +35,6 @@ public interface TutorAvailableTimeRepository extends JpaRepository<TutorAvailab
     void deleteAllByTutorProfileNoAndTutorAvailableTimeNoIn(Long tutorProfileNo, List<Long> tutorAvailableTimeNos);
 
     boolean existsByTutorProfileNoAndTutorAvailableTimeNoIn(Long tutorProfileNo, List<Long> tutorAvailableTimeNos);
+
+    boolean existsByTutorProfileNoAndDayOfWeekNumAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(Long tutorProfileNo, Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime);
 }

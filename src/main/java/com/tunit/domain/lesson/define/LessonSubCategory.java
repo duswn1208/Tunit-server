@@ -43,6 +43,14 @@ public enum LessonSubCategory {
     public String getCode() { return name(); }
     public String getLabel() { return label; }
 
+    public static LessonSubCategory fromName(String name) {
+        try {
+            return LessonSubCategory.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            throw new LessonNotFoundException("No enum constant with name " + name);
+        }
+    }
+
     public static LessonSubCategory fromLabel(String label) {
         for (LessonSubCategory subCategory : LessonSubCategory.values()) {
             if (subCategory.getLabel().equals(label)) {

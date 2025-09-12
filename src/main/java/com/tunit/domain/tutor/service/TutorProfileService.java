@@ -1,5 +1,7 @@
 package com.tunit.domain.tutor.service;
 
+import com.tunit.domain.lesson.entity.LessonReservation;
+import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.dto.TutorLessonsResponseDto;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -43,6 +46,23 @@ public class TutorProfileService {
         List<TutorLessonsResponseDto> tutorLessons = tutorProfile.getTutorLessons().stream().map(TutorLessonsResponseDto ::from).toList();
 
         return tutorLessons;
+    }
+
+    public void checkBusinessAndHolidays(LessonReservation lessonReservation) {
+        boolean isAvailable = tutorAvailableTimeService.isWithinAvailableTime(
+                lessonReservation.getTutorProfileNo(),
+                lessonReservation.getDayOfWeekNum(),
+                lessonReservation.getStartTime(),
+                lessonReservation.getEndTime()
+        );
+        if (!isAvailable) {
+            throw new LessonNotFoundException("레슨 예약은 영업 시간 내로 가능합니다.");
+        }
+
+        boolean isHoliday = tutorHolidayService.isWhithinHoliday(lessonReservation.getTutorProfileNo(), lessonReservation.getDate(), lessonReservation.getStartTime(), lessonReservation.getEndTime());
+        if (isHoliday) {
+            throw new LessonNotFoundException("레슨 날짜가 휴무일입니다.");
+        }
     }
 
     @Transactional

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -42,5 +44,11 @@ public class TutorHolidayService {
                 .stream()
                 .map(TutorAvailExceptionResponseDto::from)
                 .toList();
+    }
+
+    public boolean isWhithinHoliday(Long tutorProfileNo, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+                tutorProfileNo, date, startTime, endTime
+        );
     }
 }

@@ -128,7 +128,6 @@ public class LessonReservation {
                 .build();
     }
 
-
     public void changeStatus(ReservationStatus beforeStatus, ReservationStatus afterStatus) {
         if (!this.status.equals(beforeStatus)) {
             throw new IllegalStateException("현재 상태가 " + beforeStatus + "가 아닙니다. 현재 상태: " + this.status);
@@ -137,5 +136,20 @@ public class LessonReservation {
             throw new IllegalStateException("상태를 " + beforeStatus + "에서 " + afterStatus + "로 변경할 수 없습니다.");
         }
         this.status = afterStatus;
+    }
+
+    public LessonReservation copyWithDate(LocalDate date) {
+        return LessonReservation.of()
+                .tutorProfileNo(this.tutorProfileNo)
+                .studentNo(this.studentNo)
+                .fixedLessonReservationNo(this.fixedLessonReservationNo)
+                .lessonCategory(this.lessonCategory)
+                .date(date)
+                .startTime(this.startTime)
+                .endTime(this.endTime)
+                .dayOfWeekNum(this.dayOfWeekNum)
+                .status(this.status)
+                .source(this.source)
+                .build();
     }
 }
