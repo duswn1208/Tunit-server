@@ -1,5 +1,6 @@
 package com.tunit.domain.user.dto;
 
+import com.tunit.domain.student.dto.StudentInfoResponseDto;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.user.define.UserRole;
 import com.tunit.domain.user.define.UserStatus;
@@ -18,9 +19,11 @@ public record  UserMainResponseDto  (
         UserRole userRole,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        TutorProfileResponseDto tutorProfile
+        TutorProfileResponseDto tutorProfile,
+        StudentInfoResponseDto studentInfo
 ){
-    public static UserMainResponseDto from(UserMain userMain, TutorProfileResponseDto tutorProfileResponseDto) {
+
+    public static UserMainResponseDto tutorFrom(UserMain userMain, TutorProfileResponseDto tutorProfileResponseDto) {
         return new UserMainResponseDto(
                 userMain.getUserNo(),
                 userMain.getUserId(),
@@ -32,7 +35,25 @@ public record  UserMainResponseDto  (
                 userMain.getUserRole(),
                 userMain.getCreatedAt(),
                 userMain.getUpdatedAt(),
-               tutorProfileResponseDto
+               tutorProfileResponseDto,
+                null
+        );
+    }
+
+    public static UserMainResponseDto studentFrom(UserMain userMain, StudentInfoResponseDto studentInfoResponseDto) {
+        return new UserMainResponseDto(
+                userMain.getUserNo(),
+                userMain.getUserId(),
+                userMain.getName(),
+                userMain.getNickname(),
+                userMain.getPhone(),
+                userMain.getIsPhoneVerified(),
+                userMain.getUserStatus(),
+                userMain.getUserRole(),
+                userMain.getCreatedAt(),
+                userMain.getUpdatedAt(),
+                null,
+               studentInfoResponseDto
         );
     }
 }

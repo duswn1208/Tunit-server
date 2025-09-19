@@ -48,7 +48,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         try {
             userMain = userService.getUserProviderInfo(UserMain.findFrom(UserProvider.NAVER, providerId));
 
-            if (userMain.getUserRole().isTutor()) {
+            if (userMain.getUserRole() != null && userMain.getUserRole().isTutor()) {
                 TutorProfile byUserNo = tutorProfileService.findByUserNo(userMain.getUserNo());
                 if (byUserNo != null) {
                     tutorProfileNo = byUserNo.getTutorProfileNo();
