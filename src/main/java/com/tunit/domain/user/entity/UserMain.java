@@ -3,10 +3,12 @@ package com.tunit.domain.user.entity;
 import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.define.UserRole;
 import com.tunit.domain.user.define.UserStatus;
+import com.tunit.domain.user.dto.StudentProfileSaveDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +33,8 @@ public class UserMain {
 
     @Builder(builderMethodName = "of")
     public UserMain(Long userNo, String userId, String name, String nickname, String phone,
-                    UserProvider provider, String providerId, Boolean isPhoneVerified, UserStatus userStatus, UserRole userRole, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                    UserProvider provider, String providerId, Boolean isPhoneVerified, UserStatus userStatus, UserRole userRole,
+                    LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userNo = userNo;
         this.userId = userId;
         this.name = name;
@@ -57,7 +60,6 @@ public class UserMain {
                 .phone(phone)
                 .isPhoneVerified(false)
                 .userStatus(UserStatus.ACTIVE)
-                .userRole(UserRole.TUTOR)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -82,5 +84,19 @@ public class UserMain {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void joinStudent() {
+        this.userStatus = UserStatus.ACTIVE;
+        this.userRole = UserRole.STUDENT;
+        this.updatedAt = LocalDateTime.now();
+        this.nickname = "S";
+    }
+
+    public void updateStudentProfile(StudentProfileSaveDto studentProfileSaveDto) {
+        this.nickname = studentProfileSaveDto.getNickname();
+        this.userRole = UserRole.STUDENT;
+        this.userStatus = UserStatus.ACTIVE;
+        this.updatedAt = LocalDateTime.now();
     }
 }

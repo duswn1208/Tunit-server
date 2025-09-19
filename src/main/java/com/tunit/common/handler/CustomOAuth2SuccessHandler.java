@@ -2,6 +2,7 @@ package com.tunit.common.handler;
 
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
+import com.tunit.domain.student.service.StudentService;
 import com.tunit.domain.user.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import java.io.IOException;
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
+    private final StudentService studentService;
     @Value("${service-url.web}")
     private String redirectUrl;
     private final UserService userService;
@@ -38,10 +40,23 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             return;
         }
 
+        if (user.getUserRole() == null) {
+            response.sendRedirect(ONBOARDING_PATH);
+            return;
+        }
+
         switch (user.getUserRole()) {
             case TUTOR -> {
                 boolean hasTutorProfile = tutorProfileService.findByUserNo(user.getUserNo()) != null;
                 if (!hasTutorProfile) {
+                    response.sendRedirect(ONBOARDING_PATH);
+                } else {
+                    response.sendRedirect(HOME_PATH);
+                }
+            }
+            case STUDENT -> {
+                boolean needOnboardingStudent = studentService.needOnboardingStudent(user.getUserNo());
+                if (needOnboardingStudent) {
                     response.sendRedirect(ONBOARDING_PATH);
                 } else {
                     response.sendRedirect(HOME_PATH);
