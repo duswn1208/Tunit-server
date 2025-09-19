@@ -1,10 +1,12 @@
 package com.tunit.domain.user.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
+import com.tunit.domain.student.dto.StudentInfoResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
+import com.tunit.domain.student.service.StudentService;
 import com.tunit.domain.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +26,8 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-
     private final TutorProfileService tutorProfileService;
+    private final StudentService studentService;
 
     @GetMapping("/me")
     public ResponseEntity<?> me(@AuthenticationPrincipal OAuth2User oAuth2User) {
@@ -42,17 +44,17 @@ public class UserController {
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 
-
     @GetMapping("/profile/me")
     public ResponseEntity<?> profileMe(@LoginUser(field = "userNo") Long userNo) {
         UserMain userMain = userService.findByUserNo(userNo);
 
         if (userMain.getUserRole().isTutor()) {
             var tutorProfileInfo = tutorProfileService.findTutorProfileInfo(userNo);
-            return ResponseEntity.ok(UserMainResponseDto.from(userMain, tutorProfileInfo));
+            return ResponseEntity.ok(UserMainResponseDto.tutorFrom(userMain, tutorProfileInfo));
+        } else {
+            StudentInfoResponseDto studentByUserNo = studentService.findStudentByUserNo(userNo);
+            return ResponseEntity.ok(UserMainResponseDto.studentFrom(userMain, studentByUserNo));
         }
-
-        return ResponseEntity.ok(userMain);
     }
 
     @GetMapping("/auth/me")
