@@ -1,9 +1,8 @@
 package com.tunit.domain.student.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
-import com.tunit.domain.user.dto.StudentProfileSaveDto;
 import com.tunit.domain.student.service.StudentService;
-import com.tunit.domain.user.service.UserService;
+import com.tunit.domain.user.dto.StudentProfileSaveDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class StudentController {
 
-    private final UserService userService;
     private final StudentService studentService;
 
     @PostMapping("/profile/join")

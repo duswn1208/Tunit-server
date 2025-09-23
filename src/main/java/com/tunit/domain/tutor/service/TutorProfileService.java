@@ -2,6 +2,7 @@ package com.tunit.domain.tutor.service;
 
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
+import com.tunit.domain.tutor.dto.TutorFindRequestDto;
 import com.tunit.domain.tutor.dto.TutorLessonsResponseDto;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
@@ -75,4 +76,9 @@ public class TutorProfileService {
         return tutorProfileRepository.findByUserNo(userNo);
     }
 
+    public List<TutorProfileResponseDto> findTutors(TutorFindRequestDto tutorFindRequestDto) {
+        List<TutorProfile> profileList = tutorProfileRepository.findTutorsByCategoryAndRegion(tutorFindRequestDto.getLessonCodes(), tutorFindRequestDto.getRegionCodes());
+
+        return profileList.stream().map(TutorProfileResponseDto::from).toList();
+    }
 }

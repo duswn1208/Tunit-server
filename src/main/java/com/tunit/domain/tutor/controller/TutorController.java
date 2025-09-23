@@ -1,11 +1,11 @@
 package com.tunit.domain.tutor.controller;
 
+import com.tunit.domain.tutor.dto.TutorFindRequestDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,8 +15,8 @@ public class TutorController {
 
     private final TutorProfileService tutorProfileService;
 
-    @GetMapping("/search")
-    public void findTutors() {
-
+    @PostMapping("/search")
+    public ResponseEntity findTutors(@RequestBody TutorFindRequestDto tutorFindRequestDto) {
+        return ResponseEntity.ok(tutorProfileService.findTutors(tutorFindRequestDto));
     }
 }
