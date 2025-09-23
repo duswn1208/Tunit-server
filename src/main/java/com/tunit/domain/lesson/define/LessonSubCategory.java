@@ -3,7 +3,6 @@ package com.tunit.domain.lesson.define;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
-import com.tunit.domain.student.entity.StudentLessons;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -41,8 +40,13 @@ public enum LessonSubCategory {
     @Getter
     private final LessonCategory parent;
 
-    public String getCode() { return name(); }
-    public String getLabel() { return label; }
+    public String getCode() {
+        return name();
+    }
+
+    public String getLabel() {
+        return label;
+    }
 
     public static LessonSubCategory fromName(String name) {
         try {

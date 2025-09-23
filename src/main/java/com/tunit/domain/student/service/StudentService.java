@@ -1,5 +1,6 @@
 package com.tunit.domain.student.service;
 
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.student.dto.StudentInfoResponseDto;
 import com.tunit.domain.student.entity.StudentLessons;
 import com.tunit.domain.student.entity.StudentRegions;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -51,7 +53,7 @@ public class StudentService {
     }
 
     public StudentInfoResponseDto findStudentByUserNo(Long userNo) {
-        Set<StudentLessons> lessons = studentLessonsService.findByUserNo(userNo);
+        Set<LessonSubCategory> lessons = studentLessonsService.findByUserNo(userNo).stream().map(StudentLessons::getLessonSubCategory).collect(Collectors.toSet());
         Set<StudentRegions> regions = studentRegionsService.findByUserNo(userNo);
 
         return StudentInfoResponseDto.from(userNo, lessons, regions);

@@ -37,10 +37,6 @@ public class TutorProfile {
     private Integer durationMin;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-//
-//    @OneToOne
-//    @JoinColumn(studentName = "user_no", referencedColumnName = "userNo", insertable = false, updatable = false)
-//    private UserMain userMain;
 
     @Builder(builderMethodName = "of")
     public TutorProfile(Long tutorProfileNo, Long userNo, String introduce, LessonCategory lessonCategory, Set<TutorLessons> tutorLessons, Set<TutorRegion> tutorRegions,
