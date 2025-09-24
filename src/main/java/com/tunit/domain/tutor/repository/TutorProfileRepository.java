@@ -17,9 +17,13 @@ public interface TutorProfileRepository extends JpaRepository<TutorProfile, Long
     @EntityGraph(attributePaths = {"tutorLessons", "tutorRegions"})
     Optional<TutorProfile> findByTutorProfileNo(Long tutorProfileNo);
 
-    @Query("SELECT t FROM TutorProfile t JOIN t.tutorLessons l JOIN t.tutorRegions r " +
-            "WHERE l.lessonSubCategory IN :lessonSubCategories AND r.code IN :regionCodes")
-    List<TutorProfile> findTutorsByCategoryAndRegion(
+    @EntityGraph(attributePaths = {"tutorLessons", "tutorRegions"})
+    List<TutorProfile> findByTutorProfileNoIn(List<Long> tutorProfileNoList);
+
+    @Query("SELECT DISTINCT t.tutorProfileNo FROM TutorProfile t JOIN t.tutorLessons l JOIN t.tutorRegions r " +
+            "WHERE (:lessonSubCategories IS NULL OR l.lessonSubCategory IN :lessonSubCategories) " +
+            "AND (:regionCodes IS NULL OR r.code IN :regionCodes)")
+    List<Long> findTutorProfileNoByCategoryAndRegion(
         List<LessonSubCategory> lessonSubCategories,
         List<Integer> regionCodes
     );

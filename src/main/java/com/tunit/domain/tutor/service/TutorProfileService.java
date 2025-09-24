@@ -1,15 +1,15 @@
 package com.tunit.domain.tutor.service;
 
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
-import com.tunit.domain.tutor.dto.TutorFindRequestDto;
-import com.tunit.domain.tutor.dto.TutorLessonsResponseDto;
-import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
-import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
+import com.tunit.domain.tutor.dto.*;
 import com.tunit.domain.tutor.entity.TutorProfile;
+import com.tunit.domain.tutor.entity.TutorRegion;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TutorProfileService {
 
     private final TutorProfileRepository tutorProfileRepository;
@@ -30,9 +31,11 @@ public class TutorProfileService {
     }
 
     public TutorProfileResponseDto findTutorProfileInfoByTutorProfileNo(@NonNull Long tutorProfileNo) {
-        TutorProfile tutorProfile = tutorProfileRepository.findById(tutorProfileNo).orElseThrow();
-
-        return TutorProfileResponseDto.from(tutorProfile);
+        TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
+                .orElseThrow();
+        // userMain이 TutorProfile에 없으므로 nickname은 null로 처리
+        List<TutorAvailableTimeResponseDto> availableTimes = tutorAvailableTimeService.findByTutorProfileNo(tutorProfileNo);
+        return TutorProfileResponseDto.from(tutorProfile,  availableTimes, null);
     }
 
     public List<TutorLessonsResponseDto> findTutorLessonsByTutorProfileNo(@NonNull Long tutorProfileNo) {
@@ -77,8 +80,18 @@ public class TutorProfileService {
     }
 
     public List<TutorProfileResponseDto> findTutors(TutorFindRequestDto tutorFindRequestDto) {
-        List<TutorProfile> profileList = tutorProfileRepository.findTutorsByCategoryAndRegion(tutorFindRequestDto.getLessonCodes(), tutorFindRequestDto.getRegionCodes());
+        List<LessonSubCategory> lessonCodes = tutorFindRequestDto.getLessonCodes();
+        List<Integer> regionCodes = tutorFindRequestDto.getRegionCodes();
 
+        if (lessonCodes != null && lessonCodes.isEmpty()) lessonCodes = null;
+        if (regionCodes != null && regionCodes.isEmpty()) regionCodes = null;
+
+        List<Long> tutorProfileNos = tutorProfileRepository.findTutorProfileNoByCategoryAndRegion(lessonCodes, regionCodes);
+        if (tutorProfileNos.isEmpty()) {
+            return List.of();
+        }
+
+        List<TutorProfile> profileList = tutorProfileRepository.findByTutorProfileNoIn(tutorProfileNos);
         return profileList.stream().map(TutorProfileResponseDto::from).toList();
     }
 }
