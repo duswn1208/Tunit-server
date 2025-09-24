@@ -19,4 +19,9 @@ public class TutorController {
     public ResponseEntity findTutors(@RequestBody TutorFindRequestDto tutorFindRequestDto) {
         return ResponseEntity.ok(tutorProfileService.findTutors(tutorFindRequestDto));
     }
+
+    @GetMapping("/{tutorProfileNo}")
+    public ResponseEntity getTutorProfile(@PathVariable Long tutorProfileNo) {
+        return ResponseEntity.ok(tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo));
+    }
 }
