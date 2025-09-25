@@ -5,6 +5,7 @@ import com.tunit.domain.region.dto.RegionSaveDto;
 import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
+import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 public record TutorProfileResponseDto(
         Long userNo,
+        UserMainResponseDto userMain,
         Long tutorProfileNo,
         String introduce,
         LessonCategory lessonCategory,
@@ -27,6 +29,7 @@ public record TutorProfileResponseDto(
     public static TutorProfileResponseDto from(TutorProfile tutorProfile) {
         return new TutorProfileResponseDto(
                 tutorProfile.getUserNo(),
+                null,
                 tutorProfile.getTutorProfileNo(),
                 tutorProfile.getIntroduce(),
                 tutorProfile.getLessonCategory(),
@@ -43,6 +46,7 @@ public record TutorProfileResponseDto(
     public static TutorProfileResponseDto from(TutorProfile tutorProfile, List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList, List<TutorAvailExceptionResponseDto> tutorHolidayResponseList) {
         return new TutorProfileResponseDto(
                 tutorProfile.getUserNo(),
+                null,
                 tutorProfile.getTutorProfileNo(),
                 tutorProfile.getIntroduce(),
                 tutorProfile.getLessonCategory(),
