@@ -1,28 +1,33 @@
 package com.tunit.domain.lesson.service;
 
-import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
-import com.tunit.domain.lesson.dto.LessonResponsDto;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
+import com.tunit.domain.lesson.dto.LessonResponsDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
+import com.tunit.domain.tutor.define.TutorLessonOpenType;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
+import com.tunit.domain.tutor.entity.TutorLessons;
+import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
+import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
+import com.tunit.domain.tutor.repository.TutorLessonsRepository;
+import com.tunit.domain.tutor.repository.TutorProfileRepository;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +39,12 @@ public class LessonReserveService {
     private final LessonReservationRepository lessonReservationRepository;
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
+    private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
+    private final TutorAvailExceptionRepository tutorAvailExceptionRepository;
+    private final TutorLessonsRepository tutorLessonsRepository;
 
     @Transactional
-    public void reserveLesson(Long tutorProfileNo, LessonReserveSaveDto lessonReserveSaveDto) {
+    public void createLesson(Long tutorProfileNo, LessonReserveSaveDto lessonReserveSaveDto) {
         try {
             UserMain student = userService.getOrCreateWaitingStudent(lessonReserveSaveDto.studentName(), lessonReserveSaveDto.phone());
 
@@ -57,6 +65,57 @@ public class LessonReserveService {
         } catch (Exception e) {
             log.error("레슨 예약 저장 중 에러 발생", e);
             throw e;
+        }
+    }
+
+    @Transactional
+    public void reserveLesson(Long userNo, LessonReserveSaveDto dto) {
+        // 예약 요청자(학생) 정보 조회
+        UserMain student = userService.findByUserNo(userNo);
+
+        // 튜터 프로필 존재 여부 확인
+        TutorProfileResponseDto tutorProfile = tutorProfileService.findTutorProfileInfoByTutorProfileNo(dto.tutorProfileNo());
+
+        // 튜터레슨 존재 여부 확인
+        TutorLessons tutorLesson = tutorLessonsRepository.findById(dto.tutorLessonNo())
+                .orElseThrow(() -> new IllegalArgumentException("해당 레슨 정보가 없습니다. tutorLessonNo: " + dto.tutorLessonNo()));
+
+        // 선택한 날짜가 튜터의 영업일인지 확인 (예외일정, 휴무일 체크)
+        LocalTime endTime = dto.startTime().plusMinutes(tutorProfile.durationMin());
+        validateTutorAvailability(dto.tutorProfileNo(), dto.lessonDate(), dto.startTime(), endTime);
+
+        // 레슨 예약정보 저장
+        LessonReservation reservation = LessonReservation.fromReserveLesson(dto, dto.tutorProfileNo(), student.getUserNo(), endTime);
+        lessonReservationRepository.save(reservation);
+        log.info("레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, date: {}", student.getUserNo(), dto.tutorProfileNo(), dto.lessonDate());
+    }
+
+    private void validateTutorAvailability(Long tutorProfileNo, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        // 1. 해당 요일이 튜터의 영업일이고 해당 시간이 영업시간인지 확인
+        int dayOfWeek = date.getDayOfWeek().getValue();
+        boolean isAvailableTime = tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+                tutorProfileNo, dayOfWeek, startTime, endTime);
+        if (!isAvailableTime) {
+            throw new IllegalArgumentException("튜터의 영업시간이 아닙니다.");
+        }
+
+        // 2. 예외일정이 있는지 확인
+        boolean hasException = tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndTypeAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+                tutorProfileNo, date, TutorLessonOpenType.BLOCK, startTime, endTime);
+        if (hasException) {
+            throw new IllegalArgumentException("튜터의 예외일정이 있는 시간입니다.");
+        }
+
+        // 3. 해당 시간에 다른 레슨이 있는지 확인
+        boolean hasOverlappingLesson = lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
+                tutorProfileNo,
+                date,
+                startTime,
+                endTime,
+                ReservationStatus.VALID_LESSON_STATUSES
+        );
+        if (hasOverlappingLesson) {
+            throw new IllegalArgumentException("이미 예약된 시간입니다.");
         }
     }
 

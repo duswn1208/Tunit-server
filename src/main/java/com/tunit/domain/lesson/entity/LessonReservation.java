@@ -58,13 +58,19 @@ public class LessonReservation {
     @Column(name = "source", length = 10, nullable = false)
     private ReservationSource source;
 
+    @Column(length = 500)
+    private String memo;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long studentNo, LessonSubCategory lessonCategory, Long fixedLessonReservationNo, LocalDate date,
-                             LocalTime startTime, LocalTime endTime, Integer dayOfWeekNum, ReservationStatus status,
-                             ReservationSource source, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long studentNo,
+                            LessonSubCategory lessonCategory, Long fixedLessonReservationNo,
+                            LocalDate date, LocalTime startTime, LocalTime endTime,
+                            Integer dayOfWeekNum, ReservationStatus status,
+                            ReservationSource source, String memo,
+                            LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.lessonReservationNo = lessonReservationNo;
         this.tutorProfileNo = tutorProfileNo;
         this.studentNo = studentNo;
@@ -76,6 +82,7 @@ public class LessonReservation {
         this.dayOfWeekNum = dayOfWeekNum;
         this.status = status;
         this.source = source;
+        this.memo = memo;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -123,6 +130,23 @@ public class LessonReservation {
                 .endTime(dto.startTime().plusMinutes(tutorProfileInfo.durationMin()))
                 .status(dto.reservationStatus())
                 .source(ReservationSource.APP)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static LessonReservation fromReserveLesson(LessonReserveSaveDto dto, Long tutorProfileNo, Long studentNo, LocalTime endTime) {
+        return LessonReservation.of()
+                .tutorProfileNo(tutorProfileNo)
+                .studentNo(studentNo)
+                .lessonCategory(dto.lesson())
+                .date(dto.lessonDate())
+                .startTime(dto.startTime())
+                .endTime(endTime)
+                .dayOfWeekNum(dto.lessonDate().getDayOfWeek().getValue())
+                .status(ReservationStatus.REQUESTED)
+                .source(ReservationSource.APP)
+                .memo(dto.memo())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

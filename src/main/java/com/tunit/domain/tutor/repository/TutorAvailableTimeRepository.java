@@ -1,40 +1,45 @@
 package com.tunit.domain.tutor.repository;
 
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 
 @Repository
 public interface TutorAvailableTimeRepository extends JpaRepository<TutorAvailableTime, Long> {
-    List<TutorAvailableTime> findAllByTutorProfileNo(Long tutorProfileNo);
+    boolean existsByTutorProfileNoAndDayOfWeekNum(Long tutorProfileNo, Integer dayOfWeekNum);
 
-    boolean existsByTutorProfileNoAndDayOfWeekAndStartTimeAndEndTime(Long tutorProfileNo, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime);
-
-    @Query("""
-                SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END
-                FROM TutorAvailableTime t
-                WHERE t.tutorAvailableTimeNo <> :excludeId
-                  AND t.tutorProfileNo = :tutorProfileNo
-                  AND t.dayOfWeekNum = :dayOfWeekNum
-                  AND t.startTime < :endTime
-                  AND t.endTime > :startTime
-            """)
-    boolean existsOverlappingTime(@Param("tutorProfileNo") Long tutorProfileNo,
-                                  @Param("dayOfWeekNum") Integer dayOfWeekNum,
-                                  @Param("startTime") LocalTime startTime,
-                                  @Param("endTime") LocalTime endTime,
-                                  @Param("excludeId") Long excludeId);
-
-
-    void deleteAllByTutorProfileNoAndTutorAvailableTimeNoIn(Long tutorProfileNo, List<Long> tutorAvailableTimeNos);
-
-    boolean existsByTutorProfileNoAndTutorAvailableTimeNoIn(Long tutorProfileNo, List<Long> tutorAvailableTimeNos);
+    List<TutorAvailableTime> findAllByTutorProfileNoOrderByDayOfWeekNumAscStartTimeAsc(Long tutorProfileNo);
 
     boolean existsByTutorProfileNoAndDayOfWeekNumAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(Long tutorProfileNo, Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime);
+
+    boolean existsByTutorProfileNoAndTutorAvailableTimeNoIn(@NonNull Long tutorProfileNo, List<Long> tutorAvailableTimeNos);
+
+    void deleteAllByTutorProfileNoAndTutorAvailableTimeNoIn(@NonNull Long tutorProfileNo, List<Long> tutorAvailableTimeNos);
+
+    @Query("SELECT COUNT(t) > 0 FROM TutorAvailableTime t " +
+            "WHERE t.tutorProfileNo = :tutorProfileNo " +
+            "AND t.dayOfWeekNum = :dayOfWeekNum " +
+            "AND t.tutorAvailableTimeNo != :tutorAvailableTimeNo " +
+            "AND t.startTime < :endTime AND t.endTime > :startTime")
+    boolean existsByTutorProfileNoAndDayOfWeekNumAndTimeOverlapping(
+            Long tutorProfileNo,
+            Integer dayOfWeekNum,
+            LocalTime startTime,
+            LocalTime endTime,
+            Long tutorAvailableTimeNo
+    );
+
+    List<TutorAvailableTime> findAllByTutorProfileNo(Long tutorProfileNo);
+
+    boolean existsByTutorProfileNoAndDayOfWeekNumAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+            Long tutorProfileNo,
+            Integer dayOfWeekNum,
+            LocalTime requestTime,
+            LocalTime requestTime2
+    );
 }
