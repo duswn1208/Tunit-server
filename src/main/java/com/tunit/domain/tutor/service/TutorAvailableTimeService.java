@@ -58,7 +58,7 @@ public class TutorAvailableTimeService {
         time.validateTime();
 
         // 2. 겹치는 시간대가 있는지 확인 (본인 것만)
-        boolean overlaps = tutorAvailableTimeRepository.existsOverlappingTime(
+        boolean overlaps = tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndTimeOverlapping(
                 tutorProfileNo,
                 updateDto.getDayOfWeekNum(),
                 updateDto.getStartTime(),

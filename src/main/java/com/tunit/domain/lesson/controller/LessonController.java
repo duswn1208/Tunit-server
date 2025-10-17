@@ -10,8 +10,6 @@ import com.tunit.domain.lesson.dto.LessonStatusRequestDto;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.lesson.service.LessonService;
 import com.tunit.domain.tutor.dto.TutorLessonsResponseDto;
-import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
-import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -41,9 +38,16 @@ public class LessonController {
     }
 
     @PostMapping("/reserve")
-    public ResponseEntity<?> saveLesson(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
-                                        @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
-        lessonReserveService.reserveLesson(tutorProfileNo, lessonReserveSaveDto);
+    public ResponseEntity<?> reserveLesson(@LoginUser(field = "userNo") Long userNo,
+                                           @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
+        lessonReserveService.reserveLesson(userNo, lessonReserveSaveDto);
+        return ResponseEntity.ok("레슨이 성공적으로 예약되었습니다.");
+    }
+
+    @PostMapping("/tutor/create")
+    public ResponseEntity<?> createLesson(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+                                          @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
+        lessonReserveService.createLesson(tutorProfileNo, lessonReserveSaveDto);
         return ResponseEntity.ok("레슨이 성공적으로 저장되었습니다.");
     }
 
@@ -83,9 +87,15 @@ public class LessonController {
     }
 
     // 튜터의 레슨일, 이번달 레슨예약일과 시간 조회
-    @GetMapping("/schedule/info")
-    public ResponseEntity<?> getLessonDateInfo(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo, @ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
-        lessonFindRequestDto.setScheduleInfo(tutorProfileNo);
+    @GetMapping("/schedule/me")
+    public ResponseEntity<?> getTutorLessonSchedule(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+                                                  @ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
+        lessonFindRequestDto.setTutorProfileNo(tutorProfileNo);
+        return ResponseEntity.ok(lessonService.getLessonScheduleInfo(lessonFindRequestDto));
+    }
+
+    @GetMapping("/tutor/schedule")
+    public ResponseEntity<?> getStudentLessonSchedule(@ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
         return ResponseEntity.ok(lessonService.getLessonScheduleInfo(lessonFindRequestDto));
     }
 

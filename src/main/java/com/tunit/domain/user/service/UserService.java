@@ -49,4 +49,9 @@ public class UserService {
         return student;
     }
 
+    public String findNameByUserNo(Long userNo) {
+        return userRepository.findById(userNo)
+                .map(UserMain::getName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userNo=" + userNo));
+    }
 }

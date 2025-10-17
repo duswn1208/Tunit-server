@@ -2,10 +2,9 @@ package com.tunit.domain.tutor.init;
 
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.region.dto.RegionSaveDto;
-import com.tunit.domain.tutor.entity.TutorAvailableTime;
-import com.tunit.domain.tutor.entity.TutorLessons;
-import com.tunit.domain.tutor.entity.TutorProfile;
-import com.tunit.domain.tutor.entity.TutorRegion;
+import com.tunit.domain.tutor.define.TutorLessonOpenType;
+import com.tunit.domain.tutor.entity.*;
+import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
 import jakarta.annotation.PostConstruct;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.Set;
 public class TutorProfileInit {
     private final TutorProfileRepository tutorProfileRepository;
     private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
+    private final TutorAvailExceptionRepository tutorAvailExceptionRepository;
 
     @PostConstruct
     public void init() {
@@ -101,8 +102,10 @@ public class TutorProfileInit {
 
             if (profile.getTutorProfileNo() == 1L) {
                 tutorAvailableTimeRepository.saveAll(Set.of(
-                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(1).startTime(LocalTime.of(10, 0)).endTime(LocalTime.of(12, 0)).build(),
-                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(3).startTime(LocalTime.of(14, 0)).endTime(LocalTime.of(16, 0)).build()
+                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(1).startTime(LocalTime.of(10, 0)).endTime(LocalTime.of(19, 0)).build(),
+                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(3).startTime(LocalTime.of(12, 0)).endTime(LocalTime.of(16, 0)).build(),
+                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(4).startTime(LocalTime.of(12, 0)).endTime(LocalTime.of(16, 0)).build(),
+                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(5).startTime(LocalTime.of(12, 0)).endTime(LocalTime.of(16, 0)).build()
                 ));
             } else if (profile.getTutorProfileNo() == 2L) {
                 tutorAvailableTimeRepository.saveAll(Set.of(
@@ -114,15 +117,67 @@ public class TutorProfileInit {
                         TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(5).startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(10, 0)).build(),
                         TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(6).startTime(LocalTime.of(13, 0)).endTime(LocalTime.of(15, 0)).build()
                 ));
-            } else if (profile.getTutorProfileNo() == 4L) {
-                tutorAvailableTimeRepository.saveAll(Set.of(
-                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(1).startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(19, 0)).build(),
-                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(7).startTime(LocalTime.of(10, 0)).endTime(LocalTime.of(12, 0)).build()
+            }
+
+            // 튜터별 예외일정 등록
+            if (profile.getTutorProfileNo() == 1L) {
+                tutorAvailExceptionRepository.saveAll(Set.of(
+                        TutorAvailException.of()
+                                .tutorProfileNo(profile.getTutorProfileNo())
+                                .date(LocalDate.of(2025, 10, 15))
+                                .startTime(LocalTime.of(0, 0))
+                                .endTime(LocalTime.of(23, 59))
+                                .type(TutorLessonOpenType.BLOCK)
+                                .reason("개인 사정")
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build(),
+                        TutorAvailException.of()
+                                .tutorProfileNo(profile.getTutorProfileNo())
+                                .date(LocalDate.of(2025, 10, 21))
+                                .startTime(LocalTime.of(0, 0))
+                                .endTime(LocalTime.of(23, 59))
+                                .type(TutorLessonOpenType.BLOCK)
+                                .reason("휴가")
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build()
                 ));
-            } else if (profile.getTutorProfileNo() == 5L) {
-                tutorAvailableTimeRepository.saveAll(Set.of(
-                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(2).startTime(LocalTime.of(18, 0)).endTime(LocalTime.of(20, 0)).build(),
-                        TutorAvailableTime.of().tutorProfileNo(profile.getTutorProfileNo()).dayOfWeekNum(4).startTime(LocalTime.of(11, 0)).endTime(LocalTime.of(13, 0)).build()
+            } else if (profile.getTutorProfileNo() == 2L) {
+                tutorAvailExceptionRepository.saveAll(Set.of(
+                        TutorAvailException.of()
+                                .tutorProfileNo(profile.getTutorProfileNo())
+                                .date(LocalDate.of(2025, 10, 16))
+                                .startTime(LocalTime.of(0, 0))
+                                .endTime(LocalTime.of(23, 59))
+                                .type(TutorLessonOpenType.BLOCK)
+                                .reason("세미나 참석")
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build()
+                ));
+            } else if (profile.getTutorProfileNo() == 3L) {
+                tutorAvailExceptionRepository.saveAll(Set.of(
+                        TutorAvailException.of()
+                                .tutorProfileNo(profile.getTutorProfileNo())
+                                .date(LocalDate.of(2025, 10, 18))
+                                .startTime(LocalTime.of(0, 0))
+                                .endTime(LocalTime.of(23, 59))
+                                .type(TutorLessonOpenType.BLOCK)
+                                .reason("출장")
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build(),
+                        TutorAvailException.of()
+                                .tutorProfileNo(profile.getTutorProfileNo())
+                                .date(LocalDate.of(2025, 10, 25))
+                                .startTime(LocalTime.of(0, 0))
+                                .endTime(LocalTime.of(23, 59))
+                                .type(TutorLessonOpenType.BLOCK)
+                                .reason("연차")
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build()
                 ));
             }
         }

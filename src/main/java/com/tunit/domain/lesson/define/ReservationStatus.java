@@ -47,4 +47,13 @@ public enum ReservationStatus {
         return name();
     }
 
+    //유효한 레슨상태
+    public static final List<ReservationStatus> VALID_LESSON_STATUSES = List.of(
+            REQUESTED,
+            ACTIVE,
+            COMPLETED,
+            TRIAL_ACTIVE,
+            TRIAL_COMPLETED,
+            TRIAL_REQUESTED
+    );
 }

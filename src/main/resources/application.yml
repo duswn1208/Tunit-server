@@ -13,11 +13,9 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2.client: DEBUG
 
-
 service-url:
   web: http://localhost:5173
   server: http://localhost:8080
-
 
 spring:
   datasource:
@@ -39,7 +37,7 @@ spring:
   h2:
     console:
       enabled: true
-
+      path: /h2-console
 
   security:
     oauth2:
