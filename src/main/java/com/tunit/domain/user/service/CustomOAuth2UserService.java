@@ -39,10 +39,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Map<String, Object> response = (Map<String, Object>) delegate.getAttributes().get("response");
 
         String providerId = (String) response.get("id");
-        String name = (String) response.get("studentName");
+        String name = (String) response.get("name");
         String phone = (String) response.get("mobile");
 
-        log.info("OAuth2User loaded: provider={}, providerId={}, studentName={}", provider, providerId, name);
+        log.info("OAuth2User loaded: provider={}, providerId={}, name={}", provider, providerId, name);
         UserMain userMain;
         Long tutorProfileNo = null;
         try {
