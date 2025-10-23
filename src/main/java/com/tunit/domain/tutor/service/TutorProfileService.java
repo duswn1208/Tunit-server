@@ -3,6 +3,7 @@ package com.tunit.domain.tutor.service;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
+import com.tunit.domain.tutor.define.SortType;
 import com.tunit.domain.tutor.dto.*;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
@@ -82,6 +83,7 @@ public class TutorProfileService {
     public List<TutorProfileResponseDto> findTutors(TutorFindRequestDto tutorFindRequestDto) {
         List<LessonSubCategory> lessonCodes = tutorFindRequestDto.getLessonCodes();
         List<Integer> regionCodes = tutorFindRequestDto.getRegionCodes();
+        SortType sortType = tutorFindRequestDto.getSortType();
 
         if (lessonCodes != null && lessonCodes.isEmpty()) lessonCodes = null;
         if (regionCodes != null && regionCodes.isEmpty()) regionCodes = null;
@@ -92,6 +94,22 @@ public class TutorProfileService {
         }
 
         List<TutorProfile> profileList = tutorProfileRepository.findByTutorProfileNoIn(tutorProfileNos);
-        return profileList.stream().map(TutorProfileResponseDto::from).toList();
+        List<TutorProfileResponseDto> result = profileList.stream().map(TutorProfileResponseDto::from).toList();
+
+        if (sortType != null) {
+            switch (sortType) {
+                case LATEST -> result = result.stream()
+                        .sorted((a, b) -> b.tutorProfileNo().compareTo(a.tutorProfileNo())) // 최신 등록순(내림차순)
+                        .toList();
+                case PRICE_LOW -> result = result.stream()
+                        .sorted((a, b) -> Integer.compare(a.pricePerHour(), b.pricePerHour()))
+                        .toList();
+                case PRICE_HIGH -> result = result.stream()
+                        .sorted((a, b) -> Integer.compare(b.pricePerHour(), a.pricePerHour()))
+                        .toList();
+                // REVIEW(후기 많은 순)는 추후 구현
+            }
+        }
+        return result;
     }
 }

@@ -1,14 +1,12 @@
 package com.tunit.domain.student.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
+import com.tunit.domain.student.dto.FindMyLessonsRequestDto;
 import com.tunit.domain.student.service.StudentService;
 import com.tunit.domain.user.dto.StudentProfileSaveDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/students")
@@ -27,8 +25,7 @@ public class StudentController {
     @GetMapping("/lessons/my")
     public ResponseEntity<?> getMyLessons(
             @LoginUser(field = "userNo") Long userNo,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-        return ResponseEntity.ok(studentService.findMyLessons(userNo, startDate, endDate));
+            @RequestBody FindMyLessonsRequestDto requestDto) {
+        return ResponseEntity.ok(studentService.findMyLessons(userNo, requestDto));
     }
 }

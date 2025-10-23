@@ -7,6 +7,7 @@ import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

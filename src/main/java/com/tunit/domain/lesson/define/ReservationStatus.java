@@ -56,4 +56,10 @@ public enum ReservationStatus {
             TRIAL_COMPLETED,
             TRIAL_REQUESTED
     );
+
+    // 수강하지 않은 상태
+    public static final List<ReservationStatus> NOT_ENROLLED_STATUSES = List.of(
+        REQUESTED,
+        TRIAL_REQUESTED
+    );
 }

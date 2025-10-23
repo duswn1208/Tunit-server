@@ -1,6 +1,7 @@
 package com.tunit.domain.tutor.dto;
 
 import com.tunit.domain.lesson.define.LessonSubCategory;
+import com.tunit.domain.tutor.define.SortType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,5 @@ import java.util.List;
 public class TutorFindRequestDto {
     private List<LessonSubCategory> lessonCodes;
     private List<Integer> regionCodes;
-
-    // 후기순 등등
+    private SortType sortType;
 }
