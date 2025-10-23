@@ -1,16 +1,19 @@
 package com.tunit.domain.student.service;
 
+import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.lesson.define.LessonSubCategory;
+import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
+import com.tunit.domain.student.dto.FindMyLessonsRequestDto;
 import com.tunit.domain.student.dto.StudentInfoResponseDto;
 import com.tunit.domain.student.dto.StudentLessonResponseDto;
 import com.tunit.domain.student.entity.StudentLessons;
 import com.tunit.domain.student.entity.StudentRegions;
+import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserStatus;
 import com.tunit.domain.user.dto.StudentProfileSaveDto;
-import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.repository.UserRepository;
 import com.tunit.domain.user.service.UserService;
@@ -68,27 +71,24 @@ public class StudentService {
     }
 
     @Transactional(readOnly = true)
-    public List<StudentLessonResponseDto> findMyLessons(Long userNo, LocalDate startDate, LocalDate endDate) {
-        // 시작일이 없으면 현재 달의 시작일로 설정
-        if (startDate == null) {
-            startDate = LocalDate.now().withDayOfMonth(1);
-        }
-        // 종료일이 없으면 현재 달의 마지막일로 설정
-        if (endDate == null) {
-            endDate = startDate.plusMonths(1).withDayOfMonth(1).minusDays(1);
-        }
+    public List<StudentLessonResponseDto> findMyLessons(Long userNo, FindMyLessonsRequestDto requestDto) {
+        requestDto.setDefaultValuesIfNull();
 
-        // 레슨 예약 정보 조회
         List<LessonReservation> lessons = lessonReservationRepository.findByStudentNoAndDateBetweenOrderByDateAscStartTimeAsc(
-                userNo, startDate, endDate);
+                userNo, requestDto.getStartDate(), requestDto.getEndDate());
 
-        // 튜터 정보와 함께 응답 DTO 생성
+        List<ReservationStatus> statuses = requestDto.getReservationStatuses();
+        if (statuses != null && !statuses.isEmpty()) {
+            lessons = lessons.stream().filter(l -> statuses.contains(l.getStatus())).toList();
+        }
+        if (requestDto.getLessonCategory() != null) {
+            lessons = lessons.stream().filter(l -> false).toList();
+        }
+
         return lessons.stream()
                 .map(lesson -> {
-                    String tutorName = userService.findNameByUserNo(
-                            tutorProfileService.findTutorProfileInfoByTutorProfileNo(lesson.getTutorProfileNo()).userNo()
-                    );
-                    return StudentLessonResponseDto.of(lesson, tutorName);
+                    TutorProfileResponseDto tutorProfileInfoByTutorProfileNo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(lesson.getTutorProfileNo());
+                    return StudentLessonResponseDto.of(lesson, tutorProfileInfoByTutorProfileNo);
                 })
                 .collect(Collectors.toList());
     }
