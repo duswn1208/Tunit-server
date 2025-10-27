@@ -88,7 +88,8 @@ public class StudentService {
         return lessons.stream()
                 .map(lesson -> {
                     TutorProfileResponseDto tutorProfileInfoByTutorProfileNo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(lesson.getTutorProfileNo());
-                    return StudentLessonResponseDto.of(lesson, tutorProfileInfoByTutorProfileNo);
+                    TutorProfileResponseDto simpleProfile = TutorProfileResponseDto.simpleProfileInfo(tutorProfileInfoByTutorProfileNo);
+                    return StudentLessonResponseDto.of(lesson, simpleProfile);
                 })
                 .collect(Collectors.toList());
     }

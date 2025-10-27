@@ -59,4 +59,21 @@ public record TutorProfileResponseDto(
                 tutorProfile.getDurationMin()
         );
     }
+
+    public static TutorProfileResponseDto simpleProfileInfo(TutorProfileResponseDto tutorProfile) {
+        return new TutorProfileResponseDto(
+                tutorProfile.userNo,
+                tutorProfile.userMain,
+                tutorProfile.tutorProfileNo,
+                tutorProfile.introduce,
+                tutorProfile.lessonCategory,
+                tutorProfile.lessonSubcategoryList,
+                Set.of(),
+                List.of(),
+                List.of(),
+                null,
+                null,
+                null
+        );
+    }
 }
