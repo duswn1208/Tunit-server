@@ -25,7 +25,7 @@ public class StudentController {
     @GetMapping("/lessons/my")
     public ResponseEntity<?> getMyLessons(
             @LoginUser(field = "userNo") Long userNo,
-            @RequestBody FindMyLessonsRequestDto requestDto) {
+            @ModelAttribute FindMyLessonsRequestDto requestDto) {
         return ResponseEntity.ok(studentService.findMyLessons(userNo, requestDto));
     }
 }
