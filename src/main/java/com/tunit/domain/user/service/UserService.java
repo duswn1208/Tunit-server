@@ -1,5 +1,6 @@
 package com.tunit.domain.user.service;
 
+import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.exception.UserException;
 import com.tunit.domain.user.repository.UserRepository;
@@ -27,6 +28,11 @@ public class UserService {
 
     public UserMain findByUserNo(Long userNo) {
         return userRepository.findById(userNo).orElseThrow(UserException::new);
+    }
+
+    public UserMainResponseDto findDtoByUserNo(Long userNo) {
+        UserMain userMain = findByUserNo(userNo);
+        return UserMainResponseDto.tutorFrom(userMain, null);
     }
 
     public UserMain findByNameAndPhone(String name, String phone) {

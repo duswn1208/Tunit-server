@@ -8,6 +8,8 @@ import com.tunit.domain.tutor.dto.*;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
+import com.tunit.domain.user.entity.UserMain;
+import com.tunit.domain.user.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ public class TutorProfileService {
     private final TutorProfileRepository tutorProfileRepository;
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
+    private final UserService userService;
 
     public TutorProfileResponseDto findTutorProfileInfo(@NonNull Long userNo) {
         TutorProfile tutorProfile = tutorProfileRepository.findByUserNo(userNo);
@@ -31,10 +34,17 @@ public class TutorProfileService {
         return TutorProfileResponseDto.from(tutorProfile);
     }
 
+    public TutorProfileResponseDto findTutor(@NonNull Long tutorProfileNo) {
+        TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
+                .orElseThrow();
+
+        return TutorProfileResponseDto.from(tutorProfile,  null, null);
+    }
+
     public TutorProfileResponseDto findTutorProfileInfoByTutorProfileNo(@NonNull Long tutorProfileNo) {
         TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
                 .orElseThrow();
-        // userMain이 TutorProfile에 없으므로 nickname은 null로 처리
+
         List<TutorAvailableTimeResponseDto> availableTimes = tutorAvailableTimeService.findByTutorProfileNo(tutorProfileNo);
         return TutorProfileResponseDto.from(tutorProfile,  availableTimes, null);
     }

@@ -15,7 +15,6 @@ import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
 import com.tunit.domain.tutor.repository.TutorLessonsRepository;
-import com.tunit.domain.tutor.repository.TutorProfileRepository;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
@@ -77,7 +76,7 @@ public class LessonReserveService {
         TutorProfileResponseDto tutorProfile = tutorProfileService.findTutorProfileInfoByTutorProfileNo(dto.tutorProfileNo());
 
         // 튜터레슨 존재 여부 확인
-        TutorLessons tutorLesson = tutorLessonsRepository.findById(dto.tutorLessonNo())
+        TutorLessons tutorLessons = tutorLessonsRepository.findById(dto.tutorLessonNo())
                 .orElseThrow(() -> new IllegalArgumentException("해당 레슨 정보가 없습니다. tutorLessonNo: " + dto.tutorLessonNo()));
 
         // 선택한 날짜가 튜터의 영업일인지 확인 (예외일정, 휴무일 체크)
@@ -85,9 +84,13 @@ public class LessonReserveService {
         validateTutorAvailability(dto.tutorProfileNo(), dto.lessonDate(), dto.startTime(), endTime);
 
         // 레슨 예약정보 저장
-        LessonReservation reservation = LessonReservation.fromReserveLesson(dto, dto.tutorProfileNo(), student.getUserNo(), endTime);
+        LessonReservation reservation = LessonReservation.fromReserveLesson(dto, dto.tutorProfileNo(), tutorLessons.getLessonSubCategory(), student.getUserNo(), endTime);
         lessonReservationRepository.save(reservation);
         log.info("레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, date: {}", student.getUserNo(), dto.tutorProfileNo(), dto.lessonDate());
+    }
+
+    @Transactional
+    public void changeLesson(Long userNo, LessonReserveSaveDto lessonReserveSaveDto) {
     }
 
     private void validateTutorAvailability(Long tutorProfileNo, LocalDate date, LocalTime startTime, LocalTime endTime) {
@@ -168,9 +171,21 @@ public class LessonReserveService {
 
     @Transactional
     public void changeLessonStatus(Long lessonNo, ReservationStatus status) {
-        LessonReservation lessonReservation = lessonReservationRepository.findById(lessonNo)
-                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with lessonNo: " + lessonNo));
+        LessonReservation lessonReservation = findByLessonReservationNo(lessonNo);
         lessonReservation.changeStatus(lessonReservation.getStatus(), status);
     }
 
+    @Transactional
+    public void cancel(Long userNo, Long lessonReservationNo, ReservationStatus status) {
+        LessonReservation lessonReservation = findByLessonReservationNo(lessonReservationNo);
+        if (!lessonReservation.getStudentNo().equals(userNo)) {
+            throw new LessonNotFoundException("Lesson reservation not found for userNo: " + userNo + " and lessonReservationNo: " + lessonReservationNo);
+        }
+        lessonReservation.changeStatus(lessonReservation.getStatus(), status);
+    }
+
+    public LessonReservation findByLessonReservationNo(Long lessonReservationNo) {
+        return lessonReservationRepository.findById(lessonReservationNo)
+                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with lessonNo: " + lessonReservationNo));
+    }
 }

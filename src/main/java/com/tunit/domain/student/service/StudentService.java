@@ -1,6 +1,5 @@
 package com.tunit.domain.student.service;
 
-import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
@@ -14,6 +13,7 @@ import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserStatus;
 import com.tunit.domain.user.dto.StudentProfileSaveDto;
+import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.repository.UserRepository;
 import com.tunit.domain.user.service.UserService;
@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,14 +43,14 @@ public class StudentService {
 
         // lesson, region save
         studentLessonsService.saveAll(
-            studentProfileSaveDto.getSubCategoryList().stream()
-                .map(lesson -> StudentLessons.saveFrom(studentProfileSaveDto.getUserNo(), lesson))
-                .toList()
+                studentProfileSaveDto.getSubCategoryList().stream()
+                        .map(lesson -> StudentLessons.saveFrom(studentProfileSaveDto.getUserNo(), lesson))
+                        .toList()
         );
         studentRegionsService.saveAll(
-            studentProfileSaveDto.getRegionList().stream()
-                .map(region -> StudentRegions.saveFrom(studentProfileSaveDto.getUserNo(), region))
-                .toList()
+                studentProfileSaveDto.getRegionList().stream()
+                        .map(region -> StudentRegions.saveFrom(studentProfileSaveDto.getUserNo(), region))
+                        .toList()
         );
 
         userRepository.save(userMain);
@@ -77,7 +76,7 @@ public class StudentService {
         List<LessonReservation> lessons = lessonReservationRepository.findByStudentNoAndDateBetweenOrderByDateAscStartTimeAsc(
                 userNo, requestDto.getStartDate(), requestDto.getEndDate());
 
-        List<ReservationStatus> statuses = requestDto.getReservationStatuses();
+        List<ReservationStatus> statuses = requestDto.getLessonFilter().getIncludedStatuses();
         if (statuses != null && !statuses.isEmpty()) {
             lessons = lessons.stream().filter(l -> statuses.contains(l.getStatus())).toList();
         }
@@ -87,9 +86,10 @@ public class StudentService {
 
         return lessons.stream()
                 .map(lesson -> {
-                    TutorProfileResponseDto tutorProfileInfoByTutorProfileNo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(lesson.getTutorProfileNo());
-                    TutorProfileResponseDto simpleProfile = TutorProfileResponseDto.simpleProfileInfo(tutorProfileInfoByTutorProfileNo);
-                    return StudentLessonResponseDto.of(lesson, simpleProfile);
+                    TutorProfileResponseDto tutorProfileInfoByTutorProfileNo = tutorProfileService.findTutor(lesson.getTutorProfileNo());
+                    UserMainResponseDto tutorProfile = userService.findDtoByUserNo(tutorProfileInfoByTutorProfileNo.userNo());
+
+                    return StudentLessonResponseDto.of(lesson, tutorProfile);
                 })
                 .collect(Collectors.toList());
     }
