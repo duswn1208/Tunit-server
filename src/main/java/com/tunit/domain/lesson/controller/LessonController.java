@@ -3,6 +3,7 @@ package com.tunit.domain.lesson.controller;
 import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.lesson.define.LessonSubCategory;
+import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
@@ -42,6 +43,19 @@ public class LessonController {
                                            @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
         lessonReserveService.reserveLesson(userNo, lessonReserveSaveDto);
         return ResponseEntity.ok("레슨이 성공적으로 예약되었습니다.");
+    }
+
+    @PostMapping("/reserve/change")
+    public ResponseEntity<?> changeLessonReservation(@LoginUser(field = "userNo") Long userNo,
+                                                     @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
+        lessonReserveService.changeLesson(userNo, lessonReserveSaveDto);
+        return ResponseEntity.ok("레슨 예약이 성공적으로 변경되었습니다.");
+    }
+
+    @PostMapping("/reservation/cancel/{lessonReservationNo}")
+    public ResponseEntity<?> cancelLessonReservation(@LoginUser(field = "userNo") Long userNo, @PathVariable ("lessonReservationNo") Long lessonReservationNo) {
+        lessonReserveService.cancel(userNo, lessonReservationNo, ReservationStatus.TRIAL_CANCELED);
+        return ResponseEntity.ok("레슨 예약이 성공적으로 취소되었습니다.");
     }
 
     @PostMapping("/tutor/create")
@@ -99,4 +113,8 @@ public class LessonController {
         return ResponseEntity.ok(lessonService.getLessonScheduleInfo(lessonFindRequestDto));
     }
 
+    @GetMapping("/info/{lessonReservationNo}")
+    public ResponseEntity<?> getLessonReservationInfo(@PathVariable("lessonReservationNo") Long lessonReservationNo) {
+        return ResponseEntity.ok(lessonReserveService.findByLessonReservationNo(lessonReservationNo));
+    }
 }

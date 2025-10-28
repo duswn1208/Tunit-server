@@ -7,6 +7,8 @@ import com.tunit.domain.tutor.entity.*;
 import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
+import com.tunit.domain.user.entity.UserMain;
+import com.tunit.domain.user.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class TutorProfileInit {
     private final TutorProfileRepository tutorProfileRepository;
     private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
     private final TutorAvailExceptionRepository tutorAvailExceptionRepository;
+    private final UserRepository userRepository;
 
     @PostConstruct
     public void init() {
@@ -32,8 +35,16 @@ public class TutorProfileInit {
         RegionSaveDto geongi = new RegionSaveDto(41, "경기도", "sido", 41, "경기도 전체");
         log.info("TutorProfileInit - init");
 
+        // UserMain 생성 및 저장 (userNo 자동 할당)
+        UserMain user1 = UserMain.of().name("튜터1").nickname("튜터닉1").build();
+        UserMain user2 = UserMain.of().name("튜터2").nickname("튜터닉2").build();
+        UserMain user3 = UserMain.of().name("튜터3").nickname("튜터닉3").build();
+        UserMain user4 = UserMain.of().name("튜터4").nickname("튜터닉4").build();
+        UserMain user5 = UserMain.of().name("튜터5").nickname("튜터닉5").build();
+        List<UserMain> savedUsers = userRepository.saveAll(List.of(user1, user2, user3, user4, user5));
+
         TutorProfile tutor1 = TutorProfile.of()
-                .userNo(1L)
+                .userNo(savedUsers.get(0).getUserNo())
                 .introduce("악기 전문 튜터입니다.")
                 .careerYears(5)
                 .pricePerHour(30000)
@@ -45,7 +56,7 @@ public class TutorProfileInit {
         tutor1.setTutorRegions(Set.of(TutorRegion.saveFrom(tutor1, seoul), TutorRegion.saveFrom(tutor1, geongi)));
 
         TutorProfile tutor2 = TutorProfile.of()
-                .userNo(2L)
+                .userNo(savedUsers.get(1).getUserNo())
                 .introduce("운동 전문 튜터입니다.")
                 .careerYears(3)
                 .pricePerHour(25000)
@@ -57,7 +68,7 @@ public class TutorProfileInit {
         tutor2.setTutorRegions(Set.of(TutorRegion.saveFrom(tutor2, seoul), TutorRegion.saveFrom(tutor2, geongi)));
 
         TutorProfile tutor3 = TutorProfile.of()
-                .userNo(3L)
+                .userNo(savedUsers.get(2).getUserNo())
                 .introduce("필라테스 전문 튜터입니다.")
                 .careerYears(7)
                 .pricePerHour(35000)
@@ -69,7 +80,7 @@ public class TutorProfileInit {
         tutor3.setTutorRegions(Set.of(TutorRegion.saveFrom(tutor3, seoul), TutorRegion.saveFrom(tutor3, geongi)));
 
         TutorProfile tutor4 = TutorProfile.of()
-                .userNo(4L)
+                .userNo(savedUsers.get(3).getUserNo())
                 .introduce("교사 전문 튜터입니다.")
                 .careerYears(4)
                 .pricePerHour(28000)
@@ -81,7 +92,7 @@ public class TutorProfileInit {
         tutor4.setTutorRegions(Set.of(TutorRegion.saveFrom(tutor4, seoul), TutorRegion.saveFrom(tutor4, geongi)));
 
         TutorProfile tutor5 = TutorProfile.of()
-                .userNo(5L)
+                .userNo(savedUsers.get(4).getUserNo())
                 .introduce("요리 전문 튜터입니다.")
                 .careerYears(6)
                 .pricePerHour(32000)

@@ -4,6 +4,7 @@ import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
+import com.tunit.domain.user.dto.UserMainResponseDto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,9 +18,9 @@ public record StudentLessonResponseDto(
         LocalTime endTime,
         ReservationStatus status,
         String memo,
-        TutorProfileResponseDto tutorProfile
+        UserMainResponseDto tutorInfo
 ) {
-    public static StudentLessonResponseDto of(LessonReservation lesson, TutorProfileResponseDto tutorProfile) {
+    public static StudentLessonResponseDto of(LessonReservation lesson, UserMainResponseDto tutorInfo) {
         return new StudentLessonResponseDto(
                 lesson.getLessonReservationNo(),
                 lesson.getTutorProfileNo(),
@@ -29,7 +30,7 @@ public record StudentLessonResponseDto(
                 lesson.getEndTime(),
                 lesson.getStatus(),
                 lesson.getMemo(),
-                tutorProfile
+                tutorInfo
         );
     }
 

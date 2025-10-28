@@ -136,16 +136,16 @@ public class LessonReservation {
                 .build();
     }
 
-    public static LessonReservation fromReserveLesson(LessonReserveSaveDto dto, Long tutorProfileNo, Long studentNo, LocalTime endTime) {
+    public static LessonReservation fromReserveLesson(LessonReserveSaveDto dto, Long tutorProfileNo, LessonSubCategory lessonCategory, Long studentNo, LocalTime endTime) {
         return LessonReservation.of()
                 .tutorProfileNo(tutorProfileNo)
                 .studentNo(studentNo)
-                .lessonCategory(dto.lesson())
+                .lessonCategory(lessonCategory)
                 .date(dto.lessonDate())
                 .startTime(dto.startTime())
                 .endTime(endTime)
                 .dayOfWeekNum(dto.lessonDate().getDayOfWeek().getValue())
-                .status(ReservationStatus.REQUESTED)
+                .status(dto.reservationStatus())
                 .source(ReservationSource.APP)
                 .memo(dto.memo())
                 .createdAt(LocalDateTime.now())
