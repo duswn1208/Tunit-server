@@ -28,12 +28,16 @@ public class LessonReservation {
     @Column(name = "lesson_reservation_no")
     private Long lessonReservationNo;
 
+    @Column(name = "contract_no", nullable = false)
+    private Long contractNo;
+
     @Column(name = "tutor_profile_no", nullable = false)
     private Long tutorProfileNo;
 
     @Column(name = "student_no", nullable = false)
     private Long studentNo;  // 학생 user_no
 
+    @Enumerated(EnumType.STRING)
     private LessonSubCategory lessonCategory;
 
     @Column(name = "fixed_lesson_reservation_no", nullable = true)
@@ -66,7 +70,7 @@ public class LessonReservation {
     private LocalDateTime updatedAt;
 
     @Builder(builderMethodName = "of")
-    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long studentNo,
+    public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long contractNo, Long studentNo,
                             LessonSubCategory lessonCategory, Long fixedLessonReservationNo,
                             LocalDate date, LocalTime startTime, LocalTime endTime,
                             Integer dayOfWeekNum, ReservationStatus status,
@@ -74,6 +78,7 @@ public class LessonReservation {
                             LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.lessonReservationNo = lessonReservationNo;
         this.tutorProfileNo = tutorProfileNo;
+        this.contractNo = contractNo;
         this.studentNo = studentNo;
         this.lessonCategory = lessonCategory;
         this.fixedLessonReservationNo = fixedLessonReservationNo;
