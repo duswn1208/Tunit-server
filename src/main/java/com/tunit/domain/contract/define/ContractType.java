@@ -1,9 +1,9 @@
 package com.tunit.domain.contract.define;
 
 public enum ContractType {
-    FIXED("FIXED", "고정레슨"),
-    WEEKLY("WEEKLY", "주간레슨"),
-    PACKAGE("PACKAGE", "패키지");
+    REGULAR("REGULAR", "정규레슨"),
+    FIRSTCOME("FIRSTCOME", "비정규레슨"),
+    TRIAL("TRIAL", "상담/체험레슨");
 
     private final String code;
     private final String label;
@@ -19,6 +19,18 @@ public enum ContractType {
 
     public String getLabel() {
         return label;
+    }
+
+    public boolean isRegular() {
+        return this == REGULAR;
+    }
+
+    public boolean isFirstCome() {
+        return this == FIRSTCOME;
+    }
+
+    public boolean isTrial() {
+        return this == TRIAL;
     }
 }
 
