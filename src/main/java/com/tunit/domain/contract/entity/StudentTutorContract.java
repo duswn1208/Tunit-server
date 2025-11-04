@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -91,6 +90,48 @@ public class StudentTutorContract {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // 상태 변경 메서드들
+
+    /**
+     * 결제 상태 변경
+     */
+    public void updatePaymentStatus(PaymentStatus newStatus) {
+        this.paymentStatus = newStatus;
+    }
+
+    /**
+     * 결제 승인 (튜터가 입금 확인)
+     */
+    public void approvePayment(Integer paidAmount) {
+        this.paymentStatus = PaymentStatus.COMPLETED;
+        this.paidAmount = paidAmount;
+        this.paymentDt = LocalDateTime.now();
+        this.contractStatus = ContractStatus.ACTIVE; // 결제 완료 시 계약도 활성화
+    }
+
+    /**
+     * 계약 취소
+     */
+    public void cancelContract(String reason) {
+        this.contractStatus = ContractStatus.CANCELLED;
+        this.canceledAt = LocalDateTime.now();
+        this.cancelReason = reason;
+    }
+
+    /**
+     * 계약 종료
+     */
+    public void endContract() {
+        this.contractStatus = ContractStatus.END;
+    }
+
+    /**
+     * 계약 상태 변경
+     */
+    public void updateContractStatus(ContractStatus newStatus) {
+        this.contractStatus = newStatus;
     }
 
     @Builder
@@ -170,7 +211,7 @@ public class StudentTutorContract {
 
     private static void validate(ContractCreateRequestDto requestDto) {
         if (requestDto.getLessonDtList() == null || requestDto.getLessonDtList().isEmpty()) {
-            throw new ContractException("레슨 매칭은 최소 하나 이상의 레슨 일정이 필요합니다.");
+            throw new ContractException("레슨 매칭은 최소 하나 이상의 레슨 일���이 필요합니다.");
         }
 
         if (requestDto.getContractType().isRegular()) {

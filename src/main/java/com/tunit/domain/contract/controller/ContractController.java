@@ -4,6 +4,8 @@ import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.domain.contract.define.ContractSource;
 import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.dto.ContractResponseDto;
+import com.tunit.domain.contract.dto.ContractStatusUpdateRequestDto;
+import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.contract.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,9 @@ public class ContractController {
      * 계약 생성 (학생이 튜터에게 레슨 계약 요청)
      */
     @PostMapping
-    public ResponseEntity<ContractResponseDto> createContract(@LoginUser(field = "userNo") Long userNo,  @RequestBody ContractCreateRequestDto requestDto) {
+    public ResponseEntity<ContractResponseDto> createContract(
+            @LoginUser(field = "userNo") Long userNo,
+            @RequestBody ContractCreateRequestDto requestDto) {
         log.info("계약 생성 요청 - tutorProfileNo: {}, studentNo: {}, contractType: {}",
                 requestDto.getTutorProfileNo(), userNo, requestDto.getContractType());
 
@@ -50,7 +54,8 @@ public class ContractController {
      * 학생의 계약 목록 조회
      */
     @GetMapping("/student")
-    public ResponseEntity<List<ContractResponseDto>> getStudentContracts(@LoginUser(field = "userNo") Long userNo) {
+    public ResponseEntity<List<ContractResponseDto>> getStudentContracts(
+            @LoginUser(field = "userNo") Long userNo) {
         log.info("학생 계약 목록 조회 - studentNo: {}", userNo);
 
         List<ContractResponseDto> response = contractService.getStudentContracts(userNo);
@@ -60,11 +65,61 @@ public class ContractController {
     /**
      * 튜터의 계약 목록 조회
      */
-    @GetMapping("/tutor/{tutorProfileNo}")
-    public ResponseEntity<List<ContractResponseDto>> getTutorContracts(@PathVariable Long tutorProfileNo) {
+    @GetMapping("/tutor")
+    public ResponseEntity<List<ContractResponseDto>> getTutorContracts(
+            @LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
         log.info("튜터 계약 목록 조회 - tutorProfileNo: {}", tutorProfileNo);
 
         List<ContractResponseDto> response = contractService.getTutorContracts(tutorProfileNo);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 계약 상태 변경 (학생)
+     * - 결제 확인 요청 (PENDING → CONFIRMING)
+     * - 계약 취소 (→ CANCELLED)
+     */
+    @PatchMapping("/{contractNo}/status/student")
+    public ResponseEntity<ContractResponseDto> updateContractStatusByStudent(
+            @PathVariable Long contractNo,
+            @LoginUser(field = "userNo") Long studentNo,
+            @RequestBody ContractStatusUpdateRequestDto requestDto) {
+        log.info("계약 상태 변경(학생) - contractNo: {}, studentNo: {}, contractStatus: {}, paymentStatus: {}",
+                contractNo, studentNo, requestDto.getContractStatus(), requestDto.getPaymentStatus());
+
+        ContractResponseDto response = contractService.updateContractStatus(
+                contractNo,
+                studentNo,
+                requestDto.getContractStatus(),
+                requestDto.getCancelReason(),
+                false
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 계약 상태 변경 (튜터)
+     */
+    @PutMapping("/{contractNo}/status/tutor")
+    public ResponseEntity<ContractResponseDto> updateContractStatusByTutor(
+            @PathVariable Long contractNo,
+            @LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+            @RequestBody ContractStatusUpdateRequestDto requestDto) {
+
+        if (requestDto.getContractStatus() == null) {
+            throw new ContractException("변경할 계약 상태를 입력해주세요.");
+        }
+
+        log.info("계약 상태 변경(튜터) - contractNo: {}, tutorProfileNo: {}, contractStatus: {}, paymentStatus: {}",
+                contractNo, tutorProfileNo, requestDto.getContractStatus(), requestDto.getPaymentStatus());
+
+        ContractResponseDto response = contractService.updateContractStatus(
+                contractNo,
+                tutorProfileNo,
+                requestDto.getContractStatus(),
+                requestDto.getCancelReason(),
+                true
+        );
         return ResponseEntity.ok(response);
     }
 }

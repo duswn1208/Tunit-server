@@ -1,8 +1,10 @@
 package com.tunit.domain.contract.define;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
 @Getter
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum PaymentStatus {
     PENDING("PENDING", "결제 대기"),
     CONFIRMING("CONFIRMING", "입금 확인 중"),
