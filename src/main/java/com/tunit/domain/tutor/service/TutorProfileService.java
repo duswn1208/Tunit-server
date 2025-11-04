@@ -75,6 +75,9 @@ public class TutorProfileService {
 
     @Transactional
     public Long save(Long userNo, TutorProfileSaveDto tutorProfileSaveDto) {
+        UserMain userMain = userService.findByUserNo(userNo);
+        userMain.joinTutor();
+
         TutorProfile tutorProfile = TutorProfile.saveFrom(userNo, tutorProfileSaveDto);
 
         TutorProfile save = tutorProfileRepository.save(tutorProfile);

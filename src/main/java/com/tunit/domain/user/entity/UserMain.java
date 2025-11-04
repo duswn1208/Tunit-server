@@ -90,7 +90,13 @@ public class UserMain {
         this.userStatus = UserStatus.ACTIVE;
         this.userRole = UserRole.STUDENT;
         this.updatedAt = LocalDateTime.now();
-        this.nickname = "S";
+//        this.nickname = "S";
+    }
+
+    public void joinTutor() {
+        this.userStatus = UserStatus.ACTIVE;
+        this.userRole = UserRole.TUTOR;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateStudentProfile(StudentProfileSaveDto studentProfileSaveDto) {
