@@ -1,5 +1,6 @@
 package com.tunit.domain.lesson.entity;
 
+import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationSource;
 import com.tunit.domain.lesson.define.ReservationStatus;
@@ -69,6 +70,18 @@ public class LessonReservation {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
     @Builder(builderMethodName = "of")
     public LessonReservation(Long lessonReservationNo, Long tutorProfileNo, Long contractNo, Long studentNo,
                             LessonSubCategory lessonCategory, Long fixedLessonReservationNo,
@@ -136,8 +149,6 @@ public class LessonReservation {
                 .endTime(dto.startTime().plusMinutes(tutorProfileInfo.durationMin()))
                 .status(dto.reservationStatus())
                 .source(ReservationSource.APP)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
@@ -153,8 +164,21 @@ public class LessonReservation {
                 .status(dto.reservationStatus())
                 .source(ReservationSource.APP)
                 .memo(dto.memo())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static LessonReservation fromContract(StudentTutorContract contract, LocalDate lessonDate, LocalTime startTime, LocalTime endTime) {
+        return LessonReservation.of()
+                .tutorProfileNo(contract.getTutorProfileNo())
+                .studentNo(contract.getStudentNo())
+                .contractNo(contract.getContractNo())
+                .lessonCategory(contract.getLessonSubCategory())
+                .date(lessonDate)
+                .startTime(startTime)
+                .endTime(endTime)
+                .dayOfWeekNum(lessonDate.getDayOfWeek().getValue())
+                .status(ReservationStatus.REQUESTED)
+                .source(ReservationSource.APP)
                 .build();
     }
 

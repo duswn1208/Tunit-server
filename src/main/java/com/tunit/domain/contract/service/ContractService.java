@@ -7,6 +7,8 @@ import com.tunit.domain.contract.dto.ContractResponseDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.contract.repository.StudentTutorContractRepository;
+import com.tunit.domain.lesson.define.ReservationStatus;
+import com.tunit.domain.lesson.service.LessonReserveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,9 +23,15 @@ import java.util.List;
 public class ContractService {
 
     private final StudentTutorContractRepository contractRepository;
+    private final LessonReserveService lessonReserveService;
 
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
+        // 계약 생성
         StudentTutorContract save = contractRepository.save(StudentTutorContract.createContractOf(requestDto));
+
+        // 대기 레슨 예약 생성
+        lessonReserveService.reserveLessonsBatch(save, requestDto.getLessonDtList());
+
         return new ContractResponseDto(save);
     }
 
@@ -60,17 +68,28 @@ public class ContractService {
         // 본인 계약인지 확인
         validateContractOwnership(contract, userNo, isTutor);
 
-        // 계약 상태 변경
-        if (afterStatus != null) {
-            contract.getContractStatus().changeableTo(afterStatus);
-            if (afterStatus == ContractStatus.CANCELLED) {
+        if (afterStatus == null) {
+            throw new ContractException();
+        }
+
+        // 계약 및 레슨 상태 변경
+        contract.getContractStatus().changeableTo(afterStatus);
+        switch (afterStatus) {
+            case CANCELLED -> {
                 contract.cancelContract(cancelReason);
-            } else {
+                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.CANCELED);
+            }
+            case APPROVED -> {
                 contract.updateContractStatus(afterStatus);
-                if (afterStatus.equals(ContractStatus.APPROVED)) {
-                    // 승인 시 결제 상태를 PENDING으로 설정
-                    contract.updatePaymentStatus(PaymentStatus.PENDING);
-                }
+                contract.updatePaymentStatus(PaymentStatus.PENDING);
+            }
+            case ACTIVE -> {
+                contract.updateContractStatus(afterStatus);
+                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
+            }
+            default -> {
+                contract.updateContractStatus(afterStatus);
+                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.EXPIRED);
             }
         }
 
@@ -122,6 +141,7 @@ public class ContractService {
 
         // 결제 승인 및 계약 활성화
         contract.approvePayment(paidAmount);
+        lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
 
         return new ContractResponseDto(contract);
     }

@@ -1,5 +1,7 @@
 package com.tunit.domain.lesson.service;
 
+import com.tunit.domain.contract.entity.StudentTutorContract;
+import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
@@ -26,8 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -87,6 +91,47 @@ public class LessonReserveService {
         LessonReservation reservation = LessonReservation.fromReserveLesson(dto, dto.tutorProfileNo(), tutorLessons.getLessonSubCategory(), student.getUserNo(), endTime);
         lessonReservationRepository.save(reservation);
         log.info("레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, date: {}", student.getUserNo(), dto.tutorProfileNo(), dto.lessonDate());
+    }
+
+    /**
+     * 계약 생성 시 여러 개의 대기 상태 레슨을 배치로 생성
+     *
+     */
+    @Transactional
+    public void reserveLessonsBatch(StudentTutorContract contract, List<LocalDateTime> lessonDtList) {
+        if (lessonDtList == null || lessonDtList.isEmpty()) {
+            return;
+        }
+
+        // 1. 학생 정보 1번만 조회
+        UserMain student = userService.findByUserNo(contract.getStudentNo());
+
+        // 2. 튜터 프로필 1번만 조회
+        TutorProfileResponseDto tutorProfile = tutorProfileService.findTutorProfileInfoByTutorProfileNo(contract.getTutorProfileNo());
+
+        // 3. 튜터 레슨 1번만 조회
+        if (!tutorLessonsRepository.existsByLessonSubCategory(contract.getLessonSubCategory())) {
+            throw new LessonNotFoundException();
+        }
+
+        // 4. 레슨 예약 엔티티 생성
+        List<LessonReservation> reservations = new ArrayList<>();
+        for (LocalDateTime startTime : lessonDtList) {
+            // 종료 시간 계산
+            LocalTime endTime = LocalTime.from(startTime.plusMinutes(tutorProfile.durationMin()));
+
+            // 튜터 가용성 검증
+            validateTutorAvailability(contract.getTutorProfileNo(), startTime.toLocalDate(), startTime.toLocalTime(), endTime);
+
+            // 레슨 예약 엔티티 생성
+            LessonReservation reservation = LessonReservation.fromContract(contract, startTime.toLocalDate(), startTime.toLocalTime(), endTime);
+            reservations.add(reservation);
+        }
+
+        // 5. 한 번에 배치 저장
+        lessonReservationRepository.saveAll(reservations);
+        log.info("배치 레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, 레슨 수: {}",
+                student.getUserNo(), tutorProfile.tutorProfileNo(), reservations.size());
     }
 
     @Transactional
@@ -176,12 +221,25 @@ public class LessonReserveService {
     }
 
     @Transactional
+    public void changeLessonStatusByContractNo(Long contractNo, ReservationStatus status) {
+        List<LessonReservation> lessonReservations = this.findByContractNo(contractNo);
+        for (LessonReservation lessonReservation : lessonReservations) {
+            lessonReservation.changeStatus(lessonReservation.getStatus(), status);
+        }
+    }
+
+    @Transactional
     public void cancel(Long userNo, Long lessonReservationNo, ReservationStatus status) {
         LessonReservation lessonReservation = findByLessonReservationNo(lessonReservationNo);
         if (!lessonReservation.getStudentNo().equals(userNo)) {
             throw new LessonNotFoundException("Lesson reservation not found for userNo: " + userNo + " and lessonReservationNo: " + lessonReservationNo);
         }
         lessonReservation.changeStatus(lessonReservation.getStatus(), status);
+    }
+
+    public List<LessonReservation> findByContractNo(Long contractNo) {
+        return Collections.singletonList(lessonReservationRepository.findByContractNo(contractNo)
+                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with contractNo: " + contractNo)));
     }
 
     public LessonReservation findByLessonReservationNo(Long lessonReservationNo) {
