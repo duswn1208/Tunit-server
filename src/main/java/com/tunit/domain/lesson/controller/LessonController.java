@@ -54,7 +54,7 @@ public class LessonController {
 
     @PostMapping("/reservation/cancel/{lessonReservationNo}")
     public ResponseEntity<?> cancelLessonReservation(@LoginUser(field = "userNo") Long userNo, @PathVariable ("lessonReservationNo") Long lessonReservationNo) {
-        lessonReserveService.cancel(userNo, lessonReservationNo, ReservationStatus.TRIAL_CANCELED);
+        lessonReserveService.cancel(userNo, lessonReservationNo, ReservationStatus.CANCELED);
         return ResponseEntity.ok("레슨 예약이 성공적으로 취소되었습니다.");
     }
 

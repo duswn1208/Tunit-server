@@ -59,7 +59,7 @@ public class LessonReserveService {
                     lessonReservation.getDate(),
                     lessonReservation.getStartTime(),
                     lessonReservation.getEndTime(),
-                    List.of(ReservationStatus.ACTIVE, ReservationStatus.TRIAL_ACTIVE, ReservationStatus.REQUESTED, ReservationStatus.COMPLETED)
+                    List.of(ReservationStatus.ACTIVE, ReservationStatus.REQUESTED, ReservationStatus.COMPLETED)
             )) {
                 throw new IllegalStateException("해당 시간대에 이미 예약된 레슨이 있습니다.");
             }
