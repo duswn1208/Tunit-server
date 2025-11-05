@@ -35,7 +35,16 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
             LocalDate endDate,
             List<ReservationStatus> statuses);
 
-    List<LessonReservation> findByStudentNoAndContractNoAndDateBetweenOrderByDateAscStartTimeAsc(Long userNo, Long contractNo, LocalDate startDate, LocalDate endDate);
+    @Query("SELECT lr FROM LessonReservation lr " +
+           "WHERE lr.studentNo = :studentNo " +
+           "AND (:contractNo IS NULL OR lr.contractNo = :contractNo) " +
+           "AND lr.date BETWEEN :startDate AND :endDate " +
+           "ORDER BY lr.date ASC, lr.startTime ASC")
+    List<LessonReservation> findByStudentNoAndOptionalContractNoAndDateBetween(
+            @Param("studentNo") Long studentNo,
+            @Param("contractNo") Long contractNo,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 
     Optional<LessonReservation> findByContractNo(Long contractNo);
 }
