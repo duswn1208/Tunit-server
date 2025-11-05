@@ -27,4 +27,10 @@ public interface TutorProfileRepository extends JpaRepository<TutorProfile, Long
         List<LessonSubCategory> lessonSubCategories,
         List<Integer> regionCodes
     );
+
+    @Query("SELECT DISTINCT t.tutorProfileNo FROM TutorProfile t JOIN t.tutorLessons l JOIN t.tutorRegions r " +
+            "WHERE (:lessonSubCategories IS NULL OR l.lessonSubCategory IN :lessonSubCategories)")
+    List<Long> findTutorProfileNoByCategory(List<LessonSubCategory> lessonSubCategories);
+
 }
+

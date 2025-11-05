@@ -1,7 +1,6 @@
 package com.tunit.domain.lesson.service;
 
 import com.tunit.domain.contract.entity.StudentTutorContract;
-import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
@@ -10,6 +9,7 @@ import com.tunit.domain.lesson.dto.LessonResponsDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
+import com.tunit.domain.lesson.exception.LessonStatusException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.define.TutorLessonOpenType;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
@@ -95,7 +95,6 @@ public class LessonReserveService {
 
     /**
      * 계약 생성 시 여러 개의 대기 상태 레슨을 배치로 생성
-     *
      */
     @Transactional
     public void reserveLessonsBatch(StudentTutorContract contract, List<LocalDateTime> lessonDtList) {
@@ -222,9 +221,13 @@ public class LessonReserveService {
 
     @Transactional
     public void changeLessonStatusByContractNo(Long contractNo, ReservationStatus status) {
-        List<LessonReservation> lessonReservations = this.findByContractNo(contractNo);
-        for (LessonReservation lessonReservation : lessonReservations) {
-            lessonReservation.changeStatus(lessonReservation.getStatus(), status);
+        try {
+            List<LessonReservation> lessonReservations = this.findByContractNo(contractNo);
+            for (LessonReservation lessonReservation : lessonReservations) {
+                lessonReservation.changeStatus(lessonReservation.getStatus(), status);
+            }
+        } catch (LessonStatusException e) {
+            log.error("레슨 상태 변경 중 에러 발생. contractNo: {}, status: {}", contractNo, status, e);
         }
     }
 

@@ -5,6 +5,7 @@ import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationSource;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
+import com.tunit.domain.lesson.exception.LessonStatusException;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import jakarta.persistence.*;
@@ -184,10 +185,10 @@ public class LessonReservation {
 
     public void changeStatus(ReservationStatus beforeStatus, ReservationStatus afterStatus) {
         if (!this.status.equals(beforeStatus)) {
-            throw new IllegalStateException("현재 상태가 " + beforeStatus + "가 아닙니다. 현재 상태: " + this.status);
+            throw new LessonStatusException("현재 상태가 " + beforeStatus + "가 아닙니다. 현재 상태: " + this.status);
         }
         if (!beforeStatus.getAllowedNextStatuses().contains(afterStatus)) {
-            throw new IllegalStateException("상태를 " + beforeStatus + "에서 " + afterStatus + "로 변경할 수 없습니다.");
+            throw new LessonStatusException("상태를 " + beforeStatus + "에서 " + afterStatus + "로 변경할 수 없습니다.");
         }
         this.status = afterStatus;
     }

@@ -99,14 +99,42 @@ public class TutorProfileService {
         SortType sortType = tutorFindRequestDto.getSortType();
 
         if (lessonCodes != null && lessonCodes.isEmpty()) lessonCodes = null;
-        if (regionCodes != null && regionCodes.isEmpty()) regionCodes = null;
 
-        List<Long> tutorProfileNos = tutorProfileRepository.findTutorProfileNoByCategoryAndRegion(lessonCodes, regionCodes);
+        List<Long> tutorProfileNos = tutorProfileRepository.findTutorProfileNoByCategory(lessonCodes);
         if (tutorProfileNos.isEmpty()) {
             return List.of();
         }
 
         List<TutorProfile> profileList = tutorProfileRepository.findByTutorProfileNoIn(tutorProfileNos);
+
+        // 지역 코드 필터링 (애플리케이션 레벨)
+        if (regionCodes != null && !regionCodes.isEmpty()) {
+            profileList = profileList.stream()
+                    .filter(tutorProfile -> {
+                        // 튜터의 지역 코드 리스트
+                        List<Integer> tutorRegionCodes = tutorProfile.getTutorRegions().stream()
+                                .map(TutorRegion::getCode)
+                                .toList();
+
+                        // 요청한 지역 코드 중 하나라도 매칭되면 true
+                        return regionCodes.stream().anyMatch(requestedCode -> {
+                            String requestedCodeStr = String.valueOf(requestedCode);
+                            int codeLength = requestedCodeStr.length();
+
+                            // 2자리 코드 (예: 11, 41) → prefix 매칭
+                            if (codeLength == 2) {
+                                return tutorRegionCodes.stream()
+                                        .anyMatch(tutorCode -> String.valueOf(tutorCode).startsWith(requestedCodeStr));
+                            }
+                            // 그 외 → 정확히 일치
+                            else {
+                                return tutorRegionCodes.contains(requestedCode);
+                            }
+                        });
+                    })
+                    .toList();
+        }
+
         List<TutorProfileResponseDto> result = profileList.stream().map(TutorProfileResponseDto::from).toList();
 
         if (sortType != null) {
