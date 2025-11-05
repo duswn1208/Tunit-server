@@ -15,12 +15,14 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 public class FindMyLessonsRequestDto {
+    private Long contractNo;
     private LocalDate startDate;
     private LocalDate endDate;
     private LessonReservationGroup lessonFilter;
     private LessonCategory lessonCategory;
 
-    public FindMyLessonsRequestDto(LocalDate startDate, LocalDate endDate, LessonReservationGroup lessonFilter, LessonCategory lessonCategory) {
+    public FindMyLessonsRequestDto(Long contractNo, LocalDate startDate, LocalDate endDate, LessonReservationGroup lessonFilter, LessonCategory lessonCategory) {
+        this.contractNo = contractNo;
         this.startDate = startDate;
         this.endDate = endDate;
         this.lessonFilter = lessonFilter;
@@ -33,9 +35,6 @@ public class FindMyLessonsRequestDto {
         }
         if (this.endDate == null) {
             this.endDate = this.startDate.plusMonths(2).withDayOfMonth(1).minusDays(1);
-        }
-        if (this.lessonFilter == null) {
-            this.lessonFilter = LessonReservationGroup.UPCOMING;
         }
     }
 

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface LessonReservationRepository extends JpaRepository<LessonReservation, Long> {
     boolean existsByTutorProfileNo(Long tutorProfileNo);
@@ -34,5 +35,7 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
             LocalDate endDate,
             List<ReservationStatus> statuses);
 
-    List<LessonReservation> findByStudentNoAndDateBetweenOrderByDateAscStartTimeAsc(Long userNo, LocalDate startDate, LocalDate endDate);
+    List<LessonReservation> findByStudentNoAndContractNoAndDateBetweenOrderByDateAscStartTimeAsc(Long userNo, Long contractNo, LocalDate startDate, LocalDate endDate);
+
+    Optional<LessonReservation> findByContractNo(Long contractNo);
 }

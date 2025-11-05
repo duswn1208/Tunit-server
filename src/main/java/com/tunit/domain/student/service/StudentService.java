@@ -73,8 +73,8 @@ public class StudentService {
     public List<StudentLessonResponseDto> findMyLessons(Long userNo, FindMyLessonsRequestDto requestDto) {
         requestDto.setDefaultValuesIfNull();
 
-        List<LessonReservation> lessons = lessonReservationRepository.findByStudentNoAndDateBetweenOrderByDateAscStartTimeAsc(
-                userNo, requestDto.getStartDate(), requestDto.getEndDate());
+        List<LessonReservation> lessons = lessonReservationRepository.findByStudentNoAndContractNoAndDateBetweenOrderByDateAscStartTimeAsc(
+                userNo, requestDto.getContractNo(), requestDto.getStartDate(), requestDto.getEndDate());
 
         List<ReservationStatus> statuses = requestDto.getLessonFilter().getIncludedStatuses();
         if (statuses != null && !statuses.isEmpty()) {

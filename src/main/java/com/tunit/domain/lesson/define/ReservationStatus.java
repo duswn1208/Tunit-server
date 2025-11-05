@@ -17,6 +17,7 @@ public enum ReservationStatus {
     COMPLETED("완료"),
     CANCELED("취소"),
     EXPIRED("자동 만료"),
+    //deprecated
     TRIAL_REQUESTED("체험/상담 신청"),
     TRIAL_CANCELED("체험/상담 취소"),
     TRIAL_ACTIVE("체험/상담 확정"),
