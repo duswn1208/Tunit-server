@@ -41,9 +41,9 @@ public class FindMyLessonsRequestDto {
     @Getter
     @RequiredArgsConstructor
     public enum LessonReservationGroup {
-        UPCOMING("예정된 레슨", List.of(ReservationStatus.TRIAL_ACTIVE, ReservationStatus.ACTIVE)),
-        PAST("지난 레슨", List.of(ReservationStatus.COMPLETED, ReservationStatus.CANCELED, ReservationStatus.EXPIRED, ReservationStatus.TRIAL_COMPLETED, ReservationStatus.TRIAL_CANCELED)),
-        PENDING("대기 중인 레슨", List.of(ReservationStatus.REQUESTED, ReservationStatus.TRIAL_REQUESTED));
+        UPCOMING("예정된 레슨", List.of(ReservationStatus.ACTIVE)),
+        PAST("지난 레슨", List.of(ReservationStatus.COMPLETED, ReservationStatus.CANCELED, ReservationStatus.EXPIRED)),
+        PENDING("대기 중인 레슨", List.of(ReservationStatus.REQUESTED));
 
         private final String label;
         private final List<ReservationStatus> includedStatuses;

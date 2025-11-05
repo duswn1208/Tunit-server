@@ -16,12 +16,7 @@ public enum ReservationStatus {
     ACTIVE("레슨 확정"),
     COMPLETED("완료"),
     CANCELED("취소"),
-    EXPIRED("자동 만료"),
-    //deprecated
-    TRIAL_REQUESTED("체험/상담 신청"),
-    TRIAL_CANCELED("체험/상담 취소"),
-    TRIAL_ACTIVE("체험/상담 확정"),
-    TRIAL_COMPLETED("체험/상담 완료");
+    EXPIRED("자동 만료");
 
     private final String label;
     private List<ReservationStatus> allowedNextStatuses;
@@ -32,10 +27,6 @@ public enum ReservationStatus {
         COMPLETED.allowedNextStatuses = List.of();
         CANCELED.allowedNextStatuses = List.of();
         EXPIRED.allowedNextStatuses = List.of();
-        TRIAL_REQUESTED.allowedNextStatuses = List.of(TRIAL_ACTIVE, TRIAL_COMPLETED, TRIAL_CANCELED);
-        TRIAL_CANCELED.allowedNextStatuses = List.of();
-        TRIAL_ACTIVE.allowedNextStatuses = List.of(TRIAL_COMPLETED, TRIAL_CANCELED);
-        TRIAL_COMPLETED.allowedNextStatuses = List.of();
     }
 
     @JsonProperty("allowedNextStatuses")
@@ -52,15 +43,11 @@ public enum ReservationStatus {
     public static final List<ReservationStatus> VALID_LESSON_STATUSES = List.of(
             REQUESTED,
             ACTIVE,
-            COMPLETED,
-            TRIAL_ACTIVE,
-            TRIAL_COMPLETED,
-            TRIAL_REQUESTED
+            COMPLETED
     );
 
     // 수강하지 않은 상태
     public static final List<ReservationStatus> NOT_ENROLLED_STATUSES = List.of(
-        REQUESTED,
-        TRIAL_REQUESTED
+        REQUESTED
     );
 }

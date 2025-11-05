@@ -19,6 +19,6 @@ public class LessonFindRequestDto {
 
     public void setScheduleInfo(Long tutorProfileNo) {
         this.tutorProfileNo = tutorProfileNo;
-        this.reservationStatuses = List.of(ReservationStatus.ACTIVE, ReservationStatus.COMPLETED, ReservationStatus.TRIAL_REQUESTED, ReservationStatus.TRIAL_ACTIVE, ReservationStatus.TRIAL_COMPLETED, ReservationStatus.REQUESTED);
+        this.reservationStatuses = List.of(ReservationStatus.ACTIVE, ReservationStatus.COMPLETED, ReservationStatus.REQUESTED);
     }
 }
