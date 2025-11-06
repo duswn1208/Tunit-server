@@ -23,7 +23,8 @@ public record TutorProfileResponseDto(
         List<TutorAvailExceptionResponseDto> tutorHolidayList,
         Integer careerYears,
         Integer pricePerHour,
-        Integer durationMin) {
+        Integer durationMin
+) {
 
     public static TutorProfileResponseDto from(TutorProfile tutorProfile) {
         return new TutorProfileResponseDto(
