@@ -8,7 +8,8 @@ import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.contract.repository.StudentTutorContractRepository;
 import com.tunit.domain.lesson.define.ReservationStatus;
-import com.tunit.domain.lesson.service.LessonReserveService;
+import com.tunit.domain.lesson.service.LessonManagementService;
+import com.tunit.domain.lesson.service.LessonReservationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,14 +24,15 @@ import java.util.List;
 public class ContractService {
 
     private final StudentTutorContractRepository contractRepository;
-    private final LessonReserveService lessonReserveService;
+    private final LessonReservationService lessonReservationService;
+    private final LessonManagementService lessonManagementService;
 
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
         // 계약 생성
         StudentTutorContract save = contractRepository.save(StudentTutorContract.createContractOf(requestDto));
 
         // 대기 레슨 예약 생성
-        lessonReserveService.reserveLessonsBatch(save, requestDto.getLessonDtList());
+        lessonReservationService.reserveLessonsBatch(save, requestDto.getLessonDtList());
 
         return new ContractResponseDto(save);
     }
@@ -77,7 +79,7 @@ public class ContractService {
         switch (afterStatus) {
             case CANCELLED -> {
                 contract.cancelContract(cancelReason);
-                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.CANCELED);
+                lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.CANCELED);
             }
             case APPROVED -> {
                 contract.updateContractStatus(afterStatus);
@@ -85,11 +87,11 @@ public class ContractService {
             }
             case ACTIVE -> {
                 contract.updateContractStatus(afterStatus);
-                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
+                lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
             }
             default -> {
                 contract.updateContractStatus(afterStatus);
-                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.EXPIRED);
+                lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.EXPIRED);
             }
         }
 
@@ -141,7 +143,7 @@ public class ContractService {
 
         // 결제 승인 및 계약 활성화
         contract.approvePayment(paidAmount);
-        lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
+        lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
 
         return new ContractResponseDto(contract);
     }

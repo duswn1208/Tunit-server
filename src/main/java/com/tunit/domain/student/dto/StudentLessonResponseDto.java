@@ -11,6 +11,7 @@ import java.time.LocalTime;
 
 public record StudentLessonResponseDto(
         Long lessonReservationNo,
+        Long contractNo,
         Long tutorProfileNo,
         LessonSubCategory lessonCategory,
         LocalDate lessonDate,
@@ -23,6 +24,7 @@ public record StudentLessonResponseDto(
     public static StudentLessonResponseDto of(LessonReservation lesson, UserMainResponseDto tutorInfo) {
         return new StudentLessonResponseDto(
                 lesson.getLessonReservationNo(),
+                lesson.getContractNo(),
                 lesson.getTutorProfileNo(),
                 lesson.getLessonCategory(),
                 lesson.getDate(),
@@ -37,6 +39,7 @@ public record StudentLessonResponseDto(
     public static StudentLessonResponseDto from(LessonReservation lesson) {
         return new StudentLessonResponseDto(
                 lesson.getLessonReservationNo(),
+                lesson.getContractNo(),
                 lesson.getTutorProfileNo(),
                 lesson.getLessonCategory(),
                 lesson.getDate(),
