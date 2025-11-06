@@ -32,7 +32,7 @@ public class FixedLessonService {
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
     private final FixedLessonExcelRowParser fixedLessonExcelRowParser;
-    private final LessonReserveService lessonReserveService;
+    private final LessonReservationService lessonReservationService;
 
     private static final Pattern PHONE_PATTERN = Pattern.compile("^01[016789]-?\\d{3,4}-?\\d{4}$");
 
@@ -61,7 +61,7 @@ public class FixedLessonService {
                     FixedLessonReservation fixedLessonReservation = FixedLessonReservation.getFixedLessonReservation(dto, dayOfWeek, student, tutorProfileInfo);
                     existLesson(fixedLessonReservation);
                     fixedLessonReservationRepository.save(fixedLessonReservation);
-                    lessonReserveService.saveLessonFromFixedLessonFromExcel(fixedLessonReservation);
+                    lessonReservationService.saveLessonFromFixedLessonFromExcel(fixedLessonReservation);
                 });
 
             } catch (LessonDuplicationException e) {
@@ -89,7 +89,7 @@ public class FixedLessonService {
             fixedLessonReservationRepository.save(fixedLessonReservation);
 
             //동일한 시간대 4번 반복 저장
-            lessonReserveService.saveLessonFromFixedLessonFromWeb(fixedLessonReservation);
+            lessonReservationService.saveLessonFromFixedLessonFromWeb(fixedLessonReservation);
         });
 
     }

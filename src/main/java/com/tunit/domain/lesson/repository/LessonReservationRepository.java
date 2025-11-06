@@ -4,6 +4,7 @@ import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonResponsDto;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.student.dto.StudentLessonResponseDto;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -47,4 +48,22 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
             @Param("endDate") LocalDate endDate);
 
     Optional<LessonReservation> findByContractNo(Long contractNo);
+
+    boolean existsByStudentNoAndDateAndStartTimeAndEndTimeAndStatusInAndLessonReservationNoNot(
+            Long studentNo,
+            LocalDate lessonDate,
+            LocalTime startTime,
+            LocalTime endTime,
+            List<ReservationStatus> validLessonStatuses,
+            Long lessonReservationNo);
+
+    // 계약의 전체 레슨 개수
+    long countByContractNo(Long contractNo);
+
+    // 계약의 최근 n개 레슨(날짜/시간 내림차순)
+    @Query("SELECT lr FROM LessonReservation lr WHERE lr.contractNo = :contractNo ORDER BY lr.date DESC, lr.startTime DESC")
+    List<LessonReservation> findTopNByContractNoOrderByDateDescStartTimeDesc(
+            @Param("contractNo") Long contractNo,
+            Pageable pageable);
 }
+

@@ -207,4 +207,11 @@ public class LessonReservation {
                 .source(this.source)
                 .build();
     }
+
+    public void reschedule(LocalDate lessonDate, LocalTime startTime, LocalTime endTime, String memo) {
+        this.date = lessonDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.memo = memo;
+    }
 }
