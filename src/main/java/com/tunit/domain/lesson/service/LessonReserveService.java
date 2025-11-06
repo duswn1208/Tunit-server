@@ -13,6 +13,7 @@ import com.tunit.domain.lesson.exception.LessonStatusException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.define.TutorLessonOpenType;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
+import com.tunit.domain.tutor.entity.TutorAvailableTime;
 import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
@@ -140,6 +141,7 @@ public class LessonReserveService {
     private void validateTutorAvailability(Long tutorProfileNo, LocalDate date, LocalTime startTime, LocalTime endTime) {
         // 1. 해당 요일이 튜터의 영업일이고 해당 시간이 영업시간인지 확인
         int dayOfWeek = date.getDayOfWeek().getValue();
+        List<TutorAvailableTime> allByTutorProfileNo = tutorAvailableTimeRepository.findAllByTutorProfileNo(tutorProfileNo);
         boolean isAvailableTime = tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
                 tutorProfileNo, dayOfWeek, startTime, endTime);
         if (!isAvailableTime) {
