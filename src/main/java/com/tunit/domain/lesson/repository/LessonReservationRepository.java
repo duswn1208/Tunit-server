@@ -22,6 +22,14 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
+    // 튜터의 해당 시간대 레슨 중복 체크 (시간 겹침 확인)
+    @Query("SELECT COUNT(lr) > 0 FROM LessonReservation lr " +
+            "WHERE lr.tutorProfileNo = :tutorProfileNo " +
+            "AND lr.date = :date " +
+            "AND lr.status IN :statuses " +
+            "AND (" +
+            "  (lr.startTime < :endTime AND lr.endTime > :startTime)" + // 시간 겹침
+            ")")
     boolean existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
             Long tutorProfileNo,
             LocalDate date,
@@ -49,4 +57,36 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
     Optional<LessonReservation> findByContractNo(Long contractNo);
 
     List<LessonReservation> findByContractNoAndStatusIn(Long contractNo, List<ReservationStatus> statuses);
+
+    // 학생의 해당 시간대 레슨 중복 체크 (시간 겹침 확인)
+    @Query("SELECT COUNT(lr) > 0 FROM LessonReservation lr " +
+            "WHERE lr.studentNo = :studentNo " +
+            "AND lr.date = :date " +
+            "AND lr.status IN :statuses " +
+            "AND (" +
+            "  (lr.startTime < :endTime AND lr.endTime > :startTime)" + // 시간 겹침
+            ")")
+    boolean existsByStudentNoAndDateAndStartTimeAndEndTimeAndStatusIn(
+            @Param("studentNo") Long studentNo,
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime,
+            @Param("statuses") List<ReservationStatus> statuses
+    );
+
+    // 학생의 해당 시간대 레슨 중복 체크 (자기 자신 제외, 시간 겹침 확인)
+    @Query("SELECT COUNT(lr) > 0 FROM LessonReservation lr " +
+            "WHERE lr.studentNo = :studentNo " +
+            "AND lr.date = :date " +
+            "AND lr.status IN :statuses " +
+            "AND (" +
+            "  (lr.startTime < :endTime AND lr.endTime > :startTime)" + // 시간 겹침
+            ")")
+    boolean existsByStudentNoAndDateAndStartTimeAndEndTimeAndStatusInAndLessonReservationNoNot(
+            @Param("studentNo") Long studentNo,
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime,
+            @Param("statuses") List<ReservationStatus> statuses
+    );
 }
