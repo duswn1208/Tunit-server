@@ -73,13 +73,12 @@ public class StudentTutorContract {
     private Integer paidAmount; // 실제 결제 금액
     private LocalDateTime paymentDt; // 결제 일시
 
-    // 취소/환불 정보
-    private LocalDateTime canceledAt; // 취소 일시
-    private String cancelReason; // 취소 사유
-    private Integer refundAmount; // 환불 금액
-
     // 고정레슨 연결
     private Long fixedLessonNo;
+
+    // 취소/환불 정보는 별도 테이블(ContractCancellation)로 분리
+    @OneToOne(mappedBy = "contract", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private ContractCancel cancellation;
 
     @PrePersist
     protected void onCreate() {
@@ -113,11 +112,11 @@ public class StudentTutorContract {
 
     /**
      * 계약 취소
+     * ContractCancellation 엔티티를 생성하여 취소 정보를 별도로 관리
      */
-    public void cancelContract(String reason) {
+    public void cancelContract(String reason, Long canceledBy) {
         this.contractStatus = ContractStatus.CANCELLED;
-        this.canceledAt = LocalDateTime.now();
-        this.cancelReason = reason;
+        this.cancellation = ContractCancel.createFrom(this, reason, canceledBy);
     }
 
     /**
@@ -142,8 +141,7 @@ public class StudentTutorContract {
                                 Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime,
                                 String memo, ContractSource source, Integer totalPrice,
                                 PaymentStatus paymentStatus, Integer paidAmount, LocalDateTime paymentDt,
-                                LocalDateTime canceledAt, String cancelReason,
-                                Integer refundAmount, Long fixedLessonNo) {
+                                Long fixedLessonNo) {
         this.tutorProfileNo = tutorProfileNo;
         this.studentNo = studentNo;
         this.startDt = startDt;
@@ -166,9 +164,6 @@ public class StudentTutorContract {
         this.paymentStatus = paymentStatus;
         this.paidAmount = paidAmount;
         this.paymentDt = paymentDt;
-        this.canceledAt = canceledAt;
-        this.cancelReason = cancelReason;
-        this.refundAmount = refundAmount;
         this.fixedLessonNo = fixedLessonNo;
     }
 
@@ -211,7 +206,7 @@ public class StudentTutorContract {
 
     private static void validate(ContractCreateRequestDto requestDto) {
         if (requestDto.getLessonDtList() == null || requestDto.getLessonDtList().isEmpty()) {
-            throw new ContractException("레슨 매칭은 최소 하나 이상의 레슨 일���이 필요합니다.");
+            throw new ContractException("레슨 매칭은 최소 하나 이상의 레슨 일정이 필요합니다.");
         }
 
         if (requestDto.getContractType().isRegular()) {
