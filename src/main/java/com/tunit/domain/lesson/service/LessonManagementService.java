@@ -27,7 +27,6 @@ import java.util.List;
 public class LessonManagementService {
     private final LessonReservationRepository lessonReservationRepository;
     private final LessonQueryService lessonQueryService;
-    private final TutorProfileService tutorProfileService;
 
     @Transactional
     public void cancel(Long userNo, Long lessonReservationNo, ReservationStatus status) {

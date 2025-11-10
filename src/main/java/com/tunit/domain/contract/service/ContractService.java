@@ -6,11 +6,10 @@ import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.dto.ContractResponseDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.exception.ContractException;
-import com.tunit.domain.contract.repository.StudentTutorContractRepository;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
+import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.lesson.service.LessonReserveService;
-import com.tunit.domain.lesson.service.LessonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class ContractService {
 
     private final ContractQueryService contractQueryService;
     private final LessonReserveService lessonReserveService;
-    private final LessonService lessonService;
+    private final LessonQueryService lessonQueryService;
 
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
         // 계약 생성
@@ -41,7 +40,7 @@ public class ContractService {
     public ContractResponseDto getContract(Long contractNo) {
         StudentTutorContract contract = contractQueryService.getContract(contractNo);
 
-        List<LessonReservation> activeLessonList = lessonService.findByContractNoAndStatusIn(contractNo, ReservationStatus.VALID_LESSON_STATUSES);
+        List<LessonReservation> activeLessonList = lessonQueryService.findByContractNoAndStatusIn(contractNo, ReservationStatus.VALID_LESSON_STATUSES);
         ContractResponseDto response = ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size());
         return response;
     }
