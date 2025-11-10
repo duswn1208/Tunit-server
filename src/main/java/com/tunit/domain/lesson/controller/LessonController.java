@@ -8,8 +8,8 @@ import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.dto.LessonStatusRequestDto;
+import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.lesson.service.LessonReserveService;
-import com.tunit.domain.lesson.service.LessonService;
 import com.tunit.domain.tutor.dto.TutorLessonsResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
@@ -26,14 +26,14 @@ import java.util.List;
 public class LessonController {
 
     private final LessonReserveService lessonReserveService;
-    private final LessonService lessonService;
+    private final LessonQueryService lessonQueryService;
     private final TutorProfileService tutorProfileService;
 
     @GetMapping("")
     public ResponseEntity<?> getLessonSummary(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
                                               @ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
         lessonFindRequestDto.setTutorProfileNo(tutorProfileNo);
-        LessonFindSummaryDto lessonSummary = lessonService.getLessonSummary(lessonFindRequestDto);
+        LessonFindSummaryDto lessonSummary = lessonQueryService.getLessonSummary(lessonFindRequestDto);
         log.info("tutors lessonSummary fetched. tutorProfileNo: {}, lessonSummary count: {}", tutorProfileNo, lessonSummary.totalLessonCount());
         return ResponseEntity.ok(lessonSummary);
     }
@@ -86,7 +86,7 @@ public class LessonController {
 
     @GetMapping("/exist")
     public ResponseEntity<?> existsLessons(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
-        return ResponseEntity.ok(lessonService.existsLessons(tutorProfileNo));
+        return ResponseEntity.ok(lessonQueryService.existsLessons(tutorProfileNo));
     }
 
     @DeleteMapping("/{lessonNo}")
@@ -106,16 +106,16 @@ public class LessonController {
     public ResponseEntity<?> getTutorLessonSchedule(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
                                                   @ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
         lessonFindRequestDto.setTutorProfileNo(tutorProfileNo);
-        return ResponseEntity.ok(lessonService.getLessonScheduleInfo(lessonFindRequestDto));
+        return ResponseEntity.ok(lessonQueryService.getLessonScheduleInfo(lessonFindRequestDto));
     }
 
     @GetMapping("/tutor/schedule")
     public ResponseEntity<?> getStudentLessonSchedule(@ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
-        return ResponseEntity.ok(lessonService.getLessonScheduleInfo(lessonFindRequestDto));
+        return ResponseEntity.ok(lessonQueryService.getLessonScheduleInfo(lessonFindRequestDto));
     }
 
     @GetMapping("/info/{lessonReservationNo}")
     public ResponseEntity<?> getLessonReservationInfo(@PathVariable("lessonReservationNo") Long lessonReservationNo) {
-        return ResponseEntity.ok(lessonService.findByLessonReservationNo(lessonReservationNo));
+        return ResponseEntity.ok(lessonQueryService.findByLessonReservationNo(lessonReservationNo));
     }
 }

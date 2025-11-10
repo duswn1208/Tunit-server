@@ -36,7 +36,7 @@ import java.util.List;
 public class LessonReserveService {
     private static final Logger log = LoggerFactory.getLogger(LessonReserveService.class);
 
-    private final LessonService lessonService;
+    private final LessonQueryService lessonQueryService;
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
@@ -191,14 +191,14 @@ public class LessonReserveService {
 
     @Transactional
     public void changeLessonStatus(Long lessonNo, ReservationStatus status) {
-        LessonReservation lessonReservation = lessonService.findByLessonReservationNo(lessonNo);
+        LessonReservation lessonReservation = lessonQueryService.findByLessonReservationNo(lessonNo);
         lessonReservation.changeStatus(lessonReservation.getStatus(), status);
     }
 
     @Transactional
     public void changeLessonStatusByContractNo(Long contractNo, ReservationStatus status) {
         try {
-            List<LessonReservation> lessonReservations = lessonService.findByContractNo(contractNo);
+            List<LessonReservation> lessonReservations = lessonQueryService.findByContractNo(contractNo);
             for (LessonReservation lessonReservation : lessonReservations) {
                 lessonReservation.changeStatus(lessonReservation.getStatus(), status);
             }
@@ -209,7 +209,7 @@ public class LessonReserveService {
 
     @Transactional
     public void cancel(Long userNo, Long lessonReservationNo, ReservationStatus status) {
-        LessonReservation lessonReservation = lessonService.findByLessonReservationNo(lessonReservationNo);
+        LessonReservation lessonReservation = lessonQueryService.findByLessonReservationNo(lessonReservationNo);
         if (!lessonReservation.getStudentNo().equals(userNo)) {
             throw new LessonNotFoundException("Lesson reservation not found for userNo: " + userNo + " and lessonReservationNo: " + lessonReservationNo);
         }
@@ -218,7 +218,7 @@ public class LessonReserveService {
 
     @Transactional
     public void reschedule(Long userNo, Long lessonReservationNo, LessonReserveSaveDto dto) {
-        LessonReservation byLessonReservationNo = lessonService.findByLessonReservationNo(lessonReservationNo);
+        LessonReservation byLessonReservationNo = lessonQueryService.findByLessonReservationNo(lessonReservationNo);
 
         validateTutorAvailability(byLessonReservationNo.getTutorProfileNo(), dto.lessonDate(), dto.startTime(), dto.startTime().plusMinutes(1));
 

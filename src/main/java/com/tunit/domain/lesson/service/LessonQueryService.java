@@ -48,16 +48,6 @@ public class LessonQueryService {
         return lessonReservationRepository.existsByTutorProfileNo(tutorProfileNo);
     }
 
-    public LessonFindSummaryDto getLessonSummary(LessonFindRequestDto lessonFindRequestDto) {
-        List<LessonResponsDto> lessonList = lessonReservationRepository.findByTutorProfileNoAndDateBetweenWithUser(
-                lessonFindRequestDto.getTutorProfileNo(),
-                lessonFindRequestDto.getStartDate(),
-                lessonFindRequestDto.getEndDate()
-        );
-
-        return LessonFindSummaryDto.from(lessonList);
-    }
-
     public List<LessonReservation> findByContractNo(Long contractNo) {
         return Collections.singletonList(lessonReservationRepository.findByContractNo(contractNo)
                 .orElseThrow(() -> new LessonNotFoundException("Lesson not found with contractNo: " + contractNo)));
@@ -83,18 +73,5 @@ public class LessonQueryService {
         return new LessonScheduleStatusDto(availableTimes, holidayDates, lessonReservations, fixedLessonReservations);
     }
 
-    public LessonReservation findByLessonReservationNo(Long lessonReservationNo) {
-        return lessonReservationRepository.findById(lessonReservationNo)
-                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with lessonNo: " + lessonReservationNo));
-    }
-
-    public List<LessonReservation> findByContractNo(Long contractNo) {
-        return Collections.singletonList(lessonReservationRepository.findByContractNo(contractNo)
-                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with contractNo: " + contractNo)));
-    }
-
-    public boolean existsLessons(@NonNull Long tutorProfileNo) {
-        return lessonReservationRepository.existsByTutorProfileNo(tutorProfileNo);
-    }
 }
 
