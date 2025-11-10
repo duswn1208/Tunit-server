@@ -2,11 +2,10 @@ package com.tunit.domain.lesson.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.domain.lesson.define.ReservationStatus;
-import com.tunit.domain.lesson.dto.LessonRescheduleRequestDto;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.dto.LessonStatusRequestDto;
 import com.tunit.domain.lesson.service.LessonManagementService;
-import com.tunit.domain.lesson.service.LessonReservationService;
+import com.tunit.domain.lesson.service.LessonReserveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/lessons")
 public class LessonReserveController {
-    private final LessonReservationService lessonReservationService;
+    private final LessonReserveService lessonReservationService;
     private final LessonManagementService lessonManagementService;
-
 
     @PostMapping("/reserve")
     public ResponseEntity<?> reserveLesson(@LoginUser(field = "userNo") Long userNo,
@@ -26,15 +24,17 @@ public class LessonReserveController {
         return ResponseEntity.ok("레슨이 성공적으로 예약되었습니다.");
     }
 
-    @PostMapping("/reserve/change")
-    public ResponseEntity<?> changeLessonReservation(@LoginUser(field = "userNo") Long userNo,
-                                                     @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
-        lessonReservationService.changeLesson(userNo, lessonReserveSaveDto);
-        return ResponseEntity.ok("레슨 예약이 성공적으로 변경되었습니다.");
+    @PutMapping("/reschedule/{lessonReservationNo}")
+    public ResponseEntity<?> rescheduleLesson(@LoginUser(field = "userNo") Long userNo,
+                                              @PathVariable Long lessonReservationNo,
+                                              @RequestBody LessonReserveSaveDto dto) {
+        lessonReservationService.reschedule(userNo, lessonReservationNo, dto);
+        return ResponseEntity.ok("레슨 일정이 성공적으로 변경되었습니다.");
     }
 
+
     @PostMapping("/reservation/cancel/{lessonReservationNo}")
-    public ResponseEntity<?> cancelLessonReservation(@LoginUser(field = "userNo") Long userNo, @PathVariable ("lessonReservationNo") Long lessonReservationNo) {
+    public ResponseEntity<?> cancelLessonReservation(@LoginUser(field = "userNo") Long userNo, @PathVariable("lessonReservationNo") Long lessonReservationNo) {
         lessonManagementService.cancel(userNo, lessonReservationNo, ReservationStatus.CANCELED);
         return ResponseEntity.ok("레슨 예약이 성공적으로 취소되었습니다.");
     }
@@ -57,19 +57,5 @@ public class LessonReserveController {
         lessonManagementService.changeLessonStatus(lessonNo, lessonStatusRequestDto.status());
         return ResponseEntity.noContent().build();
     }
-
-    @PutMapping("/{lessonReservationNo}/reschedule")
-    public ResponseEntity<?> rescheduleLesson(@PathVariable Long lessonReservationNo,
-                                              @RequestBody LessonRescheduleRequestDto dto) {
-        lessonReservationService.rescheduleLesson(
-                lessonReservationNo,
-                dto.lessonDate(),
-                    dto.startTime(),
-                    dto.endTime(),
-                dto.memo()
-        );
-        return ResponseEntity.ok("레슨 일정이 성공적으로 변경되었습니다.");
-    }
-
 
 }
