@@ -75,16 +75,12 @@ public class ContractResponseDto {
     }
 
     /**
-     * 현재 레슨 수를 포함한 DTO 생성 (정적 팩토리 메서드)
+     * 현재 레슨 수 및 예약 가능 여부를 포함한 DTO 생성 (정적 팩토리 메서드)
      */
-    public static ContractResponseDto withCurrentLessonCount(StudentTutorContract contract, Integer currentLessonCount) {
+    public static ContractResponseDto withCurrentLessonCount(StudentTutorContract contract, Integer currentLessonCount, boolean isReservable) {
         ContractResponseDto dto = new ContractResponseDto(contract);
         dto.currentLessonCount = currentLessonCount;
-        if (currentLessonCount != null) {
-            dto.isReservable = (dto.lessonCount * dto.weekCount) % currentLessonCount != 0;
-        } else {
-            dto.isReservable = false;
-        }
+        dto.isReservable = isReservable;
         return dto;
     }
 }

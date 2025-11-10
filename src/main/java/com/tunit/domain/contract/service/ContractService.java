@@ -8,6 +8,7 @@ import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
+import com.tunit.domain.lesson.service.LessonManagementService;
 import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class ContractService {
 
     private final ContractQueryService contractQueryService;
     private final LessonReserveService lessonReserveService;
+    private final LessonManagementService lessonManagementService;
     private final LessonQueryService lessonQueryService;
 
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
@@ -41,7 +43,11 @@ public class ContractService {
         StudentTutorContract contract = contractQueryService.getContract(contractNo);
 
         List<LessonReservation> activeLessonList = lessonQueryService.findByContractNoAndStatusIn(contractNo, ReservationStatus.VALID_LESSON_STATUSES);
-        ContractResponseDto response = ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size());
+
+        // 추가 레슨 생성 가능 여부 확인
+        boolean isReservable = this.canGenerateAdditionalLessons(contractNo);
+
+        ContractResponseDto response = ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size(), isReservable);
         return response;
     }
 
@@ -77,7 +83,7 @@ public class ContractService {
         switch (afterStatus) {
             case CANCELLED -> {
                 contract.cancelContract(cancelReason, userNo);
-                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.CANCELED);
+                lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.CANCELED);
             }
             case APPROVED -> {
                 contract.updateContractStatus(afterStatus);
@@ -85,11 +91,11 @@ public class ContractService {
             }
             case ACTIVE -> {
                 contract.updateContractStatus(afterStatus);
-                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
+                lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
             }
             default -> {
                 contract.updateContractStatus(afterStatus);
-                lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.EXPIRED);
+                lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.EXPIRED);
             }
         }
 
@@ -140,7 +146,7 @@ public class ContractService {
 
         // 결제 승인 및 계약 활성화
         contract.approvePayment(paidAmount);
-        lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
+        lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
 
         return new ContractResponseDto(contract);
     }
@@ -161,5 +167,47 @@ public class ContractService {
         if (!contract.getStudentNo().equals(studentNo)) {
             throw new ContractException("본인의 계약만 수정할 수 있습니다.");
         }
+    }
+
+    /**
+     * 계약의 추가 레슨 생성 가능 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean canGenerateAdditionalLessons(Long contractNo) {
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
+
+        // 기본 단위 레슨 수 계산 (예: 주 3회 × 4주 = 12회)
+        int unitCount = contract.getLessonCount() * contract.getWeekCount();
+        int lessonCount = lessonQueryService.findByContractNoAndStatusIn(contractNo, ReservationStatus.VALID_LESSON_STATUSES).size();
+
+        // 아직 단위만큼 생성되지 않았으면 추가 생성 가능
+        if (lessonCount < unitCount) {
+            return true;
+        }
+
+        if (lessonCount > 0 && lessonCount % unitCount == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 계약의 현재 남은 예약 가능 레슨 수 조회
+     */
+    @Transactional(readOnly = true)
+    public int getRemainingLessonCount(Long contractNo) {
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
+
+        int unitCount = contract.getLessonCount() * contract.getWeekCount();
+        int totalCount = lessonQueryService.findByContractNoAndStatusIn(contractNo, ReservationStatus.VALID_LESSON_STATUSES).size();
+
+        // 현재 사이클에서 몇 개가 생성되었는지 계산
+        int currentCycleCount = (int) (totalCount % unitCount);
+        if (currentCycleCount == 0 && totalCount > 0) {
+            currentCycleCount = unitCount;
+        }
+
+        return currentCycleCount;
     }
 }
