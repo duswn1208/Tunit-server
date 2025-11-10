@@ -111,4 +111,16 @@ public class TutorAvailableTimeService {
                 .map(TutorAvailableTimeResponseDto::from)
                 .toList();
     }
+
+    public boolean existsByTutorProfileNoAndDayOfWeekNumAndRequestTimeBetweenStartTimeAndEndTime(
+            Long tutorProfileNo,
+            Integer dayOfWeekNum,
+            LocalTime requestTime
+    ) {
+        return tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndRequestTimeBetweenStartTimeAndEndTime(
+                tutorProfileNo,
+                dayOfWeekNum,
+                requestTime
+        );
+    }
 }

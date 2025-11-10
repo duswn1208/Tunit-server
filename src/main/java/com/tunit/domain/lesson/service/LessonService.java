@@ -1,19 +1,25 @@
 package com.tunit.domain.lesson.service;
 
+import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
+import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
+import com.tunit.domain.lesson.dto.LessonResponsDto;
 import com.tunit.domain.lesson.dto.LessonScheduleStatusDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
+import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.repository.FixedLessonReservationRepository;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.dto.TutorAvailExceptionResponseDto;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeResponseDto;
 import com.tunit.domain.tutor.service.TutorAvailableTimeService;
 import com.tunit.domain.tutor.service.TutorHolidayService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +31,34 @@ public class LessonService {
     private final FixedLessonReservationRepository fixedLessonReservationRepository;
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
+
+    public boolean existsLessons(@NonNull Long tutorProfileNo) {
+        return lessonReservationRepository.existsByTutorProfileNo(tutorProfileNo);
+    }
+
+    public LessonFindSummaryDto getLessonSummary(LessonFindRequestDto lessonFindRequestDto) {
+        List<LessonResponsDto> lessonList = lessonReservationRepository.findByTutorProfileNoAndDateBetweenWithUser(
+                lessonFindRequestDto.getTutorProfileNo(),
+                lessonFindRequestDto.getStartDate(),
+                lessonFindRequestDto.getEndDate()
+        );
+
+        return LessonFindSummaryDto.from(lessonList);
+    }
+
+    public List<LessonReservation> findByContractNo(Long contractNo) {
+        return Collections.singletonList(lessonReservationRepository.findByContractNo(contractNo)
+                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with contractNo: " + contractNo)));
+    }
+
+    public List<LessonReservation> findByContractNoAndStatusIn(Long contractNo, List<ReservationStatus> statuses) {
+        return lessonReservationRepository.findByContractNoAndStatusIn(contractNo, statuses);
+    }
+
+    public LessonReservation findByLessonReservationNo(Long lessonReservationNo) {
+        return lessonReservationRepository.findById(lessonReservationNo)
+                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with lessonNo: " + lessonReservationNo));
+    }
 
     public LessonScheduleStatusDto getLessonScheduleInfo(LessonFindRequestDto lessonFindRequestDto) {
 

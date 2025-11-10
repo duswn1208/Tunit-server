@@ -1,11 +1,9 @@
 package com.tunit.domain.lesson.service;
 
 import com.tunit.domain.contract.entity.StudentTutorContract;
+import com.tunit.domain.contract.service.ContractQueryService;
 import com.tunit.domain.lesson.define.ReservationStatus;
-import com.tunit.domain.lesson.dto.LessonFindRequestDto;
-import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
-import com.tunit.domain.lesson.dto.LessonResponsDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
@@ -14,10 +12,9 @@ import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.define.TutorLessonOpenType;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
-import com.tunit.domain.tutor.entity.TutorLessons;
 import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
-import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
 import com.tunit.domain.tutor.repository.TutorLessonsRepository;
+import com.tunit.domain.tutor.service.TutorAvailableTimeService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
@@ -32,7 +29,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -40,10 +36,13 @@ import java.util.List;
 public class LessonReserveService {
     private static final Logger log = LoggerFactory.getLogger(LessonReserveService.class);
 
-    private final LessonReservationRepository lessonReservationRepository;
+    private final LessonService lessonService;
+    private final TutorAvailableTimeService tutorAvailableTimeService;
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
-    private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
+    private final ContractQueryService contractQueryService;
+
+    private final LessonReservationRepository lessonReservationRepository;
     private final TutorAvailExceptionRepository tutorAvailExceptionRepository;
     private final TutorLessonsRepository tutorLessonsRepository;
 
@@ -73,25 +72,17 @@ public class LessonReserveService {
     }
 
     @Transactional
-    public void reserveLesson(Long userNo, LessonReserveSaveDto dto) {
-        // 예약 요청자(학생) 정보 조회
-        UserMain student = userService.findByUserNo(userNo);
+    public void reserveLesson(Long studentNo, LessonReserveSaveDto dto) {
+        StudentTutorContract contract = contractQueryService.getContract(dto.contractNo());
+        TutorProfileResponseDto tutor = tutorProfileService.findTutor(contract.getTutorProfileNo());
 
-        // 튜터 프로필 존재 여부 확인
-        TutorProfileResponseDto tutorProfile = tutorProfileService.findTutorProfileInfoByTutorProfileNo(dto.tutorProfileNo());
-
-        // 튜터레슨 존재 여부 확인
-        TutorLessons tutorLessons = tutorLessonsRepository.findById(dto.tutorLessonNo())
-                .orElseThrow(() -> new IllegalArgumentException("해당 레슨 정보가 없습니다. tutorLessonNo: " + dto.tutorLessonNo()));
-
-        // 선택한 날짜가 튜터의 영업일인지 확인 (예외일정, 휴무일 체크)
-        LocalTime endTime = dto.startTime().plusMinutes(tutorProfile.durationMin());
-        validateTutorAvailability(dto.tutorProfileNo(), dto.lessonDate(), dto.startTime(), endTime);
+        LocalTime endTime = dto.startTime().plusMinutes(tutor.durationMin());
+        validateTutorAvailability(tutor.tutorProfileNo(), dto.lessonDate(), dto.startTime(), endTime);
 
         // 레슨 예약정보 저장
-        LessonReservation reservation = LessonReservation.fromReserveLesson(dto, dto.tutorProfileNo(), tutorLessons.getLessonSubCategory(), student.getUserNo(), endTime);
+        LessonReservation reservation = LessonReservation.fromReserveLesson(dto, tutor.tutorProfileNo(), contract.getLessonSubCategory(), studentNo, endTime);
         lessonReservationRepository.save(reservation);
-        log.info("레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, date: {}", student.getUserNo(), dto.tutorProfileNo(), dto.lessonDate());
+        log.info("레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, date: {}", studentNo, dto.tutorProfileNo(), dto.lessonDate());
     }
 
     /**
@@ -134,23 +125,19 @@ public class LessonReserveService {
                 student.getUserNo(), tutorProfile.tutorProfileNo(), reservations.size());
     }
 
-    @Transactional
-    public void changeLesson(Long userNo, LessonReserveSaveDto lessonReserveSaveDto) {
-    }
-
-    private void validateTutorAvailability(Long tutorProfileNo, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    private void validateTutorAvailability(@NonNull Long tutorProfileNo, @NonNull LocalDate date, @NonNull LocalTime startTime, @NonNull LocalTime endTime) {
         // 1. 해당 요일이 튜터의 영업일이고 해당 시간이 영업시간인지 확인
         int dayOfWeek = date.getDayOfWeek().getValue();
-        List<TutorAvailableTime> allByTutorProfileNo = tutorAvailableTimeRepository.findAllByTutorProfileNo(tutorProfileNo);
-        boolean isAvailableTime = tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-                tutorProfileNo, dayOfWeek, startTime, endTime);
+        List<TutorAvailableTime> allByTutorProfileNo = tutorAvailableTimeService.findAvailableTimeByTutorProfileNo(tutorProfileNo);
+        boolean isAvailableTime = tutorAvailableTimeService.existsByTutorProfileNoAndDayOfWeekNumAndRequestTimeBetweenStartTimeAndEndTime(
+                tutorProfileNo, dayOfWeek, startTime);
         if (!isAvailableTime) {
             throw new IllegalArgumentException("튜터의 영업시간이 아닙니다.");
         }
 
         // 2. 예외일정이 있는지 확인
-        boolean hasException = tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndTypeAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-                tutorProfileNo, date, TutorLessonOpenType.BLOCK, startTime, endTime);
+        boolean hasException = tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndTypeAndRequestTimeBetweenStartTimeAndEndTime(
+                tutorProfileNo, date, TutorLessonOpenType.BLOCK, startTime);
         if (hasException) {
             throw new IllegalArgumentException("튜터의 예외일정이 있는 시간입니다.");
         }
@@ -194,19 +181,6 @@ public class LessonReserveService {
         lessonReservationRepository.saveAll(reservations);
     }
 
-    public boolean existsLessons(@NonNull Long tutorProfileNo) {
-        return lessonReservationRepository.existsByTutorProfileNo(tutorProfileNo);
-    }
-
-    public LessonFindSummaryDto getLessonSummary(LessonFindRequestDto lessonFindRequestDto) {
-        List<LessonResponsDto> lessonList = lessonReservationRepository.findByTutorProfileNoAndDateBetweenWithUser(
-                lessonFindRequestDto.getTutorProfileNo(),
-                lessonFindRequestDto.getStartDate(),
-                lessonFindRequestDto.getEndDate()
-        );
-
-        return LessonFindSummaryDto.from(lessonList);
-    }
 
     public void deleteLesson(Long lessonNo) {
         if (!lessonReservationRepository.existsById(lessonNo)) {
@@ -217,14 +191,14 @@ public class LessonReserveService {
 
     @Transactional
     public void changeLessonStatus(Long lessonNo, ReservationStatus status) {
-        LessonReservation lessonReservation = findByLessonReservationNo(lessonNo);
+        LessonReservation lessonReservation = lessonService.findByLessonReservationNo(lessonNo);
         lessonReservation.changeStatus(lessonReservation.getStatus(), status);
     }
 
     @Transactional
     public void changeLessonStatusByContractNo(Long contractNo, ReservationStatus status) {
         try {
-            List<LessonReservation> lessonReservations = this.findByContractNo(contractNo);
+            List<LessonReservation> lessonReservations = lessonService.findByContractNo(contractNo);
             for (LessonReservation lessonReservation : lessonReservations) {
                 lessonReservation.changeStatus(lessonReservation.getStatus(), status);
             }
@@ -235,20 +209,20 @@ public class LessonReserveService {
 
     @Transactional
     public void cancel(Long userNo, Long lessonReservationNo, ReservationStatus status) {
-        LessonReservation lessonReservation = findByLessonReservationNo(lessonReservationNo);
+        LessonReservation lessonReservation = lessonService.findByLessonReservationNo(lessonReservationNo);
         if (!lessonReservation.getStudentNo().equals(userNo)) {
             throw new LessonNotFoundException("Lesson reservation not found for userNo: " + userNo + " and lessonReservationNo: " + lessonReservationNo);
         }
         lessonReservation.changeStatus(lessonReservation.getStatus(), status);
     }
 
-    public List<LessonReservation> findByContractNo(Long contractNo) {
-        return Collections.singletonList(lessonReservationRepository.findByContractNo(contractNo)
-                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with contractNo: " + contractNo)));
-    }
+    @Transactional
+    public void reschedule(Long userNo, Long lessonReservationNo, LessonReserveSaveDto dto) {
+        LessonReservation byLessonReservationNo = lessonService.findByLessonReservationNo(lessonReservationNo);
 
-    public LessonReservation findByLessonReservationNo(Long lessonReservationNo) {
-        return lessonReservationRepository.findById(lessonReservationNo)
-                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with lessonNo: " + lessonReservationNo));
+        validateTutorAvailability(byLessonReservationNo.getTutorProfileNo(), dto.lessonDate(), dto.startTime(), dto.startTime().plusMinutes(1));
+
+        byLessonReservationNo.updateLessonInfo(dto.lessonDate(), dto.startTime(), dto.startTime().plusHours(1));
+        log.info("레슨 예약 변경 완료. userNo: {}, lessonReservationNo: {}, newDate: {}", userNo, lessonReservationNo, dto.lessonDate());
     }
 }

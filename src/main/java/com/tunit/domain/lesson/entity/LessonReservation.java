@@ -157,12 +157,13 @@ public class LessonReservation {
         return LessonReservation.of()
                 .tutorProfileNo(tutorProfileNo)
                 .studentNo(studentNo)
+                .contractNo(dto.contractNo())
                 .lessonCategory(lessonCategory)
                 .date(dto.lessonDate())
                 .startTime(dto.startTime())
                 .endTime(endTime)
                 .dayOfWeekNum(dto.lessonDate().getDayOfWeek().getValue())
-                .status(dto.reservationStatus())
+                .status(dto.reservationStatus() == null ? ReservationStatus.REQUESTED : dto.reservationStatus())
                 .source(ReservationSource.APP)
                 .memo(dto.memo())
                 .build();
@@ -206,5 +207,14 @@ public class LessonReservation {
                 .status(this.status)
                 .source(this.source)
                 .build();
+    }
+
+    public void updateLessonInfo(LocalDate localDate, LocalTime startTime, LocalTime endTime) {
+        this.date = localDate;
+        this.dayOfWeekNum = localDate.getDayOfWeek().getValue();
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = ReservationStatus.REQUESTED;
+        onUpdate();
     }
 }

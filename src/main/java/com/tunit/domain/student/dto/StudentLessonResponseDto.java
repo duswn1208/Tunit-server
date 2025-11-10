@@ -3,7 +3,6 @@ package com.tunit.domain.student.dto;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
-import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.user.dto.UserMainResponseDto;
 
 import java.time.LocalDate;
@@ -12,6 +11,7 @@ import java.time.LocalTime;
 public record StudentLessonResponseDto(
         Long lessonReservationNo,
         Long tutorProfileNo,
+        Long contractNo,
         LessonSubCategory lessonCategory,
         LocalDate lessonDate,
         LocalTime startTime,
@@ -24,6 +24,7 @@ public record StudentLessonResponseDto(
         return new StudentLessonResponseDto(
                 lesson.getLessonReservationNo(),
                 lesson.getTutorProfileNo(),
+                lesson.getContractNo(),
                 lesson.getLessonCategory(),
                 lesson.getDate(),
                 lesson.getStartTime(),
@@ -38,6 +39,7 @@ public record StudentLessonResponseDto(
         return new StudentLessonResponseDto(
                 lesson.getLessonReservationNo(),
                 lesson.getTutorProfileNo(),
+                lesson.getContractNo(),
                 lesson.getLessonCategory(),
                 lesson.getDate(),
                 lesson.getStartTime(),

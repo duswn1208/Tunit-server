@@ -8,7 +8,9 @@ import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.contract.repository.StudentTutorContractRepository;
 import com.tunit.domain.lesson.define.ReservationStatus;
+import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.service.LessonReserveService;
+import com.tunit.domain.lesson.service.LessonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,35 +24,34 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ContractService {
 
-    private final StudentTutorContractRepository contractRepository;
+    private final ContractQueryService contractQueryService;
     private final LessonReserveService lessonReserveService;
+    private final LessonService lessonService;
 
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
         // 계약 생성
-        StudentTutorContract save = contractRepository.save(StudentTutorContract.createContractOf(requestDto));
+        StudentTutorContract contract = contractQueryService.createContract(requestDto);
 
         // 대기 레슨 예약 생성
-        lessonReserveService.reserveLessonsBatch(save, requestDto.getLessonDtList());
+        lessonReserveService.reserveLessonsBatch(contract, requestDto.getLessonDtList());
 
-        return new ContractResponseDto(save);
-    }
-
-    public ContractResponseDto getContract(Long contractNo) {
-        StudentTutorContract contract = contractRepository.findById(contractNo)
-                .orElseThrow(() -> new IllegalArgumentException("계약을 찾을 수 없습니다."));
         return new ContractResponseDto(contract);
     }
 
+    public ContractResponseDto getContract(Long contractNo) {
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
+
+        List<LessonReservation> activeLessonList = lessonService.findByContractNoAndStatusIn(contractNo, ReservationStatus.VALID_LESSON_STATUSES);
+        ContractResponseDto response = ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size());
+        return response;
+    }
+
     public List<ContractResponseDto> getStudentContracts(Long studentNo) {
-        return contractRepository.findByStudentNo(studentNo).stream()
-                .map(ContractResponseDto::new)
-                .toList();
+        return contractQueryService.getStudentContracts(studentNo);
     }
 
     public List<ContractResponseDto> getTutorContracts(Long tutorProfileNo) {
-        return contractRepository.findByTutorProfileNo(tutorProfileNo).stream()
-                .map(ContractResponseDto::new)
-                .toList();
+        return contractQueryService.getTutorContracts(tutorProfileNo);
     }
 
     // ==================== 계약 상태 변경 ====================
@@ -63,7 +64,7 @@ public class ContractService {
                                                     ContractStatus afterStatus,
                                                     String cancelReason,
                                                     boolean isTutor) {
-        StudentTutorContract contract = findContractById(contractNo);
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
 
         // 본인 계약인지 확인
         validateContractOwnership(contract, userNo, isTutor);
@@ -76,7 +77,7 @@ public class ContractService {
         contract.getContractStatus().changeableTo(afterStatus);
         switch (afterStatus) {
             case CANCELLED -> {
-                contract.cancelContract(cancelReason);
+                contract.cancelContract(cancelReason, userNo);
                 lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.CANCELED);
             }
             case APPROVED -> {
@@ -104,7 +105,7 @@ public class ContractService {
      */
     @Transactional
     public ContractResponseDto updateToConfirming(Long contractNo, Long studentNo) {
-        StudentTutorContract contract = findContractById(contractNo);
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
 
         // 본인 계약인지 확인 (학생)
         validateStudentOwnership(contract, studentNo);
@@ -126,8 +127,7 @@ public class ContractService {
      */
     @Transactional
     public ContractResponseDto updateToCompleted(Long contractNo, Long tutorProfileNo, Integer paidAmount) {
-        StudentTutorContract contract = contractRepository.findById(contractNo)
-                .orElseThrow(() -> new ContractException("계약을 찾을 수 없습니다."));
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
 
         // 본인 계약인지 확인
         if (!contract.getTutorProfileNo().equals(tutorProfileNo)) {
@@ -144,11 +144,6 @@ public class ContractService {
         lessonReserveService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
 
         return new ContractResponseDto(contract);
-    }
-
-    private StudentTutorContract findContractById(Long contractNo) {
-        return contractRepository.findById(contractNo)
-                .orElseThrow(() -> new ContractException("계약을 찾을 수 없습니다."));
     }
 
     private void validateContractOwnership(StudentTutorContract contract, Long userNo, boolean isTutor) {

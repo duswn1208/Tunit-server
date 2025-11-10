@@ -47,4 +47,6 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
             @Param("endDate") LocalDate endDate);
 
     Optional<LessonReservation> findByContractNo(Long contractNo);
+
+    List<LessonReservation> findByContractNoAndStatusIn(Long contractNo, List<ReservationStatus> statuses);
 }
