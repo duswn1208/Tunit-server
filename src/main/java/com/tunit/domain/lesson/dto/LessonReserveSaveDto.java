@@ -12,6 +12,8 @@ public record LessonReserveSaveDto(
 
         Long studentNo,
 
+        Long contractNo,
+
         String studentName,  // 신규 학생 등록시 사용
         String phone,       // 신규 학생 등록시 사용
 

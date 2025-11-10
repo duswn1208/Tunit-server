@@ -6,6 +6,7 @@ import com.tunit.domain.contract.define.ContractSource;
 import com.tunit.domain.contract.define.PaymentStatus;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.lesson.define.LessonSubCategory;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -39,11 +40,11 @@ public class ContractResponseDto {
     private PaymentStatus paymentStatus;
     private Integer paidAmount;
     private LocalDateTime paymentDt;
-    private LocalDateTime canceledAt;
-    private String cancelReason;
-    private Integer refundAmount;
     private Long fixedLessonNo;
+    private Integer currentLessonCount;
+    private boolean isReservable;
 
+    @Builder(builderMethodName = "of")
     public ContractResponseDto(StudentTutorContract contract) {
         this.contractNo = contract.getContractNo();
         this.tutorProfileNo = contract.getTutorProfileNo();
@@ -70,9 +71,20 @@ public class ContractResponseDto {
         this.paymentStatus = contract.getPaymentStatus();
         this.paidAmount = contract.getPaidAmount();
         this.paymentDt = contract.getPaymentDt();
-        this.canceledAt = contract.getCanceledAt();
-        this.cancelReason = contract.getCancelReason();
-        this.refundAmount = contract.getRefundAmount();
         this.fixedLessonNo = contract.getFixedLessonNo();
+    }
+
+    /**
+     * 현재 레슨 수를 포함한 DTO 생성 (정적 팩토리 메서드)
+     */
+    public static ContractResponseDto withCurrentLessonCount(StudentTutorContract contract, Integer currentLessonCount) {
+        ContractResponseDto dto = new ContractResponseDto(contract);
+        dto.currentLessonCount = currentLessonCount;
+        if (currentLessonCount != null) {
+            dto.isReservable = (dto.lessonCount * dto.weekCount) % currentLessonCount != 0;
+        } else {
+            dto.isReservable = false;
+        }
+        return dto;
     }
 }

@@ -36,10 +36,14 @@ public interface TutorAvailableTimeRepository extends JpaRepository<TutorAvailab
 
     List<TutorAvailableTime> findAllByTutorProfileNo(Long tutorProfileNo);
 
-    boolean existsByTutorProfileNoAndDayOfWeekNumAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+    @Query("SELECT COUNT(t) > 0 FROM TutorAvailableTime t " +
+            "WHERE t.tutorProfileNo = :tutorProfileNo " +
+            "AND t.dayOfWeekNum = :dayOfWeekNum " +
+            "AND :requestTime >= t.startTime " +
+            "AND :requestTime < t.endTime")
+    boolean existsByTutorProfileNoAndDayOfWeekNumAndRequestTimeBetweenStartTimeAndEndTime(
             Long tutorProfileNo,
             Integer dayOfWeekNum,
-            LocalTime requestTime,
-            LocalTime requestTime2
+            LocalTime requestTime
     );
 }

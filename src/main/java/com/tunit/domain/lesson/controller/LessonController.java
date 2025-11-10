@@ -33,7 +33,7 @@ public class LessonController {
     public ResponseEntity<?> getLessonSummary(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
                                               @ModelAttribute LessonFindRequestDto lessonFindRequestDto) {
         lessonFindRequestDto.setTutorProfileNo(tutorProfileNo);
-        LessonFindSummaryDto lessonSummary = lessonReserveService.getLessonSummary(lessonFindRequestDto);
+        LessonFindSummaryDto lessonSummary = lessonService.getLessonSummary(lessonFindRequestDto);
         log.info("tutors lessonSummary fetched. tutorProfileNo: {}, lessonSummary count: {}", tutorProfileNo, lessonSummary.totalLessonCount());
         return ResponseEntity.ok(lessonSummary);
     }
@@ -45,14 +45,15 @@ public class LessonController {
         return ResponseEntity.ok("레슨이 성공적으로 예약되었습니다.");
     }
 
-    @PostMapping("/reserve/change")
-    public ResponseEntity<?> changeLessonReservation(@LoginUser(field = "userNo") Long userNo,
-                                                     @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
-        lessonReserveService.changeLesson(userNo, lessonReserveSaveDto);
+    @PostMapping("/reschedule/{lessonReservationNo}")
+    public ResponseEntity<?> rescheduleLessonReservation(@LoginUser(field = "userNo") Long userNo,
+                                                         @PathVariable ("lessonReservationNo") Long lessonReservationNo,
+                                                         @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
+        lessonReserveService.reschedule(userNo, lessonReservationNo, lessonReserveSaveDto);
         return ResponseEntity.ok("레슨 예약이 성공적으로 변경되었습니다.");
     }
 
-    @PostMapping("/reservation/cancel/{lessonReservationNo}")
+    @PostMapping("/cancel/{lessonReservationNo}")
     public ResponseEntity<?> cancelLessonReservation(@LoginUser(field = "userNo") Long userNo, @PathVariable ("lessonReservationNo") Long lessonReservationNo) {
         lessonReserveService.cancel(userNo, lessonReservationNo, ReservationStatus.CANCELED);
         return ResponseEntity.ok("레슨 예약이 성공적으로 취소되었습니다.");
@@ -85,7 +86,7 @@ public class LessonController {
 
     @GetMapping("/exist")
     public ResponseEntity<?> existsLessons(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
-        return ResponseEntity.ok(lessonReserveService.existsLessons(tutorProfileNo));
+        return ResponseEntity.ok(lessonService.existsLessons(tutorProfileNo));
     }
 
     @DeleteMapping("/{lessonNo}")
@@ -115,6 +116,6 @@ public class LessonController {
 
     @GetMapping("/info/{lessonReservationNo}")
     public ResponseEntity<?> getLessonReservationInfo(@PathVariable("lessonReservationNo") Long lessonReservationNo) {
-        return ResponseEntity.ok(lessonReserveService.findByLessonReservationNo(lessonReservationNo));
+        return ResponseEntity.ok(lessonService.findByLessonReservationNo(lessonReservationNo));
     }
 }
