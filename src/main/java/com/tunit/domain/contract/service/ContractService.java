@@ -102,55 +102,6 @@ public class ContractService {
         return new ContractResponseDto(contract);
     }
 
-    // ==================== 결제 상태 변경 ====================
-
-    /**
-     * 결제 요청 후 입금 확인 중으로 상태 변경
-     * PaymentRequest 생성 후 호출하여 Contract의 결제 상태를 CONFIRMING으로 변경
-     */
-    @Transactional
-    public ContractResponseDto updateToConfirming(Long contractNo, Long studentNo) {
-        StudentTutorContract contract = contractQueryService.getContract(contractNo);
-
-        // 본인 계약인지 확인 (학생)
-        validateStudentOwnership(contract, studentNo);
-
-        // 결제 대기 상태인지 확인
-        if (contract.getPaymentStatus() != PaymentStatus.PENDING) {
-            throw new ContractException("결제 대기 상태에서만 입금 확인 요청이 가능합니다.");
-        }
-
-        // 결제 상태를 CONFIRMING으로 변경
-        contract.updatePaymentStatus(PaymentStatus.CONFIRMING);
-
-        return new ContractResponseDto(contract);
-    }
-
-    /**
-     * 결제 승인 (튜터가 입금 확인 후 호출)
-     * PaymentRequest가 CONFIRMED된 후 호출하여 Contract의 결제 상태를 COMPLETED로 변경
-     */
-    @Transactional
-    public ContractResponseDto updateToCompleted(Long contractNo, Long tutorProfileNo, Integer paidAmount) {
-        StudentTutorContract contract = contractQueryService.getContract(contractNo);
-
-        // 본인 계약인지 확인
-        if (!contract.getTutorProfileNo().equals(tutorProfileNo)) {
-            throw new ContractException("본인의 계약만 수정할 수 있습니다.");
-        }
-
-        // 입금 확인 중 상태인지 확인
-        if (contract.getPaymentStatus() != PaymentStatus.CONFIRMING) {
-            throw new ContractException("입금 확인 중 상태에서만 결제 완료 처리가 가능합니다.");
-        }
-
-        // 결제 승인 및 계약 활성화
-        contract.approvePayment(paidAmount);
-        lessonManagementService.changeLessonStatusByContractNo(contractNo, ReservationStatus.ACTIVE);
-
-        return new ContractResponseDto(contract);
-    }
-
     private void validateContractOwnership(StudentTutorContract contract, Long userNo, boolean isTutor) {
         if (isTutor) {
             if (!contract.getTutorProfileNo().equals(userNo)) {
@@ -160,12 +111,6 @@ public class ContractService {
             if (!contract.getStudentNo().equals(userNo)) {
                 throw new ContractException("본인의 계약만 수정할 수 있습니다.");
             }
-        }
-    }
-
-    private void validateStudentOwnership(StudentTutorContract contract, Long studentNo) {
-        if (!contract.getStudentNo().equals(studentNo)) {
-            throw new ContractException("본인의 계약만 수정할 수 있습니다.");
         }
     }
 
