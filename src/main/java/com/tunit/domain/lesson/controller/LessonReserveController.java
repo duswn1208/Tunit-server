@@ -17,7 +17,12 @@ public class LessonReserveController {
     private final LessonReserveService lessonReservationService;
     private final LessonManagementService lessonManagementService;
 
-
+    /**
+     * 레슨 예약 요청
+     * @param userNo
+     * @param lessonReserveSaveDto
+     * @return
+     */
     @PostMapping("/reserve")
     public ResponseEntity<?> reserveLesson(@LoginUser(field = "userNo") Long userNo,
                                            @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
@@ -25,16 +30,28 @@ public class LessonReserveController {
         return ResponseEntity.ok("레슨이 성공적으로 예약되었습니다.");
     }
 
-    @PutMapping("/reschedule/{lessonReservationNo}")
+    /**
+     * 레슨 예약 날짜/시간 변경 요청
+     * @param userNo
+     * @param lessonReservationNo
+     * @param dto
+     * @return
+     */
+    @PostMapping("/reschedule/{lessonReservationNo}")
     public ResponseEntity<?> rescheduleLesson(@LoginUser(field = "userNo") Long userNo,
                                               @PathVariable Long lessonReservationNo,
                                               @RequestBody LessonReserveSaveDto dto) {
-        lessonReservationService.reschedule(userNo, lessonReservationNo, dto);
+        lessonManagementService.reschedule(userNo, lessonReservationNo, dto);
         return ResponseEntity.ok("레슨 일정이 성공적으로 변경되었습니다.");
     }
 
-
-    @PostMapping("/reservation/cancel/{lessonReservationNo}")
+    /**
+     * 레슨 예약 취소 요청
+     * @param userNo
+     * @param lessonReservationNo
+     * @return
+     */
+    @PostMapping("/cancel/{lessonReservationNo}")
     public ResponseEntity<?> cancelLessonReservation(@LoginUser(field = "userNo") Long userNo, @PathVariable("lessonReservationNo") Long lessonReservationNo) {
         lessonManagementService.cancel(userNo, lessonReservationNo, ReservationStatus.CANCELED);
         return ResponseEntity.ok("레슨 예약이 성공적으로 취소되었습니다.");
