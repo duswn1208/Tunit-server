@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ContractStatusUpdateRequestDto {
+public class ContractPayRequestDto {
+    private Long contractNo;
     private ContractStatus contractStatus;
-    private PaymentStatus newPaymentStatus;
-    private Integer paidAmount;
+    private Long paidAmount;
+    private PaymentStatus paymentStatus;
     private String cancelReason;
 }
-

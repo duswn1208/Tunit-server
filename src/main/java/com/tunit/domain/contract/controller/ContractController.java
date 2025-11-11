@@ -85,7 +85,7 @@ public class ContractController {
             @LoginUser(field = "userNo") Long studentNo,
             @RequestBody ContractStatusUpdateRequestDto requestDto) {
         log.info("계약 상태 변경(학생) - contractNo: {}, studentNo: {}, contractStatus: {}, paymentStatus: {}",
-                contractNo, studentNo, requestDto.getContractStatus(), requestDto.getPaymentStatus());
+                contractNo, studentNo, requestDto.getContractStatus(), requestDto.getNewPaymentStatus());
 
         ContractResponseDto response = contractService.updateContractStatus(
                 contractNo,
@@ -111,7 +111,7 @@ public class ContractController {
         }
 
         log.info("계약 상태 변경(튜터) - contractNo: {}, tutorProfileNo: {}, contractStatus: {}, paymentStatus: {}",
-                contractNo, tutorProfileNo, requestDto.getContractStatus(), requestDto.getPaymentStatus());
+                contractNo, tutorProfileNo, requestDto.getContractStatus(), requestDto.getNewPaymentStatus());
 
         ContractResponseDto response = contractService.updateContractStatus(
                 contractNo,

@@ -8,10 +8,7 @@ import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.util.Assert;
 
 import java.time.LocalDate;
@@ -34,6 +31,7 @@ public class StudentTutorContract {
     private LocalDate endDt;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     private ContractStatus contractStatus;
 
     private LocalDateTime createdAt;
@@ -69,6 +67,7 @@ public class StudentTutorContract {
 
     // 결제 정보
     @Enumerated(EnumType.STRING)
+    @Setter
     private PaymentStatus paymentStatus;
     private Integer paidAmount; // 실제 결제 금액
     private LocalDateTime paymentDt; // 결제 일시
@@ -91,8 +90,6 @@ public class StudentTutorContract {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // 상태 변경 메서드들
-
     /**
      * 결제 상태 변경
      */
@@ -104,10 +101,9 @@ public class StudentTutorContract {
      * 결제 승인 (튜터가 입금 확인)
      */
     public void approvePayment(Integer paidAmount) {
-        this.paymentStatus = PaymentStatus.COMPLETED;
+        this.paymentStatus = PaymentStatus.PAID;
         this.paidAmount = paidAmount;
         this.paymentDt = LocalDateTime.now();
-        this.contractStatus = ContractStatus.ACTIVE; // 결제 완료 시 계약도 활성화
     }
 
     /**
