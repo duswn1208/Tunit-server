@@ -67,7 +67,7 @@ public class LessonQueryService {
         List<TutorAvailableTimeResponseDto> availableTimes = tutorAvailableTimeService.findByTutorProfileNo(lessonFindRequestDto.getTutorProfileNo());
         List<TutorAvailExceptionResponseDto> holidayDates = tutorHolidayService.findByTutorProfileNo(lessonFindRequestDto.getTutorProfileNo());
 
-        List<LessonReservation> lessonReservations = lessonReservationRepository.findByTutorProfileNoAndDateBetweenAndStatusIn(lessonFindRequestDto.getTutorProfileNo(), lessonFindRequestDto.getStartDate(), lessonFindRequestDto.getEndDate(), lessonFindRequestDto.getReservationStatuses());
+        List<LessonReservation> lessonReservations = lessonReservationRepository.findByTutorProfileNoAndDateBetweenAndStatusIn(lessonFindRequestDto.getTutorProfileNo(), lessonFindRequestDto.getStartDate(), lessonFindRequestDto.getEndDate(), ReservationStatus.VALID_LESSON_STATUSES);
         List<FixedLessonReservation> fixedLessonReservations = fixedLessonReservationRepository.findByTutorProfileNo(lessonFindRequestDto.getTutorProfileNo());
 
         return new LessonScheduleStatusDto(availableTimes, holidayDates, lessonReservations, fixedLessonReservations);

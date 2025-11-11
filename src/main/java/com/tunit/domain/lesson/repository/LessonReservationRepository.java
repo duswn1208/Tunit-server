@@ -37,6 +37,10 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
             LocalTime endTime,
             List<ReservationStatus> statuses);
 
+    @Query("SELECT lr FROM LessonReservation lr " +
+            "WHERE lr.tutorProfileNo = :tutorProfileNo " +
+            "AND lr.status IN :statuses " +
+            "AND lr.date BETWEEN :startDate AND :endDate ")
     List<LessonReservation> findByTutorProfileNoAndDateBetweenAndStatusIn(
             Long tutorProfileNo,
             LocalDate startDate,
