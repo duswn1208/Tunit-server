@@ -1,11 +1,13 @@
 package com.tunit.domain.lesson.service;
 
 import com.tunit.domain.lesson.define.ReservationStatus;
+import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.exception.LessonStatusException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
+import com.tunit.domain.lesson.validate.LessonValidate;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +29,17 @@ import java.util.List;
 public class LessonManagementService {
     private final LessonReservationRepository lessonReservationRepository;
     private final LessonQueryService lessonQueryService;
-    private final TutorProfileService tutorProfileService;
+    private final LessonValidate lessonValidate;
+
+    @Transactional
+    public void reschedule(Long studentNo, Long lessonReservationNo, LessonReserveSaveDto dto) {
+        LessonReservation byLessonReservationNo = lessonQueryService.findByLessonReservationNo(lessonReservationNo);
+
+        lessonValidate.validateTutorAvailability(studentNo, byLessonReservationNo.getTutorProfileNo(), dto.lessonDate(), dto.startTime(), dto.startTime().plusMinutes(1));
+
+        byLessonReservationNo.updateLessonInfo(dto.lessonDate(), dto.startTime(), dto.startTime().plusHours(1));
+        log.info("레슨 예약 변경 완료. studentNo: {}, lessonReservationNo: {}, newDate: {}", studentNo, lessonReservationNo, dto.lessonDate());
+    }
 
     @Transactional
     public void cancel(Long userNo, Long lessonReservationNo, ReservationStatus status) {
