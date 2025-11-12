@@ -3,7 +3,6 @@ package com.tunit.domain.lesson.validate;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.exception.LessonDuplicationException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
-import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.tutor.define.TutorLessonOpenType;
 import com.tunit.domain.tutor.exception.TutorLessonTimeValidateException;
 import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
@@ -35,8 +34,8 @@ public class LessonValidate {
         }
 
         // 2. 예외일정이 있는지 확인
-        boolean hasException = tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndTypeAndRequestTimeBetweenStartTimeAndEndTime(
-                tutorProfileNo, date, TutorLessonOpenType.BLOCK, startTime);
+        boolean hasException = tutorAvailExceptionRepository.exist(
+                tutorProfileNo, date, TutorLessonOpenType.BLOCK, startTime, endTime);
         if (hasException) {
             throw new TutorLessonTimeValidateException();
         }
