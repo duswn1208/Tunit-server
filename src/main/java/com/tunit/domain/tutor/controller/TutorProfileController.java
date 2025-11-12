@@ -2,6 +2,7 @@ package com.tunit.domain.tutor.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.common.session.dto.SessionUser;
+import com.tunit.domain.tutor.dto.TutorAvailableTimeUpdateDto;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,6 @@ public class TutorProfileController {
         session.setAttribute("LOGIN_USER", newSessionUser);
         return ResponseEntity.ok(tutorProfileNo);
     }
-//
-//    @GetMapping("/me")
-//    public ResponseEntity<?> getMyProfileByUserNo(@LoginUser(field = "userNo") Long userNo) {
-//        return ResponseEntity.ok(tutorProfileService.findByUserNo(userNo));
-//    }
 
     @GetMapping("/me")
     public ResponseEntity<?> getMyProfile(@LoginUser(field = "userNo") Long userNo) {

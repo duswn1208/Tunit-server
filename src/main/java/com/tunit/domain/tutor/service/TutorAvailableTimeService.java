@@ -2,8 +2,6 @@ package com.tunit.domain.tutor.service;
 
 import com.tunit.domain.tutor.dto.TutorAvailableTimeResponseDto;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeSaveDto;
-import com.tunit.domain.tutor.dto.TutorAvailableTimeUpdateDto;
-import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import com.tunit.domain.tutor.repository.TutorAvailableTimeRepository;
@@ -28,57 +26,18 @@ public class TutorAvailableTimeService {
     }
 
     @Transactional
-    public void saveAvailableTime(@NonNull Long tutorProfileNo, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {
+    public List<TutorAvailableTime> saveAvailableTime(@NonNull Long tutorProfileNo, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {
         if (tutorAvailableTimeSaveDtoList.isEmpty()) {
             throw new TutorProfileException("수업 가능 시간을 하나 이상 등록해야 합니다.");
         }
 
         List<TutorAvailableTime> list = tutorAvailableTimeSaveDtoList.stream().map(dto -> dto.toEntity(tutorProfileNo)).toList();
         validateAvailableTimeList(list);
-        tutorAvailableTimeRepository.saveAll(list);
+        return tutorAvailableTimeRepository.saveAll(list);
     }
 
-    @Transactional
-    public void deleteAvailableTime(@NonNull Long tutorProfileNo, List<Long> tutorAvailableTimeNos) {
-        if (tutorAvailableTimeNos.isEmpty()) {
-            throw new TutorProfileException("삭제할 수업 정보를 선택해주세요.");
-        }
-
-        if (!tutorAvailableTimeRepository.existsByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfileNo, tutorAvailableTimeNos)) {
-            throw new TutorProfileException("존재하지 않는 시간대입니다.");
-        }
-
-        tutorAvailableTimeRepository.deleteAllByTutorProfileNoAndTutorAvailableTimeNoIn(tutorProfileNo, tutorAvailableTimeNos);
-    }
-
-    @Transactional
-    public void updateAvailableTime(@NonNull Long tutorProfileNo, TutorAvailableTimeUpdateDto updateDto) {
-        TutorAvailableTime time = getTutorAvailableTime(updateDto.getTutorAvailableTimeNo());
-
-        time.validateTime();
-
-        // 2. 겹치는 시간대가 있는지 확인 (본인 것만)
-        boolean overlaps = tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndTimeOverlapping(
-                tutorProfileNo,
-                updateDto.getDayOfWeekNum(),
-                updateDto.getStartTime(),
-                updateDto.getEndTime(),
-                updateDto.getTutorAvailableTimeNo()
-        );
-        if (overlaps) {
-            throw new TutorProfileException("겹치는 시간대가 이미 존재합니다.");
-        }
-
-        time.update(
-                updateDto.getDayOfWeekNum(),
-                updateDto.getStartTime(),
-                updateDto.getEndTime()
-        );
-    }
-
-    public TutorAvailableTime getTutorAvailableTime(Long tutorAvailableTimeNo) {
-        return tutorAvailableTimeRepository.findById(tutorAvailableTimeNo)
-                .orElseThrow(() -> new TutorProfileException("존재하지 않는 시간대입니다."));
+    public void deleteAllByTutorProfileNo(@NonNull Long tutorProfileNo) {
+        tutorAvailableTimeRepository.deleteAllByTutorProfileNo(tutorProfileNo);
     }
 
     private void validateAvailableTimeList(List<TutorAvailableTime> list) {

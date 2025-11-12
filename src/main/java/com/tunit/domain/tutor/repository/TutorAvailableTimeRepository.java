@@ -3,6 +3,7 @@ package com.tunit.domain.tutor.repository;
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -46,4 +47,8 @@ public interface TutorAvailableTimeRepository extends JpaRepository<TutorAvailab
             Integer dayOfWeekNum,
             LocalTime requestTime
     );
+
+    @Modifying
+    @Query("DELETE FROM TutorAvailableTime t WHERE t.tutorProfileNo = :tutorProfileNo")
+    void deleteAllByTutorProfileNo(@NonNull Long tutorProfileNo);
 }

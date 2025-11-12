@@ -5,8 +5,10 @@ import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.tutor.define.SortType;
 import com.tunit.domain.tutor.dto.*;
+import com.tunit.domain.tutor.entity.TutorAvailableTime;
 import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
+import com.tunit.domain.tutor.exception.TutorProfileException;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
@@ -152,5 +154,23 @@ public class TutorProfileService {
             }
         }
         return result;
+    }
+
+    @Transactional
+    public void modifyTutorAvailableTime(Long tutorProfileNo, TutorAvailableTimeUpdateDto tutorAvailableTimeUpdateDto) {
+        List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList = tutorAvailableTimeUpdateDto.getTutorAvailableTimeSaveDtoList();
+        if (tutorAvailableTimeSaveDtoList.isEmpty()) {
+            throw new TutorProfileException("수정할 시간표가 없습니다.");
+        }
+
+        tutorAvailableTimeService.deleteAllByTutorProfileNo(tutorProfileNo);
+        List<TutorAvailableTime> tutorAvailableTimes = tutorAvailableTimeService.saveAvailableTime(tutorProfileNo, tutorAvailableTimeSaveDtoList);
+
+        if (tutorAvailableTimeSaveDtoList.size() != tutorAvailableTimes.size()) {
+            log.warn("튜터 프로필 번호 {}의 수업 가능 시간 저장 건수 불일치: 요청 {}건, 저장 {}건", tutorProfileNo, tutorAvailableTimeSaveDtoList.size(), tutorAvailableTimes.size());
+            throw new TutorProfileException();
+        }
+
+        log.info("튜터 프로필 번호 {}의 수업 가능 시간 {}건이 모두 정상적으로 저장되었습니다.", tutorProfileNo, tutorAvailableTimes.size());
     }
 }
