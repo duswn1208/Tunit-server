@@ -23,7 +23,7 @@ public record TutorAvailExceptionSaveDto(
                 .isAllDay(this.isAllDay)
                 .startTime(this.startTime)
                 .endTime(this.endTime)
-                .type(this.type)
+                .type(TutorLessonOpenType.BLOCK)
                 .reason(this.reason)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

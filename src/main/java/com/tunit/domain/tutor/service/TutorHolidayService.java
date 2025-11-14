@@ -8,6 +8,7 @@ import com.tunit.domain.tutor.exception.TutorProfileException;
 import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TutorHolidayService {
@@ -23,14 +25,9 @@ public class TutorHolidayService {
 
     @Transactional
     public void saveHoliday(Long tutorProfileNo, TutorAvailExceptionSaveDto tutorAvailExceptionSaveDto) {
-        List<TutorAvailException> all = tutorAvailExceptionRepository.findByTutorProfileNo(tutorProfileNo);
         if (tutorAvailExceptionSaveDto.endDate() == null) {
             TutorAvailException entity = tutorAvailExceptionSaveDto.toEntity(tutorProfileNo);
-            if (tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndType(tutorProfileNo, entity.getDate(), TutorLessonOpenType.BLOCK)) {
-                throw new TutorProfileException("이미 해당 날짜에 휴일이 등록되어 있습니다. 날짜: " + entity.getDate());
-            }
-
-            tutorAvailExceptionRepository.save(entity);
+            validateAndSaveHoliday(tutorProfileNo, entity.getDate(), entity);
             return;
         }
 
@@ -38,21 +35,30 @@ public class TutorHolidayService {
         LocalDate endDate = tutorAvailExceptionSaveDto.endDate();
         while (!currentDate.isAfter(endDate)) {
             TutorAvailException entity = TutorAvailException.from(tutorProfileNo, currentDate, tutorAvailExceptionSaveDto);
-            if (tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndType(tutorProfileNo, entity.getDate(), TutorLessonOpenType.BLOCK)) {
-                throw new TutorProfileException("이미 해당 날짜에 휴일이 등록되어 있습니다. 날짜: " + currentDate);
-            }
-            tutorAvailExceptionRepository.save(entity);
+            validateAndSaveHoliday(tutorProfileNo, currentDate, entity);
             currentDate = currentDate.plusDays(1);
         }
     }
 
-    @Transactional
-    public void deleteHoliday(Long tutorProfileNo, List<Long> tutorHolidayNos) {
-
+    private void validateAndSaveHoliday(Long tutorProfileNo, LocalDate currentDate, TutorAvailException entity) {
+        existsHolidayDate(tutorProfileNo, currentDate);
+        tutorAvailExceptionRepository.save(entity);
     }
 
-    public List<TutorAvailException> findHolidaysByTutorProfileNo(Long tutorProfileNo) {
-        return tutorAvailExceptionRepository.findByTutorProfileNo(tutorProfileNo);
+    private void existsHolidayDate(Long tutorProfileNo, LocalDate date) {
+        if (tutorAvailExceptionRepository.existsByTutorProfileNoAndDateAndType(tutorProfileNo, date, TutorLessonOpenType.BLOCK)) {
+            throw new TutorProfileException("이미 해당 날짜에 휴일이 등록되어 있습니다. 날짜: " + date);
+        }
+    }
+
+    @Transactional
+    public void deleteHoliday(Long tutorProfileNo, Long tutorHolidayNo) {
+        Integer result = tutorAvailExceptionRepository.deleteByTutorAvailExceptionNoAndTutorProfileNo(tutorHolidayNo, tutorProfileNo);
+        if (result == 0) {
+            throw new TutorProfileException("삭제할 휴일이 존재하지 않습니다. tutorHolidayNo: " + tutorHolidayNo);
+        }
+
+        log.info("휴일 삭제 완료. tutorHolidayNo: {}, tutorProfileNo: {}", tutorHolidayNo, tutorProfileNo);
     }
 
     public List<TutorAvailExceptionResponseDto> findByTutorProfileNo(@NonNull Long tutorProfileNo) {
