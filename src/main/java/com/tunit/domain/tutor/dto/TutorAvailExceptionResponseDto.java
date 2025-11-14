@@ -14,6 +14,7 @@ public record TutorAvailExceptionResponseDto(
     LocalTime startTime,
     LocalTime endTime,
     TutorLessonOpenType type,
+    Boolean isAllDay,
     String reason,
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {
@@ -26,6 +27,7 @@ public record TutorAvailExceptionResponseDto(
             entity.getStartTime(),
             entity.getEndTime(),
             entity.getType(),
+            entity.getIsAllDay(),
             entity.getReason(),
             entity.getCreatedAt(),
             entity.getUpdatedAt()

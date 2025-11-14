@@ -27,4 +27,6 @@ public interface TutorAvailExceptionRepository extends JpaRepository<TutorAvailE
     boolean existsByTutorProfileNoAndDateAndType(Long tutorProfileNo, LocalDate date, TutorLessonOpenType type);
 
     List<TutorAvailException> findByTutorProfileNo(Long tutorProfileNo);
+
+    Integer deleteByTutorAvailExceptionNoAndTutorProfileNo(Long tutorAvailExceptioNo, Long tutorHolidayNo);
 }

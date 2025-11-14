@@ -7,10 +7,7 @@ import com.tunit.domain.tutor.service.TutorHolidayService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/tutor/schedule")
@@ -19,6 +16,11 @@ public class TutorScheduleController {
 
     private final TutorProfileService tutorProfileService;
     private final TutorHolidayService tutorHolidayService;
+
+    @GetMapping("/holiday")
+    public ResponseEntity<?> getTutorHoliday(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo) {
+        return ResponseEntity.ok(tutorHolidayService.findByTutorProfileNo(tutorProfileNo));
+    }
 
     @PostMapping("/modify/lesson-time")
     public ResponseEntity<?> modifyTutorAvailableTime(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
@@ -31,6 +33,13 @@ public class TutorScheduleController {
     public ResponseEntity<?> saveTutorHoliday(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
                                               @RequestBody TutorAvailExceptionSaveDto tutorAvailExceptionSaveDto) {
         tutorHolidayService.saveHoliday(tutorProfileNo, tutorAvailExceptionSaveDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/holiday/{tutorHolidayNo}")
+    public ResponseEntity<?> deleteTutorHoliday(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+                                                @PathVariable Long tutorHolidayNo) {
+        tutorHolidayService.deleteHoliday(tutorProfileNo, tutorHolidayNo);
         return ResponseEntity.ok().build();
     }
 }
