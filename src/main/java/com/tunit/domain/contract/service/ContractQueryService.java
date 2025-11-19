@@ -5,11 +5,10 @@ import com.tunit.domain.contract.dto.ContractResponseDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.contract.repository.StudentTutorContractRepository;
-import com.tunit.domain.lesson.define.ReservationStatus;
-import com.tunit.domain.lesson.entity.LessonReservation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +20,18 @@ public class ContractQueryService {
 
     public StudentTutorContract createContract(ContractCreateRequestDto requestDto) {
         return contractRepository.save(StudentTutorContract.createContractOf(requestDto));
+    }
+
+    @Transactional
+    public StudentTutorContract modifyContract(Long studentNo, Long contractNo, ContractCreateRequestDto requestDto) {
+        StudentTutorContract contract = getContractByStudentNoAndContractNo(studentNo, contractNo);
+        contract.modifyContract(studentNo, requestDto);
+        return contract;
+    }
+
+    private StudentTutorContract getContractByStudentNoAndContractNo(Long studentNo, Long contractNo) {
+        return contractRepository.findByContractNoAndStudentNo(contractNo, studentNo)
+                .orElseThrow(() -> new ContractException("계약을 찾을 수 없습니다."));
     }
 
     public StudentTutorContract getContract(Long contractNo) {

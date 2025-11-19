@@ -217,4 +217,14 @@ public class StudentTutorContract {
             }
         }
     }
+
+    public StudentTutorContract modifyContract(Long studentNo, ContractCreateRequestDto requestDto) {
+        requestDto.setStudentNo(studentNo);
+        validate(requestDto);
+
+        StudentTutorContract contractOf = createContractOf(requestDto);
+        contractOf.contractNo = this.contractNo; // 기존 계약 번호 유지
+        return contractOf;
+
+    }
 }

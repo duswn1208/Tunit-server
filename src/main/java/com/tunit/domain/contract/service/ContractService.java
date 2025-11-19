@@ -59,6 +59,18 @@ public class ContractService {
         return contractQueryService.getTutorContracts(tutorProfileNo);
     }
 
+    @Transactional
+    public ContractResponseDto modifyContract(Long studentNo, Long contractNo, ContractCreateRequestDto requestDto) {
+        StudentTutorContract contract = contractQueryService.modifyContract(studentNo, contractNo, requestDto);
+        // 대기 레슨 예약 생성
+        lessonReserveService.reserveLessonsBatch(contract, requestDto.getLessonDtList());
+        return new ContractResponseDto(contract);
+    }
+
+
+
+
+
     // ==================== 계약 상태 변경 ====================
 
     /**
@@ -155,4 +167,6 @@ public class ContractService {
 
         return currentCycleCount;
     }
+
+
 }

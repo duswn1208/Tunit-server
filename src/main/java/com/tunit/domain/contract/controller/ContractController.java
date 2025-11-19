@@ -50,6 +50,15 @@ public class ContractController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{contractNo}")
+    public ResponseEntity<ContractResponseDto> modifyContract(@LoginUser(field = "userNo") Long userNo, @PathVariable Long contractNo, @RequestBody ContractCreateRequestDto requestDto) {
+        log.info("계약 수정 요청 - contractNo: {}, tutorProfileNo: {}, studentNo: {}, contractType: {}",
+                contractNo, requestDto.getTutorProfileNo(), userNo, requestDto.getContractType());
+
+        ContractResponseDto contractResponseDto = contractService.modifyContract(userNo, contractNo, requestDto);
+        return ResponseEntity.ok(contractResponseDto);
+    }
+
     /**
      * 학생의 계약 목록 조회
      */

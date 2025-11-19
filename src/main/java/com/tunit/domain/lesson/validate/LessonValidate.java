@@ -30,14 +30,14 @@ public class LessonValidate {
         boolean isAvailableTime = tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndRequestTimeBetweenStartTimeAndEndTime(
                 tutorProfileNo, dayOfWeek, startTime);
         if (!isAvailableTime) {
-            throw new TutorLessonTimeValidateException();
+            throw new TutorLessonTimeValidateException("레슨 예약이 불가능한 날짜입니다.");
         }
 
         // 2. 예외일정이 있는지 확인
         boolean hasException = tutorAvailExceptionRepository.exist(
                 tutorProfileNo, date, TutorLessonOpenType.BLOCK, startTime, endTime);
         if (hasException) {
-            throw new TutorLessonTimeValidateException();
+            throw new TutorLessonTimeValidateException("레슨 예약이 불가능한 시간대입니다.");
         }
 
         // 3. 해당 시간에 다른 레슨이 있는지 확인
