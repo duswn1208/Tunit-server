@@ -217,4 +217,12 @@ public class LessonReservation {
         this.status = ReservationStatus.REQUESTED;
         onUpdate();
     }
+
+    /**
+     * 배치 작업에서 상태를 직접 업데이트
+     * 상태 전환 규칙 검증 없이 직접 변경 (시스템 자동 처리용)
+     */
+    public void updateStatus(ReservationStatus newStatus) {
+        this.status = newStatus;
+    }
 }
