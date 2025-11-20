@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public record TutorProfileResponseDto(
         Long userNo,
         Long tutorProfileNo,
+        String nickname,
         String introduce,
         LessonCategory lessonCategory,
         Set<TutorLessonsResponseDto> lessonSubcategoryList,
@@ -30,6 +31,7 @@ public record TutorProfileResponseDto(
         return new TutorProfileResponseDto(
                 tutorProfile.getUserNo(),
                 tutorProfile.getTutorProfileNo(),
+                "",
                 tutorProfile.getIntroduce(),
                 tutorProfile.getLessonCategory(),
                 tutorProfile.getTutorLessons().stream().map(TutorLessonsResponseDto::from).collect(Collectors.toSet()),
@@ -42,10 +44,11 @@ public record TutorProfileResponseDto(
         );
     }
 
-    public static TutorProfileResponseDto from(TutorProfile tutorProfile, List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList, List<TutorAvailExceptionResponseDto> tutorHolidayResponseList) {
+    public static TutorProfileResponseDto from(TutorProfile tutorProfile, String nickname, List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList, List<TutorAvailExceptionResponseDto> tutorHolidayResponseList) {
         return new TutorProfileResponseDto(
                 tutorProfile.getUserNo(),
                 tutorProfile.getTutorProfileNo(),
+                "",
                 tutorProfile.getIntroduce(),
                 tutorProfile.getLessonCategory(),
                 tutorProfile.getTutorLessons().stream().map(TutorLessonsResponseDto::from).collect(Collectors.toSet()),
@@ -62,6 +65,7 @@ public record TutorProfileResponseDto(
         return new TutorProfileResponseDto(
                 tutorProfile.userNo,
                 tutorProfile.tutorProfileNo,
+                "",
                 tutorProfile.introduce,
                 tutorProfile.lessonCategory,
                 tutorProfile.lessonSubcategoryList,

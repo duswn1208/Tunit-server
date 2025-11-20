@@ -40,15 +40,19 @@ public class TutorProfileService {
         TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
                 .orElseThrow();
 
-        return TutorProfileResponseDto.from(tutorProfile,  null, null);
+        return TutorProfileResponseDto.from(tutorProfile, "",  null, null);
     }
 
-    public TutorProfileResponseDto findTutorProfileInfoByTutorProfileNo(@NonNull Long tutorProfileNo) {
+    public TutorProfileDetailInfo findTutorDetailInfo(@NonNull Long tutorProfileNo) {
         TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
                 .orElseThrow();
 
+        UserMain byUserNo = userService.findByUserNo(tutorProfile.getUserNo());
+
         List<TutorAvailableTimeResponseDto> availableTimes = tutorAvailableTimeService.findByTutorProfileNo(tutorProfileNo);
-        return TutorProfileResponseDto.from(tutorProfile,  availableTimes, null);
+        //rating 추후 구현
+
+        return TutorProfileDetailInfo.from(tutorProfile, byUserNo.getNickname(), availableTimes, null, 2.5, 10L);
     }
 
     public List<TutorLessonsResponseDto> findTutorLessonsByTutorProfileNo(@NonNull Long tutorProfileNo) {
