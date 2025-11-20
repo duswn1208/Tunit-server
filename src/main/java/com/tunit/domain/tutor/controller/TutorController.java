@@ -22,6 +22,6 @@ public class TutorController {
 
     @GetMapping("/{tutorProfileNo}")
     public ResponseEntity getTutorProfile(@PathVariable Long tutorProfileNo) {
-        return ResponseEntity.ok(tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo));
+        return ResponseEntity.ok(tutorProfileService.findTutorDetailInfo(tutorProfileNo));
     }
 }

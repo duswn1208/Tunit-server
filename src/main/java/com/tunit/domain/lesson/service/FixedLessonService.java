@@ -57,7 +57,7 @@ public class FixedLessonService {
 
             try {
                 dto.dayOfWeekSet().forEach(dayOfWeek -> {
-                    TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo);
+                    TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorDetailInfo(tutorProfileNo);
                     FixedLessonReservation fixedLessonReservation = FixedLessonReservation.getFixedLessonReservation(dto, dayOfWeek, student, tutorProfileInfo);
                     existLesson(fixedLessonReservation);
                     fixedLessonReservationRepository.save(fixedLessonReservation);
@@ -81,7 +81,7 @@ public class FixedLessonService {
         UserMain student = userService.getOrCreateWaitingStudent(fixedLessonSaveDto.studentName(), fixedLessonSaveDto.phone());
 
         // 2. 레슨 조회 및 저장
-        TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo);
+        TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorDetailInfo(tutorProfileNo);
 
         fixedLessonSaveDto.dayOfWeekSet().forEach(dayOfWeek -> {
             FixedLessonReservation fixedLessonReservation = FixedLessonReservation.getFixedLessonReservation(fixedLessonSaveDto, dayOfWeek, student, tutorProfileInfo);
