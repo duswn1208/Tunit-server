@@ -1,11 +1,9 @@
 package com.tunit.batch.config;
 
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableBatchProcessing
 public class BatchConfig {
-    // Spring Batch 기본 설정
+    // Spring Boot 3.x는 @EnableBatchProcessing 없이도 자동 설정됨
+    // @EnableBatchProcessing을 사용하면 오히려 자동 설정이 비활성화됨
 }
-
