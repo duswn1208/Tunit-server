@@ -29,7 +29,7 @@ public class TutorProfileInit {
     private final TutorAvailExceptionRepository tutorAvailExceptionRepository;
     private final UserRepository userRepository;
 
-    @PostConstruct
+//    @PostConstruct
     public void init() {
         RegionSaveDto seoul = new RegionSaveDto(11, "서울특별시", "sido", 11, "서울특별시 전체");
         RegionSaveDto geongi = new RegionSaveDto(41, "경기도", "sido", 41, "경기도 전체");

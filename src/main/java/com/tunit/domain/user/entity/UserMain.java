@@ -93,7 +93,8 @@ public class UserMain {
 //        this.nickname = "S";
     }
 
-    public void joinTutor() {
+    public void joinTutor(String nickName) {
+        this.nickname = nickName;
         this.userStatus = UserStatus.ACTIVE;
         this.userRole = UserRole.TUTOR;
         this.updatedAt = LocalDateTime.now();

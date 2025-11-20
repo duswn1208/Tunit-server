@@ -7,19 +7,13 @@ import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
-import com.tunit.domain.lesson.exception.LessonStatusException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.lesson.validate.LessonValidate;
-import com.tunit.domain.tutor.define.TutorLessonOpenType;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
-import com.tunit.domain.tutor.entity.TutorAvailableTime;
-import com.tunit.domain.tutor.repository.TutorAvailExceptionRepository;
 import com.tunit.domain.tutor.repository.TutorLessonsRepository;
-import com.tunit.domain.tutor.service.TutorAvailableTimeService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +45,7 @@ public class LessonReserveService {
         try {
             UserMain student = userService.getOrCreateWaitingStudent(lessonReserveSaveDto.studentName(), lessonReserveSaveDto.phone());
 
-            TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutorProfileInfoByTutorProfileNo(tutorProfileNo);
+            TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutor(tutorProfileNo);
 
             LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, lessonReserveSaveDto);
             if (lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
@@ -98,7 +92,7 @@ public class LessonReserveService {
         UserMain student = userService.findByUserNo(contract.getStudentNo());
 
         // 2. 튜터 프로필 1번만 조회
-        TutorProfileResponseDto tutorProfile = tutorProfileService.findTutorProfileInfoByTutorProfileNo(contract.getTutorProfileNo());
+        TutorProfileResponseDto tutorProfile = tutorProfileService.findTutor(contract.getTutorProfileNo());
 
         // 3. 튜터 레슨 1번만 조회
         if (!tutorLessonsRepository.existsByLessonSubCategory(contract.getLessonSubCategory())) {

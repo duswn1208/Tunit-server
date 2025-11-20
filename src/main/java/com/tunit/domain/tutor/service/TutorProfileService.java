@@ -3,6 +3,7 @@ package com.tunit.domain.tutor.service;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
+import com.tunit.domain.review.service.LessonReviewService;
 import com.tunit.domain.tutor.define.SortType;
 import com.tunit.domain.tutor.dto.*;
 import com.tunit.domain.tutor.entity.TutorAvailableTime;
@@ -10,6 +11,7 @@ import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.entity.TutorRegion;
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import com.tunit.domain.tutor.repository.TutorProfileRepository;
+import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
 import lombok.NonNull;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -29,6 +32,7 @@ public class TutorProfileService {
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
     private final UserService userService;
+    private final LessonReviewService lessonReviewService;
 
     public TutorProfileResponseDto findTutorProfileInfo(@NonNull Long userNo) {
         TutorProfile tutorProfile = tutorProfileRepository.findByUserNo(userNo);
@@ -40,15 +44,22 @@ public class TutorProfileService {
         TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
                 .orElseThrow();
 
-        return TutorProfileResponseDto.from(tutorProfile,  null, null);
+        return TutorProfileResponseDto.from(tutorProfile, "",  null, null);
     }
 
-    public TutorProfileResponseDto findTutorProfileInfoByTutorProfileNo(@NonNull Long tutorProfileNo) {
+    public TutorProfileDetailInfo findTutorDetailInfo(@NonNull Long tutorProfileNo) {
         TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
                 .orElseThrow();
 
+        UserMainResponseDto dtoByUserNo = userService.findDtoByUserNo(tutorProfile.getUserNo());
+
         List<TutorAvailableTimeResponseDto> availableTimes = tutorAvailableTimeService.findByTutorProfileNo(tutorProfileNo);
-        return TutorProfileResponseDto.from(tutorProfile,  availableTimes, null);
+
+        // 캐싱된 리뷰 통계 사용
+        Double averageRating = lessonReviewService.getAverageRatingByTutorProfileNo(tutorProfileNo);
+        Long reviewCount = lessonReviewService.getReviewCountByTutorProfileNo(tutorProfileNo);
+
+        return TutorProfileDetailInfo.from(tutorProfile, dtoByUserNo, availableTimes, null, averageRating, reviewCount);
     }
 
     public List<TutorLessonsResponseDto> findTutorLessonsByTutorProfileNo(@NonNull Long tutorProfileNo) {
@@ -78,7 +89,7 @@ public class TutorProfileService {
     @Transactional
     public Long save(Long userNo, TutorProfileSaveDto tutorProfileSaveDto) {
         UserMain userMain = userService.findByUserNo(userNo);
-        userMain.joinTutor();
+        userMain.joinTutor(tutorProfileSaveDto.getNickname());
 
         TutorProfile tutorProfile = TutorProfile.saveFrom(userNo, tutorProfileSaveDto);
 
@@ -95,7 +106,7 @@ public class TutorProfileService {
         return tutorProfileRepository.findByUserNo(userNo);
     }
 
-    public List<TutorProfileResponseDto> findTutors(TutorFindRequestDto tutorFindRequestDto) {
+    public List<TutorProfileDetailInfo> findTutors(TutorFindRequestDto tutorFindRequestDto) {
         List<LessonSubCategory> lessonCodes = tutorFindRequestDto.getLessonCodes();
         List<Integer> regionCodes = tutorFindRequestDto.getRegionCodes();
         SortType sortType = tutorFindRequestDto.getSortType();
@@ -130,14 +141,15 @@ public class TutorProfileService {
                             }
                             // 그 외 → 정확히 일치
                             else {
-                                return tutorRegionCodes.contains(requestedCode);
+                                return requestedCodeStr.equals(String.valueOf(requestedCode));
                             }
                         });
                     })
                     .toList();
         }
 
-        List<TutorProfileResponseDto> result = profileList.stream().map(TutorProfileResponseDto::from).toList();
+
+        List<TutorProfileDetailInfo> result = profileList.stream().map(profile -> this.findTutorDetailInfo(profile.getUserNo())).toList();
 
         if (sortType != null) {
             switch (sortType) {
@@ -145,12 +157,14 @@ public class TutorProfileService {
                         .sorted((a, b) -> b.tutorProfileNo().compareTo(a.tutorProfileNo())) // 최신 등록순(내림차순)
                         .toList();
                 case PRICE_LOW -> result = result.stream()
-                        .sorted((a, b) -> Integer.compare(a.pricePerHour(), b.pricePerHour()))
+                        .sorted(Comparator.comparingInt(TutorProfileDetailInfo::pricePerHour))
                         .toList();
                 case PRICE_HIGH -> result = result.stream()
                         .sorted((a, b) -> Integer.compare(b.pricePerHour(), a.pricePerHour()))
                         .toList();
-                // REVIEW(후기 많은 순)는 추후 구현
+                case REVIEW -> result = result.stream()
+                        .sorted((a, b) -> Long.compare(b.totalReviews(), a.totalReviews()))
+                        .toList();
             }
         }
         return result;
