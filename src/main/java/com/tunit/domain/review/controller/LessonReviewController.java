@@ -1,11 +1,14 @@
 package com.tunit.domain.review.controller;
 
+import com.tunit.common.dto.PageResponse;
 import com.tunit.common.session.annotation.LoginUser;
+import com.tunit.common.util.PageUtil;
 import com.tunit.domain.review.dto.ReviewCreateRequestDto;
 import com.tunit.domain.review.dto.ReviewResponseDto;
+import com.tunit.domain.review.dto.ReviewSummaryDto;
 import com.tunit.domain.review.dto.ReviewUpdateRequestDto;
+import com.tunit.domain.review.dto.TutorReviewsResponseDto;
 import com.tunit.domain.review.service.LessonReviewService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -57,16 +58,11 @@ public class LessonReviewController {
      * DELETE /api/reviews/{reviewNo}
      */
     @DeleteMapping("/{reviewNo}")
-    public ResponseEntity<Map<String, String>> deleteReview(@LoginUser(field = "userNo") Long userNo,
-                                                            @PathVariable Long reviewNo,
-                                                            HttpSession session) {
+    public ResponseEntity<Void> deleteReview(@LoginUser(field = "userNo") Long userNo,
+                                             @PathVariable Long reviewNo) {
 
         reviewService.deleteReview(reviewNo, userNo);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "리뷰가 삭제되었습니다.");
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -92,15 +88,34 @@ public class LessonReviewController {
     }
 
     /**
-     * 튜터에 대한 모든 리뷰 조회
-     * GET /api/reviews/tutor/{tutorProfileNo}
+     * 튜터에 대한 모든 리뷰 조회 (요약 정보 포함)
+     * GET /api/reviews/tutor
      */
     @GetMapping("/tutor/{tutorProfileNo}")
-    public ResponseEntity<List<ReviewResponseDto>> getReviewsByTutorProfileNo(
-            @PathVariable Long tutorProfileNo) {
+    public ResponseEntity<TutorReviewsResponseDto> getTutorReviews(@PathVariable Long tutorProfileNo) {
 
+        // 리뷰 목록 조회
         List<ReviewResponseDto> reviews = reviewService.getReviewsByTutorProfileNo(tutorProfileNo);
-        return ResponseEntity.ok(reviews);
+
+        // 통계 정보 조회
+        Double averageRating = reviewService.getAverageRatingByTutorProfileNo(tutorProfileNo);
+        long reviewCount = reviewService.getReviewCountByTutorProfileNo(tutorProfileNo);
+
+        // 요약 DTO 생성
+        ReviewSummaryDto summary = ReviewSummaryDto.of(reviewCount, averageRating);
+
+        // PageResponse 생성 (페이징 없이 전체 리스트)
+        PageResponse<ReviewResponseDto> pageResponse = PageUtil.createPageResponse(
+                reviews,
+                0,
+                reviews.size(),
+                reviewCount
+        );
+
+        // 통합 응답 DTO 생성
+        TutorReviewsResponseDto response = TutorReviewsResponseDto.of(summary, pageResponse);
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -108,27 +123,19 @@ public class LessonReviewController {
      * GET /api/reviews/student/my
      */
     @GetMapping("/student/my")
-    public ResponseEntity<List<ReviewResponseDto>> getMyReviews(@LoginUser(field = "userNo") Long userNo) {
+    public ResponseEntity<PageResponse<ReviewResponseDto>> getMyReviews(
+            @LoginUser(field = "userNo") Long userNo) {
+
         List<ReviewResponseDto> reviews = reviewService.getReviewsByStudentNo(userNo);
-        return ResponseEntity.ok(reviews);
-    }
 
-    /**
-     * 튜터 평균 평점 및 리뷰 개수 조회
-     * GET /api/reviews/tutor/{tutorProfileNo}/stats
-     */
-    @GetMapping("/tutor/{tutorProfileNo}/stats")
-    public ResponseEntity<Map<String, Object>> getTutorReviewStats(
-            @PathVariable Long tutorProfileNo) {
+        PageResponse<ReviewResponseDto> response = PageUtil.createPageResponse(
+                reviews,
+                0,
+                reviews.size(),
+                reviews.size()
+        );
 
-        Double averageRating = reviewService.getAverageRatingByTutorProfileNo(tutorProfileNo);
-        long reviewCount = reviewService.getReviewCountByTutorProfileNo(tutorProfileNo);
-
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("averageRating", averageRating != null ? Math.round(averageRating * 10) / 10.0 : 0.0);
-        stats.put("reviewCount", reviewCount);
-
-        return ResponseEntity.ok(stats);
+        return ResponseEntity.ok(response);
     }
 }
 
