@@ -19,26 +19,15 @@ service-url:
 
 spring:
   datasource:
-    url: jdbc:h2:file:./h2db/tunitdb;AUTO_SERVER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
+    url: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres
+    username: postgres.drtjjsjoitrgjffpnrvb
+    password: tunitgkdl6959**
+    driver-class-name: org.postgresql.Driver
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-        ddl-auto: update
-        format_sql: true
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
   security:
     oauth2:
       client:
