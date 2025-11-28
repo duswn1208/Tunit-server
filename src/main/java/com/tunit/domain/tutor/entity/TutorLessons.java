@@ -21,6 +21,7 @@ public class TutorLessons {
     @JoinColumn(name = "tutor_profile_no", nullable = false)
     private TutorProfile tutorProfile;
 
+    @Enumerated(EnumType.STRING)
     private LessonSubCategory lessonSubCategory;
     private Boolean isMain;
     private LocalDateTime createdAt;

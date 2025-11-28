@@ -22,6 +22,7 @@ public class TutorProfile {
     private Long tutorProfileNo;
     private Long userNo;
     private String introduce;
+    @Enumerated(EnumType.STRING)
     private LessonCategory lessonCategory;
 
     @Setter

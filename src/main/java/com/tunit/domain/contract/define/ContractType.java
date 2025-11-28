@@ -1,9 +1,9 @@
 package com.tunit.domain.contract.define;
 
 public enum ContractType {
-    REGULAR("REGULAR", "정규레슨"),
-    FIRSTCOME("FIRSTCOME", "비정규레슨"),
-    TRIAL("TRIAL", "상담/체험레슨");
+    REGULAR("REGULAR", "정규 레슨"),
+    FIRSTCOME("FIRSTCOME", "선착순 레슨"),
+    TRIAL("TRIAL", "상담/체험 레슨");
 
     private final String code;
     private final String label;

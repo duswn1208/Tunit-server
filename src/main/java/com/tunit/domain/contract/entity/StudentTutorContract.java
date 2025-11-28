@@ -218,13 +218,35 @@ public class StudentTutorContract {
         }
     }
 
-    public StudentTutorContract modifyContract(Long studentNo, ContractCreateRequestDto requestDto) {
+    public void modifyContract(Long studentNo, ContractCreateRequestDto requestDto) {
         requestDto.setStudentNo(studentNo);
         validate(requestDto);
 
-        StudentTutorContract contractOf = createContractOf(requestDto);
-        contractOf.contractNo = this.contractNo; // 기존 계약 번호 유지
-        return contractOf;
+        // 정규레슨의 경우 가장 빠른 레슨 일정 기준으로 시작일, 요일, 시간 설정
+        LocalDateTime earliestLesson = requestDto.getLessonDtList().stream()
+                .min(Comparator.naturalOrder())
+                .orElseThrow(() -> new ContractException("레슨 일정이 비어있습니다."));
 
+        this.startDt = earliestLesson.toLocalDate();
+        this.dayOfWeekNum = earliestLesson.getDayOfWeek().getValue();
+        this.startTime = earliestLesson.toLocalTime();
+        this.endTime = earliestLesson.toLocalTime().plusHours(1); // todo: 선생님 기본 레슨 시간으로 변경
+
+        this.contractType = requestDto.getContractType();
+        this.contractStatus = ContractStatus.REQUESTED;
+
+        this.lessonSubCategory = requestDto.getLessonCategory();
+        this.weekCount = requestDto.getWeekCount();
+        this.lessonCount = requestDto.getLessonCount();
+        this.lessonName = requestDto.generateLessonName();
+
+        this.level = requestDto.getLevel();
+        this.place = requestDto.getPlace();
+        this.emergencyContact = requestDto.getEmergencyContact();
+        this.memo = requestDto.getMemo();
+
+        this.source = requestDto.getSource();
+        this.totalPrice = requestDto.getTotalPrice();
+        this.paymentStatus = PaymentStatus.PENDING;
     }
 }

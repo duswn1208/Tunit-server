@@ -4,6 +4,7 @@ import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
+import com.tunit.domain.review.service.LessonReviewService;
 import com.tunit.domain.student.dto.FindMyLessonsRequestDto;
 import com.tunit.domain.student.dto.StudentInfoResponseDto;
 import com.tunit.domain.student.dto.StudentLessonResponseDto;
@@ -35,6 +36,7 @@ public class StudentService {
     private final StudentRegionsService studentRegionsService;
     private final LessonReservationRepository lessonReservationRepository;
     private final TutorProfileService tutorProfileService;
+    private final LessonReviewService lessonReviewService;
 
     public void joinStudentProfile(StudentProfileSaveDto studentProfileSaveDto) {
 
@@ -89,7 +91,10 @@ public class StudentService {
                     TutorProfileResponseDto tutorProfileInfoByTutorProfileNo = tutorProfileService.findTutor(lesson.getTutorProfileNo());
                     UserMainResponseDto tutorProfile = userService.findDtoByUserNo(tutorProfileInfoByTutorProfileNo.userNo());
 
-                    return StudentLessonResponseDto.of(lesson, tutorProfile);
+                    boolean isReviewed = lessonReviewService.existsByLessonReservationNo(lesson.getLessonReservationNo());
+
+
+                    return StudentLessonResponseDto.of(lesson, tutorProfile, isReviewed);
                 })
                 .collect(Collectors.toList());
     }

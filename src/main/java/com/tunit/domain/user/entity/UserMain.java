@@ -23,10 +23,13 @@ public class UserMain {
     private String name;
     private String nickname;
     private String phone;
+    @Enumerated(EnumType.STRING)
     private UserProvider provider;
     private String providerId;
     private Boolean isPhoneVerified;
+    @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
+    @Enumerated(EnumType.STRING)
     private UserRole userRole;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

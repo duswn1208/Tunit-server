@@ -20,14 +20,23 @@ service-url:
 spring:
   datasource:
     url: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres
-    username: postgres.drtjjsjoitrgjffpnrvb
+    username: postgres.acrnnxrusgxmuxaqrafm
     password: tunitgkdl6959**
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+      idle-timeout: 5000
+      max-lifetime: 20000
+      minimum-idle: 1
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        enum:
+          storage: STRING
   security:
     oauth2:
       client:

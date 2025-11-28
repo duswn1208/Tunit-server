@@ -29,6 +29,7 @@ public class ContractService {
     private final LessonManagementService lessonManagementService;
     private final LessonQueryService lessonQueryService;
 
+    @Transactional
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
         // 계약 생성
         StudentTutorContract contract = contractQueryService.createContract(requestDto);
