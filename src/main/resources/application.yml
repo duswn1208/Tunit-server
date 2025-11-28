@@ -24,7 +24,7 @@ spring:
     password: tunitgkdl6959**
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 2
+      maximum-pool-size: 5
       idle-timeout: 5000
       max-lifetime: 20000
       minimum-idle: 1
