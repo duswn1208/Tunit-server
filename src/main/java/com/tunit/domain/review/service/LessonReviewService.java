@@ -129,6 +129,10 @@ public class LessonReviewService {
         }
     }
 
+    public boolean existsByLessonReservationNo(Long lessonReservationNo) {
+        return reviewRepository.existsByLessonReservationNo(lessonReservationNo);
+    }
+
     /**
      * 리뷰 단건 조회
      */

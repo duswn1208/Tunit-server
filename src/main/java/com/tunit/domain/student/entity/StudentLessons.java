@@ -17,6 +17,7 @@ public class StudentLessons {
     private Long studentLessonNo;
 
     private Long userNo;
+    @Enumerated(EnumType.STRING)
     private LessonSubCategory lessonSubCategory;
     private Boolean isMain;
     private LocalDateTime createdAt;

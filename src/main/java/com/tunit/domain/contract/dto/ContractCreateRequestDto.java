@@ -36,8 +36,8 @@ public class ContractCreateRequestDto {
 
     /**
      * lessonName 자동 생성
-     * - 고정레슨: "영어회화 고정레슨 (주2회)"
-     * - 주간레슨/패키지: "영어회화 주간레슨"
+     * - 정규/선착순레슨: "영어회화 정규레슨 (주2회)"
+     * - 상담/체험레슨: "영어회화 상담/체험레슨"
      */
     public String generateLessonName() {
         if (lessonName != null && !lessonName.isBlank()) {
@@ -47,12 +47,11 @@ public class ContractCreateRequestDto {
         String categoryLabel = lessonCategory.getLabel();
         String typeLabel = contractType.getLabel();
 
-        // REGULAR(고정레슨)인 경우 주 횟수 포함
-        if (contractType.isRegular() && weekCount != null) {
+        if (contractType.isRegular() && contractType.isFirstCome() && weekCount != null) {
             return categoryLabel + " " + typeLabel + " (주" + weekCount + "회)";
         }
 
-        // 그 외(주간레슨, 패키지)는 타입만 포함
+        // 상담/선착순 레슨
         return categoryLabel + " " + typeLabel;
     }
 }

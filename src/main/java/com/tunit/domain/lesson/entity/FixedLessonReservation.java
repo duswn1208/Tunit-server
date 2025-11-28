@@ -57,6 +57,7 @@ public class FixedLessonReservation {
     @Column(name = "next_materialize_date")
     private LocalDate nextMaterializeDate;
 
+    @Enumerated(EnumType.STRING)
     private LessonSubCategory subCategory;
 
     @Column(name = "memo", length = 255)

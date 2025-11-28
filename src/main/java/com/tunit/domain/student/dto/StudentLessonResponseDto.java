@@ -18,9 +18,10 @@ public record StudentLessonResponseDto(
         LocalTime endTime,
         ReservationStatus status,
         String memo,
+        Boolean isReviewed,
         UserMainResponseDto tutorInfo
 ) {
-    public static StudentLessonResponseDto of(LessonReservation lesson, UserMainResponseDto tutorInfo) {
+    public static StudentLessonResponseDto of(LessonReservation lesson, UserMainResponseDto tutorInfo, Boolean isReviewed) {
         return new StudentLessonResponseDto(
                 lesson.getLessonReservationNo(),
                 lesson.getContractNo(),
@@ -31,22 +32,8 @@ public record StudentLessonResponseDto(
                 lesson.getEndTime(),
                 lesson.getStatus(),
                 lesson.getMemo(),
+                isReviewed,
                 tutorInfo
-        );
-    }
-
-    public static StudentLessonResponseDto from(LessonReservation lesson) {
-        return new StudentLessonResponseDto(
-                lesson.getLessonReservationNo(),
-                lesson.getContractNo(),
-                lesson.getTutorProfileNo(),
-                lesson.getLessonCategory(),
-                lesson.getDate(),
-                lesson.getStartTime(),
-                lesson.getEndTime(),
-                lesson.getStatus(),
-                lesson.getMemo(),
-                null
         );
     }
 }

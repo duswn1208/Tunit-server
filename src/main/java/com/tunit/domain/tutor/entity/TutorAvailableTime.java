@@ -2,6 +2,8 @@ package com.tunit.domain.tutor.entity;
 
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,6 +25,7 @@ public class TutorAvailableTime {
     private Long tutorAvailableTimeNo;
     private Long tutorProfileNo;
     private Integer dayOfWeekNum;
+    @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;

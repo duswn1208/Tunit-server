@@ -2,11 +2,14 @@ package com.tunit.domain.student.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
 import com.tunit.domain.student.dto.FindMyLessonsRequestDto;
+import com.tunit.domain.student.dto.StudentLessonResponseDto;
 import com.tunit.domain.student.service.StudentService;
 import com.tunit.domain.user.dto.StudentProfileSaveDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
@@ -23,7 +26,7 @@ public class StudentController {
     }
 
     @GetMapping("/lessons/my")
-    public ResponseEntity<?> getMyLessons(
+    public ResponseEntity<List<StudentLessonResponseDto>> getMyLessons(
             @LoginUser(field = "userNo") Long userNo,
             @ModelAttribute FindMyLessonsRequestDto requestDto) {
         return ResponseEntity.ok(studentService.findMyLessons(userNo, requestDto));

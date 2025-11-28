@@ -3,6 +3,8 @@ package com.tunit.domain.tutor.entity;
 import com.tunit.domain.tutor.define.TutorLessonOpenType;
 import com.tunit.domain.tutor.dto.TutorAvailExceptionSaveDto;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,6 +28,7 @@ public class TutorAvailException {
     private Boolean isAllDay;
     private LocalTime startTime;
     private LocalTime endTime;
+    @Enumerated(EnumType.STRING)
     private TutorLessonOpenType type;
     private String reason;
     private LocalDateTime createdAt;

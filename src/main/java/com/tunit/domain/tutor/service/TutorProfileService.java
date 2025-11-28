@@ -149,7 +149,7 @@ public class TutorProfileService {
         }
 
 
-        List<TutorProfileDetailInfo> result = profileList.stream().map(profile -> this.findTutorDetailInfo(profile.getUserNo())).toList();
+        List<TutorProfileDetailInfo> result = profileList.stream().map(profile -> this.findTutorDetailInfo(profile.getTutorProfileNo())).toList();
 
         if (sortType != null) {
             switch (sortType) {
