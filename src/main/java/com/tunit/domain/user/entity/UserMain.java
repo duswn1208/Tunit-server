@@ -4,11 +4,11 @@ import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.define.UserRole;
 import com.tunit.domain.user.define.UserStatus;
 import com.tunit.domain.user.dto.StudentProfileSaveDto;
+import com.tunit.domain.user.oauth2.OAuth2UserInfo;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -52,8 +52,34 @@ public class UserMain {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     * OAuth2 소셜 로그인 사용자 생성 (모든 제공자 공통)
+     * @param provider OAuth2 제공자 (NAVER, KAKAO, GOOGLE, APPLE)
+     * @param userInfo OAuth2 사용자 정보
+     */
+    public static UserMain createOAuthUser(UserProvider provider, OAuth2UserInfo userInfo) {
+        String userId = provider.name().toLowerCase() + "_" + userInfo.getProviderId();
+
+        return UserMain.of()
+                .userId(userId)
+                .provider(provider)
+                .providerId(userInfo.getProviderId())
+                .name(userInfo.getName())
+                .nickname(userInfo.getName())
+                .phone(userInfo.getPhone())
+                .isPhoneVerified(false)
+                .userStatus(UserStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    /**
+     * @deprecated 범용 메서드 createOAuthUser 사용 권장
+     */
+    @Deprecated
     public static UserMain saveOAuthNaver(String name, String phone, String providerId) {
-        String userId = UserProvider.NAVER.name() + "_" + providerId; // e.g., "naver_1234567890"
+        String userId = UserProvider.NAVER.name() + "_" + providerId;
         return UserMain.of()
                 .userId(userId)
                 .provider(UserProvider.NAVER)
