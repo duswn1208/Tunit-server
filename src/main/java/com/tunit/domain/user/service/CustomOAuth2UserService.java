@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * 확장 가능한 OAuth2 사용자 서비스
@@ -109,24 +110,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
      * 제공자별로 nameAttributeKey가 다르므로 적절히 처리
      */
     private DefaultOAuth2User createOAuth2User(OAuth2UserInfo userInfo, UserProvider provider) {
-        String nameAttributeKey = getNameAttributeKey(provider);
+        String nameAttributeKey = provider.getNameAttributeKey();
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                userInfo.getAttributes(),
+                getAttributes(provider, userInfo),
                 nameAttributeKey
         );
     }
 
-    /**
-     * 제공자별 사용자 식별자 키 반환
-     */
-    private String getNameAttributeKey(UserProvider provider) {
+    private Map<String, Object> getAttributes(UserProvider provider, OAuth2UserInfo userInfo) {
         return switch (provider) {
-            case NAVER -> "id";  // response.id
-            case KAKAO -> "id";  // id
-            case GOOGLE -> "sub"; // sub
-            case APPLE -> "sub";  // sub
+            case NAVER -> (Map<String, Object>)userInfo.getAttributes().get("response");  // response.id
+            default -> userInfo.getAttributes();
         };
     }
+
 }

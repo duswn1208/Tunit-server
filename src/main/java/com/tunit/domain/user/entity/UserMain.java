@@ -60,6 +60,7 @@ public class UserMain {
     public static UserMain createOAuthUser(UserProvider provider, OAuth2UserInfo userInfo) {
         String userId = provider.name().toLowerCase() + "_" + userInfo.getProviderId();
 
+
         return UserMain.of()
                 .userId(userId)
                 .provider(provider)

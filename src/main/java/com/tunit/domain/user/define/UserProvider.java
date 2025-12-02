@@ -25,4 +25,16 @@ public enum UserProvider {
         }
         throw new IllegalArgumentException("Unknown provider: " + registrationId);
     }
+
+    /**
+     * 제공자별 사용자 식별자 키 반환
+     */
+    public String getNameAttributeKey() {
+        return switch (this) {
+            case NAVER -> "id";  // response.id
+            case KAKAO -> "id";  // id
+            case GOOGLE -> "sub"; // sub
+            case APPLE -> "sub";  // sub
+        };
+    }
 }

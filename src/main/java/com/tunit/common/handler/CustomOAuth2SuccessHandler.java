@@ -1,6 +1,7 @@
 package com.tunit.common.handler;
 
 import com.tunit.domain.tutor.service.TutorProfileService;
+import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.student.service.StudentService;
 import com.tunit.domain.user.service.UserService;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -31,8 +33,11 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         final String HOME_PATH = redirectUrl + "/";
         final String ONBOARDING_PATH = redirectUrl + "/onboarding";
 
+        UserProvider provider = UserProvider.fromRegistrationId(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId());
+
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String providerId = oAuth2User.getAttribute("id");
+        Object providerIdObj = oAuth2User.getAttribute(provider.getNameAttributeKey());
+        String providerId = providerIdObj != null ? String.valueOf(providerIdObj) : null;
 
         UserMain user = userService.findByProviderId(providerId);
         if (user == null) {
