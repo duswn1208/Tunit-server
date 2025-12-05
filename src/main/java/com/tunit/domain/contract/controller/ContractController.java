@@ -101,7 +101,7 @@ public class ContractController {
     @SendNotification(
             type = NotificationType.CONTRACT_SIGNED,
             title = "계약 상태가 변경되었습니다.",
-            message = "계약 상태가 #{#requestDto.contractStatus}로 변경되었습니다.",
+            message = "계약 상태가 #{#requestDto.contractStatus.label}로 변경되었습니다.",
             userNoField = "#result.body.tutorProfileNo",
             deepLink = "/tutor/contracts"
     )
@@ -129,7 +129,7 @@ public class ContractController {
     @SendNotification(
             type = NotificationType.CONTRACT_SIGNED,
             title = "계약 상태가 변경되었습니다.",
-            message = "계약 상태가 #{#requestDto.contractStatus}로 변경되었습니다.",
+            message = "계약 상태가 #{#requestDto.contractStatus.label}로 변경되었습니다.",
             userNoField = "#result.body.studentNo",
             deepLink = "/student/contracts"
     )
