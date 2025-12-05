@@ -17,6 +17,10 @@ service-url:
   web: http://localhost:5173
   server: http://localhost:8080
 
+firebase:
+  config:
+    path: firebase-service-account.json
+
 spring:
   datasource:
     url: jdbc:postgresql://YOUR_DATABASE_URL
@@ -127,4 +131,3 @@ spring:
       initialize-schema: never
     job:
       enabled: false
-

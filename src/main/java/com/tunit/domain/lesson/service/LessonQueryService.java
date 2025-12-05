@@ -49,8 +49,8 @@ public class LessonQueryService {
     }
 
     public List<LessonReservation> findByContractNo(Long contractNo) {
-        return Collections.singletonList(lessonReservationRepository.findByContractNo(contractNo)
-                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with contractNo: " + contractNo)));
+        return lessonReservationRepository.findByContractNo(contractNo)
+                .orElseThrow(() -> new LessonNotFoundException("Lesson not found with contractNo: " + contractNo));
     }
 
     public List<LessonReservation> findByContractNoAndStatusIn(Long contractNo, List<ReservationStatus> statuses) {

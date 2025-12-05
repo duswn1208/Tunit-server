@@ -7,6 +7,8 @@ import com.tunit.domain.contract.dto.ContractResponseDto;
 import com.tunit.domain.contract.dto.ContractStatusUpdateRequestDto;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.contract.service.ContractService;
+import com.tunit.domain.notification.annotation.SendNotification;
+import com.tunit.domain.notification.define.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,13 @@ public class ContractController {
      * 계약 생성 (학생이 튜터에게 레슨 계약 요청)
      */
     @PostMapping
+    @SendNotification(
+            type = NotificationType.CONTRACT_SIGNED,
+            title = "새로운 레슨 요청이 도착했습니다.",
+            message = "새로운 레슨 요청이 도착했습니다. 확인해주세요.",
+            userNoField = "#result.body.tutorProfileNo",
+            deepLink = "/tutor/contracts"
+    )
     public ResponseEntity<ContractResponseDto> createContract(
             @LoginUser(field = "userNo") Long userNo,
             @RequestBody ContractCreateRequestDto requestDto) {
@@ -89,6 +98,13 @@ public class ContractController {
      * - 계약 취소 (→ CANCELLED)
      */
     @PatchMapping("/{contractNo}/status/student")
+    @SendNotification(
+            type = NotificationType.CONTRACT_SIGNED,
+            title = "계약 상태가 변경되었습니다.",
+            message = "계약 상태가 #{#requestDto.contractStatus}로 변경되었습니다.",
+            userNoField = "#result.body.tutorProfileNo",
+            deepLink = "/tutor/contracts"
+    )
     public ResponseEntity<ContractResponseDto> updateContractStatusByStudent(
             @PathVariable Long contractNo,
             @LoginUser(field = "userNo") Long studentNo,
@@ -110,6 +126,13 @@ public class ContractController {
      * 계약 상태 변경 (튜터)
      */
     @PutMapping("/{contractNo}/status/tutor")
+    @SendNotification(
+            type = NotificationType.CONTRACT_SIGNED,
+            title = "계약 상태가 변경되었습니다.",
+            message = "계약 상태가 #{#requestDto.contractStatus}로 변경되었습니다.",
+            userNoField = "#result.body.studentNo",
+            deepLink = "/student/contracts"
+    )
     public ResponseEntity<ContractResponseDto> updateContractStatusByTutor(
             @PathVariable Long contractNo,
             @LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
