@@ -9,6 +9,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -134,7 +135,8 @@ public class SendNotificationAspect {
             if (expression.contains("#{") && expression.contains("}")) {
                 // #{...} 제거하고 평가
                 String spelExpression = expression.replaceAll("#\\{([^}]+)\\}", "$1");
-                return parser.parseExpression(spelExpression).getValue(context, String.class);
+                Expression expression1 = parser.parseExpression(spelExpression);
+                return expression1.getValue(context, String.class);
             } else if (expression.startsWith("#")) {
                 // #variable 형태
                 return parser.parseExpression(expression).getValue(context, String.class);

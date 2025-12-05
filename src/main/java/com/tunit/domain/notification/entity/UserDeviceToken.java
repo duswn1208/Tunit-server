@@ -14,7 +14,14 @@ import java.time.LocalDateTime;
  * 웹/앱 푸시 알림을 위한 FCM 토큰 관리
  */
 @Entity
-@Table(name = "user_device_token")
+@Table(name = "user_device_token",
+    indexes = {
+        @Index(name = "idx_user_device", columnList = "user_no, deviceId"),
+        @Index(name = "idx_fcm_token", columnList = "fcmToken")
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_fcm_token", columnNames = "fcmToken")
+    })
 @NoArgsConstructor
 @Getter
 public class UserDeviceToken {
@@ -96,6 +103,18 @@ public class UserDeviceToken {
     }
 
     /**
+     * 디바이스 정보 업데이트
+     */
+    public void updateDeviceInfo(com.tunit.domain.notification.dto.DeviceTokenRegisterDto dto) {
+        this.deviceType = dto.getDeviceType();
+        this.deviceModel = dto.getDeviceModel();
+        this.osVersion = dto.getOsVersion();
+        this.appVersion = dto.getAppVersion();
+        this.updatedAt = LocalDateTime.now();
+        this.lastUsedAt = LocalDateTime.now();
+    }
+
+    /**
      * 토큰 비활성화
      */
     public void deactivate() {
@@ -119,4 +138,3 @@ public class UserDeviceToken {
         this.lastUsedAt = LocalDateTime.now();
     }
 }
-

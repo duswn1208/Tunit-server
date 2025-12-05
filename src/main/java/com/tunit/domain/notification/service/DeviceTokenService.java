@@ -37,14 +37,15 @@ public class DeviceTokenService {
         if (existingToken.isPresent()) {
             UserDeviceToken token = existingToken.get();
 
-            // 다른 사용자의 토큰이면 비활성화
+            // 다른 사용자의 토큰이면 삭제 (FCM 토큰은 디바이스마다 고유하므로)
             if (!token.getUser().getUserNo().equals(userNo)) {
-                token.deactivate();
-                log.info("다른 사용자의 토큰 비활성화 - UserNo: {}, TokenNo: {}",
-                        token.getUser().getUserNo(), token.getTokenNo());
+                log.warn("다른 사용자의 FCM 토큰 발견. 기존 토큰 삭제 - 기존 UserNo: {}, 새 UserNo: {}",
+                        token.getUser().getUserNo(), userNo);
+                deviceTokenRepository.delete(token);
+                // 삭제 후 새 토큰 등록으로 진행
             } else {
-                // 같은 사용자의 토큰이면 업데이트
-                token.updateFcmToken(dto.getFcmToken());
+                // 같은 사용자의 토큰이면 디바이스 정보만 업데이트
+                token.updateDeviceInfo(dto);
                 token.activate();
                 log.info("디바이스 토큰 업데이트 - UserNo: {}, DeviceType: {}", userNo, dto.getDeviceType());
                 return token;
@@ -59,6 +60,7 @@ public class DeviceTokenService {
             if (existingDeviceToken.isPresent()) {
                 UserDeviceToken token = existingDeviceToken.get();
                 token.updateFcmToken(dto.getFcmToken());
+                token.updateDeviceInfo(dto);
                 token.activate();
                 log.info("디바이스 토큰 갱신 - UserNo: {}, DeviceId: {}", userNo, dto.getDeviceId());
                 return token;

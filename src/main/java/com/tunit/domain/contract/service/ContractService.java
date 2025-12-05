@@ -11,6 +11,7 @@ import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.service.LessonManagementService;
 import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.lesson.service.LessonReserveService;
+import com.tunit.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class ContractService {
     private final LessonReserveService lessonReserveService;
     private final LessonManagementService lessonManagementService;
     private final LessonQueryService lessonQueryService;
+    private final UserService userService;
 
     @Transactional
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
@@ -57,7 +59,11 @@ public class ContractService {
     }
 
     public List<ContractResponseDto> getTutorContracts(Long tutorProfileNo) {
-        return contractQueryService.getTutorContracts(tutorProfileNo);
+        List<ContractResponseDto> tutorContracts = contractQueryService.getTutorContracts(tutorProfileNo);
+        tutorContracts.forEach(contract -> {
+            contract.setStudentName(userService.findByUserNo(contract.getStudentNo()).getName());
+        });
+        return tutorContracts;
     }
 
     @Transactional
