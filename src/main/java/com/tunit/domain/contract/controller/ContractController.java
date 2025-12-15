@@ -34,7 +34,7 @@ public class ContractController {
             title = "새로운 레슨 요청이 도착했습니다.",
             message = "새로운 레슨 요청이 도착했습니다. 확인해주세요.",
             userNoField = "#result.body.tutorProfileNo",
-            deepLink = "/tutor/contracts"
+            deepLink = "/tutor/my/students"
     )
     public ResponseEntity<ContractResponseDto> createContract(
             @LoginUser(field = "userNo") Long userNo,
@@ -113,7 +113,7 @@ public class ContractController {
             title = "계약 상태가 변경되었습니다.",
             message = "계약 상태가 #{#requestDto.contractStatus.label}로 변경되었습니다.",
             userNoField = "#result.body.tutorProfileNo",
-            deepLink = "/tutor/contracts"
+            deepLink = "/student/my/tutors"
     )
     public ResponseEntity<ContractResponseDto> updateContractStatusByStudent(
             @PathVariable Long contractNo,
