@@ -3,7 +3,7 @@ package com.tunit.domain.lesson.service;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
-import com.tunit.domain.lesson.dto.LessonResponsDto;
+import com.tunit.domain.lesson.dto.LessonResponseDto;
 import com.tunit.domain.lesson.dto.LessonScheduleStatusDto;
 import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,7 +34,7 @@ public class LessonQueryService {
     private final FixedLessonReservationRepository fixedLessonReservationRepository;
 
     public LessonFindSummaryDto getLessonSummary(LessonFindRequestDto lessonFindRequestDto) {
-        List<LessonResponsDto> lessonList = lessonReservationRepository.findByTutorProfileNoAndDateBetweenWithUser(
+        List<LessonResponseDto> lessonList = lessonReservationRepository.findByTutorProfileNoAndDateBetweenWithUser(
                 lessonFindRequestDto.getTutorProfileNo(),
                 lessonFindRequestDto.getStartDate(),
                 lessonFindRequestDto.getEndDate()

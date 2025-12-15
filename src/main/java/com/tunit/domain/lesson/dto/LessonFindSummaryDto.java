@@ -12,10 +12,10 @@ public record LessonFindSummaryDto(
         Integer nextWeekLessonCount,
         Integer thisMonthLessonCount,
         Integer totalLessonCount,
-        List<LessonResponsDto> lessonList
+        List<LessonResponseDto> lessonList
 ) {
 
-    public static LessonFindSummaryDto from(List<LessonResponsDto> lessonList) {
+    public static LessonFindSummaryDto from(List<LessonResponseDto> lessonList) {
         int todayCount = countByPeriod(lessonList, LessonPeriodType.TODAY);
         int thisWeekAfterTodayCount = countByPeriod(lessonList, LessonPeriodType.THIS_WEEK_AFTER_TODAY);
         int nextWeekCount = countByPeriod(lessonList, LessonPeriodType.NEXT_WEEK);
@@ -31,7 +31,7 @@ public record LessonFindSummaryDto(
         );
     }
 
-    public static int countByPeriod(List<LessonResponsDto> lessonList, LessonPeriodType type) {
+    public static int countByPeriod(List<LessonResponseDto> lessonList, LessonPeriodType type) {
         LocalDate now = LocalDate.now();
         return (int) lessonList.stream()
                 .filter(lesson -> isInPeriod(lesson.date(), now, type))

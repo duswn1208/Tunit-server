@@ -19,7 +19,7 @@ public class ContractCreateRequestDto {
     private Long studentNo;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private List<LocalDateTime> lessonDtList; //수업 날짜 및 시간 리스트(선착순, 상담레슨은 1개, 정규레슨은 주 횟수 * 4)
+    private List<LocalDateTime> lessonDtList; // 실제 수업 날짜/시간 리스트만 받음
 
     private ContractType contractType;
     private LessonSubCategory lessonCategory;

@@ -63,6 +63,9 @@ public class FixedLessonReservation {
     @Column(name = "memo", length = 255)
     private String memo; // 엑셀에서 받은 메모 필드
 
+    @Column(name = "contract_no")
+    private Long contractNo; // 계약 번호 연결
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

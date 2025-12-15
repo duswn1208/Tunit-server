@@ -20,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,10 +98,6 @@ class ContractServiceIntegrationTest {
 
         // lessonDtList에서 가장 빠른 날짜가 startDt로 설정되었는지 확인
         assertThat(response.getStartDt()).isEqualTo(earliestLesson.toLocalDate());
-        assertThat(response.getDayOfWeekNum()).isEqualTo(DayOfWeek.SUNDAY);
-        assertThat(response.getStartTime()).isEqualTo(LocalTime.of(14, 0));
-        assertThat(response.getEndTime()).isEqualTo(LocalTime.of(15, 0)); // +1시간
-
         assertThat(response.getContractType()).isEqualTo(ContractType.REGULAR);
         assertThat(response.getContractStatus()).isEqualTo(ContractStatus.ACTIVE);
         assertThat(response.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
@@ -115,7 +109,6 @@ class ContractServiceIntegrationTest {
         // DB에서 다시 조회하여 검증
         StudentTutorContract savedContract = contractRepository.findById(response.getContractNo()).orElseThrow();
         assertThat(savedContract.getStartDt()).isEqualTo(earliestLesson.toLocalDate());
-        assertThat(savedContract.getDayOfWeekNum()).isEqualTo(DayOfWeek.SUNDAY);
 
         // LessonReservation 생성 검증
         List<LessonReservation> reservations = lessonReservationRepository.findAll();

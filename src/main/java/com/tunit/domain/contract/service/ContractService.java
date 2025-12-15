@@ -11,6 +11,7 @@ import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.service.LessonManagementService;
 import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.lesson.service.LessonReserveService;
+import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,24 +23,24 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
 public class ContractService {
 
     private final ContractQueryService contractQueryService;
     private final LessonReserveService lessonReserveService;
     private final LessonManagementService lessonManagementService;
     private final LessonQueryService lessonQueryService;
+    private final TutorProfileService tutorProfileService;
     private final UserService userService;
 
     @Transactional
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
         // 계약 생성
-        StudentTutorContract contract = contractQueryService.createContract(requestDto);
+        StudentTutorContract contract = contractQueryService.createContract(requestDto, tutorProfileService.findDurationMinByTutorProfileNo(requestDto.getTutorProfileNo()));
 
         // 대기 레슨 예약 생성
         lessonReserveService.reserveLessonsBatch(contract, requestDto.getLessonDtList());
 
-        return new ContractResponseDto(contract);
+        return ContractResponseDto.fromEntity(contract);
     }
 
     public ContractResponseDto getContract(Long contractNo) {
@@ -50,8 +51,7 @@ public class ContractService {
         // 추가 레슨 생성 가능 여부 확인
         boolean isReservable = this.canGenerateAdditionalLessons(contractNo);
 
-        ContractResponseDto response = ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size(), isReservable);
-        return response;
+        return ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size(), isReservable);
     }
 
     public List<ContractResponseDto> getStudentContracts(Long studentNo) {
@@ -71,12 +71,18 @@ public class ContractService {
         StudentTutorContract contract = contractQueryService.modifyContract(studentNo, contractNo, requestDto);
         // 대기 레슨 예약 생성
         lessonReserveService.reserveLessonsBatch(contract, requestDto.getLessonDtList());
-        return new ContractResponseDto(contract);
+        return ContractResponseDto.fromEntity(contract);
     }
 
-
-
-
+    @Transactional
+    public ContractResponseDto updateContractAmount(Long contractNo, Long tutorProfileNo, Integer newTotalAmount) {
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
+        if (!contract.getTutorProfileNo().equals(tutorProfileNo)) {
+            throw new ContractException("본인의 계약만 수정할 수 있습니다.");
+        }
+        contract.updateTotalAmount(newTotalAmount);
+        return ContractResponseDto.fromEntity(contract);
+    }
 
     // ==================== 계약 상태 변경 ====================
 
@@ -118,7 +124,7 @@ public class ContractService {
             }
         }
 
-        return new ContractResponseDto(contract);
+        return ContractResponseDto.fromEntity(contract);
     }
 
     private void validateContractOwnership(StudentTutorContract contract, Long userNo, boolean isTutor) {
@@ -174,6 +180,5 @@ public class ContractService {
 
         return currentCycleCount;
     }
-
 
 }

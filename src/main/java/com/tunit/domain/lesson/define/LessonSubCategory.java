@@ -57,12 +57,16 @@ public enum LessonSubCategory {
     }
 
     public static LessonSubCategory fromLabel(String label) {
+        if (label == null) return null;
+        String labelNoSpace = label.replaceAll("\\s", "");
         for (LessonSubCategory subCategory : LessonSubCategory.values()) {
-            if (subCategory.getLabel().equals(label)) {
+            String enumLabelNoSpace = subCategory.getLabel().replaceAll("\\s", "");
+            if (enumLabelNoSpace.equalsIgnoreCase(labelNoSpace)
+                || enumLabelNoSpace.contains(labelNoSpace)
+                || labelNoSpace.contains(enumLabelNoSpace)) {
                 return subCategory;
             }
         }
-
         throw new LessonNotFoundException("No enum constant with label " + label);
     }
 }

@@ -1,5 +1,6 @@
 package com.tunit.domain.lesson.service;
 
+import com.tunit.domain.contract.entity.ContractSchedule;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.service.ContractQueryService;
 import com.tunit.domain.lesson.define.ReservationStatus;
@@ -117,11 +118,6 @@ public class LessonReserveService {
         lessonReservationRepository.saveAll(reservations);
         log.info("배치 레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, 레슨 수: {}",
                 student.getUserNo(), tutorProfile.tutorProfileNo(), reservations.size());
-    }
-
-    public void saveLessonFromFixedLessonFromExcel(FixedLessonReservation fixedLessonReservation) {
-        LessonReservation lessonReservation = LessonReservation.fromFixedLessonExcelUpload(fixedLessonReservation);
-        saveMonthlyLessonReservations(lessonReservation);
     }
 
     public void saveLessonFromFixedLessonFromWeb(FixedLessonReservation fixedLessonReservation) {

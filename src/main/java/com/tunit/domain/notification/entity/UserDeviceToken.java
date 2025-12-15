@@ -138,3 +138,4 @@ public class UserDeviceToken {
         this.lastUsedAt = LocalDateTime.now();
     }
 }
+

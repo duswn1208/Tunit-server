@@ -68,6 +68,16 @@ public class ContractController {
         return ResponseEntity.ok(contractResponseDto);
     }
 
+    // 총금액 수정
+    @PostMapping("/{contractNo}/amount")
+    public ResponseEntity<ContractResponseDto> updateContractAmount(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,  @PathVariable Long contractNo, @RequestBody Integer newTotalAmount) {
+        log.info("계약 총금액 수정 요청 - contractNo: {}, tutorProfileNo: {}, newTotalAmount: {}",
+                contractNo, tutorProfileNo, newTotalAmount);
+
+        ContractResponseDto response = contractService.updateContractAmount(contractNo, tutorProfileNo, newTotalAmount);
+        return ResponseEntity.ok(response);
+    }
+
     /**
      * 학생의 계약 목록 조회
      */

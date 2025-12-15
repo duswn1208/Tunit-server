@@ -15,16 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class FixedLessonController {
     private final FixedLessonService fixedLessonService;
 
-    @PostMapping("/upload/excel")
-    public ResponseEntity<FixedLessonUploadResultDto> uploadExcel(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo, @RequestParam("file") MultipartFile file) {
-        FixedLessonUploadResultDto result = fixedLessonService.uploadExcel(tutorProfileNo, file);
-        return ResponseEntity.ok(result);
-    }
-
-    @PostMapping("/save" )
+    @PostMapping("/save")
     public ResponseEntity<?> saveFixedLesson(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo, @RequestBody FixedLessonSaveDto fixedLessonSaveDto) {
         fixedLessonService.saveFixedLesson(tutorProfileNo, fixedLessonSaveDto);
         return ResponseEntity.ok("성공적으로 저장했습니다.");
     }
 }
-

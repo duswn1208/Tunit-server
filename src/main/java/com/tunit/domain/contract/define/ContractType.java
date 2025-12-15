@@ -32,5 +32,19 @@ public enum ContractType {
     public boolean isTrial() {
         return this == TRIAL;
     }
-}
 
+    public static ContractType fromLabel(String label) {
+        if (label == null) return null;
+        String labelNoSpace = label.replaceAll("\\s", "");
+        for (ContractType type : ContractType.values()) {
+            String enumLabelNoSpace = type.getLabel().replaceAll("\\s", "");
+            if (enumLabelNoSpace.equalsIgnoreCase(labelNoSpace)
+                || enumLabelNoSpace.contains(labelNoSpace)
+                || labelNoSpace.contains(enumLabelNoSpace)
+                || type.name().equalsIgnoreCase(labelNoSpace)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown ContractType label: " + label);
+    }
+}

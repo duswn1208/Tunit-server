@@ -4,6 +4,7 @@ import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.dto.ContractResponseDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.exception.ContractException;
+import com.tunit.domain.contract.repository.ContractScheduleRepository;
 import com.tunit.domain.contract.repository.StudentTutorContractRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +19,8 @@ import java.util.List;
 public class ContractQueryService {
     private final StudentTutorContractRepository contractRepository;
 
-    public StudentTutorContract createContract(ContractCreateRequestDto requestDto) {
-        return contractRepository.save(StudentTutorContract.createContractOf(requestDto));
+    public StudentTutorContract createContract(ContractCreateRequestDto requestDto, Integer durationMin) {
+        return contractRepository.save(StudentTutorContract.createContractOf(requestDto, durationMin));
     }
 
     @Transactional
@@ -41,13 +42,13 @@ public class ContractQueryService {
 
     public List<ContractResponseDto> getStudentContracts(Long studentNo) {
         return contractRepository.findByStudentNo(studentNo).stream()
-                .map(ContractResponseDto::new)
+                .map(ContractResponseDto::fromEntity)
                 .toList();
     }
 
     public List<ContractResponseDto> getTutorContracts(Long tutorProfileNo) {
         return contractRepository.findByTutorProfileNo(tutorProfileNo).stream()
-                .map(ContractResponseDto::new)
+                .map(ContractResponseDto::fromEntity)
                 .toList();
     }
 
