@@ -1,5 +1,6 @@
 package com.tunit.domain.review.dto;
 
+import com.tunit.common.util.MaskingUtil;
 import com.tunit.domain.review.entity.LessonReview;
 
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ public record ReviewResponseDto(
                 review.getLessonReservationNo(),
                 review.getTutorProfileNo(),
                 review.getStudentNo(),
-                studentName,
+                MaskingUtil.maskName(studentName),
                 review.getRating(),
                 review.getContent(),
                 review.getCreatedAt(),

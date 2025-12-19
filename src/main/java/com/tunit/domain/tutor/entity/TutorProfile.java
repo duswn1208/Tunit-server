@@ -1,6 +1,8 @@
 package com.tunit.domain.tutor.entity;
 
+import com.tunit.domain.faq.entity.TutorFaq;
 import com.tunit.domain.lesson.define.LessonCategory;
+import com.tunit.domain.tutor.dto.TutorProfileModifyDto;
 import com.tunit.domain.tutor.dto.TutorProfileSaveDto;
 import com.tunit.domain.tutor.exception.TutorProfileException;
 import jakarta.persistence.*;
@@ -10,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -36,12 +40,18 @@ public class TutorProfile {
     private Integer careerYears;
     private Integer pricePerHour;
     private Integer durationMin;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "tutor_profile_no")
+    private List<TutorFaq> faqList = new ArrayList<>();
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
     @Builder(builderMethodName = "of")
     public TutorProfile(Long tutorProfileNo, Long userNo, String introduce, LessonCategory lessonCategory, Set<TutorLessons> tutorLessons, Set<TutorRegion> tutorRegions,
-                        Integer careerYears, Integer pricePerHour, Integer durationMin, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                        Integer careerYears, Integer pricePerHour, Integer durationMin, List<TutorFaq> faqList, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.tutorProfileNo = tutorProfileNo;
         this.userNo = userNo;
         this.introduce = introduce;
@@ -51,6 +61,7 @@ public class TutorProfile {
         this.careerYears = careerYears;
         this.pricePerHour = pricePerHour;
         this.durationMin = durationMin;
+        this.faqList = faqList;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -94,5 +105,13 @@ public class TutorProfile {
         if (tutorRegions.isEmpty()) {
             throw new TutorProfileException("Regions cannot be null");
         }
+    }
+
+    public void updateProfile(TutorProfileModifyDto tutorProfileModifyDto) {
+        this.introduce = tutorProfileModifyDto.getIntroduce();
+        this.careerYears = tutorProfileModifyDto.getCareerYears();
+        this.pricePerHour = tutorProfileModifyDto.getPricePerHour();
+        this.durationMin = tutorProfileModifyDto.getDurationMin();
+        this.updatedAt = LocalDateTime.now();
     }
 }

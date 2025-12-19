@@ -82,12 +82,10 @@ public class TutorReviewStatistics {
     /**
      * 초기 통계 생성 (최초 리뷰 작성 시)
      */
-    public static TutorReviewStatistics createInitial(Long tutorProfileNo, Integer rating) {
+    public static TutorReviewStatistics createInitial(Long tutorProfileNo) {
         return TutorReviewStatistics.builder()
                 .tutorProfileNo(tutorProfileNo)
-                .totalReviews(1L)
-                .totalRatingSum((long) rating)
-                .averageRating((double) rating)
+                .totalReviews(0L)
                 .build();
     }
 }

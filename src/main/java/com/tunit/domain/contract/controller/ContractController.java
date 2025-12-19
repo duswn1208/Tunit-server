@@ -32,7 +32,7 @@ public class ContractController {
     @SendNotification(
             type = NotificationType.CONTRACT_SIGNED,
             title = "새로운 레슨 요청이 도착했습니다.",
-            message = "새로운 레슨 요청이 도착했습니다. 확인해주세요.",
+            message = "#{#requestDto.generateLessonName()} 요청이 도착했습니다. 확인해주세요.",
             userNoField = "#result.body.tutorProfileNo",
             deepLink = "/tutor/my/students"
     )
@@ -111,7 +111,7 @@ public class ContractController {
     @SendNotification(
             type = NotificationType.CONTRACT_SIGNED,
             title = "계약 상태가 변경되었습니다.",
-            message = "계약 상태가 #{#requestDto.contractStatus.label}로 변경되었습니다.",
+            message = "계약 상태가 #{#requestDto.contractStatus.label}(으)로 변경되었습니다.",
             userNoField = "#result.body.tutorProfileNo",
             deepLink = "/student/my/tutors"
     )
@@ -139,7 +139,7 @@ public class ContractController {
     @SendNotification(
             type = NotificationType.CONTRACT_SIGNED,
             title = "계약 상태가 변경되었습니다.",
-            message = "계약 상태가 #{#requestDto.contractStatus.label}로 변경되었습니다.",
+            message = "계약 상태가 #{#requestDto.contractStatus.label}(으)로 변경되었습니다.",
             userNoField = "#result.body.studentNo",
             deepLink = "/student/contracts"
     )

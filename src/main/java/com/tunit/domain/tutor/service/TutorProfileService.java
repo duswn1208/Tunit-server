@@ -194,4 +194,10 @@ public class TutorProfileService {
 
         log.info("튜터 프로필 번호 {}의 수업 가능 시간 {}건이 모두 정상적으로 저장되었습니다.", tutorProfileNo, tutorAvailableTimes.size());
     }
+
+    @Transactional
+    public void updateTutorProfile(Long userNo, TutorProfileModifyDto tutorProfileModifyDto) {
+        TutorProfile tutorProfile = this.findByUserNo(userNo);
+        tutorProfile.updateProfile(tutorProfileModifyDto);
+    }
 }

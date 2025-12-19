@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.ParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,24 @@ public class SendNotificationAspect {
 
     private final PushNotificationService pushNotificationService;
     private final ExpressionParser parser = new SpelExpressionParser();
+
+    // SpEL 템플릿 파싱을 위한 ParserContext
+    private static final ParserContext TEMPLATE_PARSER_CONTEXT = new ParserContext() {
+        @Override
+        public boolean isTemplate() {
+            return true;
+        }
+
+        @Override
+        public String getExpressionPrefix() {
+            return "#{";
+        }
+
+        @Override
+        public String getExpressionSuffix() {
+            return "}";
+        }
+    };
 
     @AfterReturning(pointcut = "@annotation(com.tunit.domain.notification.annotation.SendNotification)", returning = "result")
     public void sendNotification(JoinPoint joinPoint, Object result) {
@@ -131,17 +150,15 @@ public class SendNotificationAspect {
 
     private String extractString(String expression, StandardEvaluationContext context) {
         try {
-            // SpEL 표현식인지 확인 (#{...} 형태)
-            if (expression.contains("#{") && expression.contains("}")) {
-                // #{...} 제거하고 평가
-                String spelExpression = expression.replaceAll("#\\{([^}]+)\\}", "$1");
-                Expression expression1 = parser.parseExpression(spelExpression);
-                return expression1.getValue(context, String.class);
+            // SpEL 템플릿 표현식('#{...}')이 포함되어 있는지 확인
+            if (expression.contains(TEMPLATE_PARSER_CONTEXT.getExpressionPrefix())) {
+                // 템플릿 파서를 사용하여 문자열 내 표현식만 평가하고 조합
+                return parser.parseExpression(expression, TEMPLATE_PARSER_CONTEXT).getValue(context, String.class);
             } else if (expression.startsWith("#")) {
-                // #variable 형태
+                // '#변수' 형태의 표현식 (전체 문자열이 표현식인 경우)
                 return parser.parseExpression(expression).getValue(context, String.class);
             } else {
-                // 일반 문자열
+                // 표현식이 없는 일반 문자열
                 return expression;
             }
         } catch (Exception e) {
@@ -150,4 +167,3 @@ public class SendNotificationAspect {
         }
     }
 }
-

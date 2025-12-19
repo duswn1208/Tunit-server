@@ -46,3 +46,6 @@ out/
 ### Firebase ###
 firebase-service-account.json
 src/main/resources/firebase-service-account.json
+
+### config ###
+application.yml

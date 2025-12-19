@@ -234,9 +234,9 @@ public class LessonReviewService {
      */
     private void updateStatisticsOnCreate(Long tutorProfileNo, Integer rating) {
         TutorReviewStatistics statistics = statisticsRepository.findByTutorProfileNo(tutorProfileNo)
-                .orElse(TutorReviewStatistics.createInitial(tutorProfileNo, rating));
+                .orElse(TutorReviewStatistics.createInitial(tutorProfileNo));
 
-        if (statistics.getTutorProfileNo() != null && statistics.getTotalReviews() > 0) {
+        if (statistics.getTotalReviews() > 0) {
             // 기존 통계가 있는 경우
             statistics.addReview(rating);
         }

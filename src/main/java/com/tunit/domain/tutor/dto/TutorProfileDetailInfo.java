@@ -1,5 +1,6 @@
 package com.tunit.domain.tutor.dto;
 
+import com.tunit.domain.faq.dto.TutorFaqResponseDto;
 import com.tunit.domain.lesson.define.LessonCategory;
 import com.tunit.domain.region.dto.RegionSaveDto;
 import com.tunit.domain.tutor.entity.TutorProfile;
@@ -19,6 +20,7 @@ public record TutorProfileDetailInfo(
         Set<RegionSaveDto> regionList,
         List<TutorAvailableTimeResponseDto> tutorAvailableTimeList,
         List<TutorAvailExceptionResponseDto> tutorHolidayList,
+        List<TutorFaqResponseDto> tutorFaqList,
         Integer careerYears,
         Integer pricePerHour,
         Integer durationMin,
@@ -40,6 +42,7 @@ public record TutorProfileDetailInfo(
                 tutorProfile.getTutorRegions().stream().map(RegionSaveDto::from).collect(Collectors.toSet()),
                 tutorAvailableTimeResponseList,
                 tutorHolidayResponseList,
+                tutorProfile.getFaqList().stream().map(TutorFaqResponseDto::new).toList(),
                 tutorProfile.getCareerYears(),
                 tutorProfile.getPricePerHour(),
                 tutorProfile.getDurationMin(),
