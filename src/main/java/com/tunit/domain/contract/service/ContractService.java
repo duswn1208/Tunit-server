@@ -10,6 +10,7 @@ import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.service.LessonManagementService;
 import com.tunit.domain.lesson.service.LessonQueryService;
+import com.tunit.domain.lesson.service.LessonReserveProcessorService;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.service.UserService;
@@ -26,7 +27,7 @@ import java.util.List;
 public class ContractService {
 
     private final ContractQueryService contractQueryService;
-    private final LessonReserveService lessonReserveService;
+    private final LessonReserveProcessorService lessonReserveService;
     private final LessonManagementService lessonManagementService;
     private final LessonQueryService lessonQueryService;
     private final TutorProfileService tutorProfileService;

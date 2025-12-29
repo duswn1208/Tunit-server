@@ -14,6 +14,7 @@ import com.tunit.domain.lesson.dto.*;
 import com.tunit.domain.lesson.exception.LessonDuplicationException;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.repository.FixedLessonReservationRepository;
+import com.tunit.domain.lesson.service.LessonReserveProcessorService;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
@@ -41,7 +42,7 @@ public class ContractExcelService {
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
     private final ContractExcelRowParser contractExcelRowParser;
-    private final LessonReserveService lessonReserveService;
+    private final LessonReserveProcessorService lessonReserveService;
     private final ContractQueryService contractQueryService;
     private final ContractScheduleRepository contractScheduleRepository;
 

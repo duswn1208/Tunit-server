@@ -11,6 +11,7 @@ import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.FixedLessonUploadResultDto;
 import com.tunit.domain.lesson.repository.FixedLessonReservationRepository;
+import com.tunit.domain.lesson.service.LessonReserveProcessorService;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
@@ -48,7 +49,7 @@ class ContractExcelServiceTest {
     private ContractExcelRowParser contractExcelRowParser;
 
     @Mock
-    private LessonReserveService lessonReserveService;
+    private LessonReserveProcessorService lessonReserveService;
 
     @Mock
     private ContractQueryService contractQueryService;
@@ -175,7 +176,7 @@ class ContractExcelServiceTest {
         assertThat(result.failCount()).isEqualTo(0);
         assertThat(result.failList()).isEmpty();
         verify(contractQueryService, times(1)).createContract(any(), 60);
-        verify(lessonReserveService, times(1)).createLesson(eq(tutorProfileNo), any());
+        verify(lessonReserveService, times(1)).processTutorCreate(eq(tutorProfileNo), any());
     }
 
     @Test
@@ -232,7 +233,7 @@ class ContractExcelServiceTest {
         assertThat(result.failCount()).isEqualTo(0);
         assertThat(result.failList()).isEmpty();
         verify(contractQueryService, times(1)).createContract(any(), 60);
-        verify(lessonReserveService, times(1)).createLesson(eq(tutorProfileNo), any());
+        verify(lessonReserveService, times(1)).processTutorCreate(eq(tutorProfileNo), any());
     }
 
     @Test

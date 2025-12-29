@@ -20,7 +20,7 @@ public class FixedLessonService {
     private final FixedLessonReservationRepository fixedLessonReservationRepository;
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
-    private final LessonReserveService lessonReserveService;
+    private final LessonReserveProcessorService lessonReserveService;
 
     @Transactional
     public void saveFixedLesson(Long tutorProfileNo, FixedLessonSaveDto fixedLessonSaveDto) {

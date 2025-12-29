@@ -26,8 +26,8 @@ public class LessonReserveController {
     @PostMapping("/reserve")
     public ResponseEntity<?> reserveLesson(@LoginUser(field = "userNo") Long userNo,
                                            @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
-        lessonReservationService.reserveLesson(userNo, lessonReserveSaveDto);
-        return ResponseEntity.ok("레슨이 성공적으로 예약되었습니다.");
+        lessonReservationService.reserveLessonKafka(userNo, lessonReserveSaveDto);
+        return ResponseEntity.ok("레슨이 성공적으로 예약 요청되었습니다. 잠시 후 결과를 확인하세요.");
     }
 
     /**
@@ -41,8 +41,8 @@ public class LessonReserveController {
     public ResponseEntity<?> rescheduleLesson(@LoginUser(field = "userNo") Long userNo,
                                               @PathVariable Long lessonReservationNo,
                                               @RequestBody LessonReserveSaveDto dto) {
-        lessonManagementService.reschedule(userNo, lessonReservationNo, dto);
-        return ResponseEntity.ok("레슨 일정이 성공적으로 변경되었습니다.");
+        lessonReservationService.rescheduleLessonKafka(userNo, lessonReservationNo, dto);
+        return ResponseEntity.ok("레슨 일정 변경 요청이 접수되었습니다. 잠시 후 결과를 확인하세요.");
     }
 
     /**
@@ -53,15 +53,15 @@ public class LessonReserveController {
      */
     @PostMapping("/cancel/{lessonReservationNo}")
     public ResponseEntity<?> cancelLessonReservation(@LoginUser(field = "userNo") Long userNo, @PathVariable("lessonReservationNo") Long lessonReservationNo) {
-        lessonManagementService.cancel(userNo, lessonReservationNo, ReservationStatus.CANCELED);
-        return ResponseEntity.ok("레슨 예약이 성공적으로 취소되었습니다.");
+        lessonReservationService.cancelLessonKafka(userNo, lessonReservationNo);
+        return ResponseEntity.ok("레슨 예약 취소 요청이 접수되었습니다. 잠시 후 결과를 확인하세요.");
     }
 
     @PostMapping("/tutor/create")
     public ResponseEntity<?> createLesson(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
                                           @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
-        lessonReservationService.createLesson(tutorProfileNo, lessonReserveSaveDto);
-        return ResponseEntity.ok("레슨이 성공적으로 저장되었습니다.");
+        lessonReservationService.createLessonKafka(tutorProfileNo, lessonReserveSaveDto);
+        return ResponseEntity.ok("레슨 생성 요청이 접수되었습니다. 잠시 후 결과를 확인하세요.");
     }
 
     @DeleteMapping("/{lessonNo}")
