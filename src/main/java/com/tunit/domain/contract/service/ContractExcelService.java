@@ -4,6 +4,7 @@ import com.tunit.common.util.KoreanDayOfWeekUtil;
 import com.tunit.domain.contract.define.ContractSource;
 import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.dto.ContractExcelSaveDto;
+import com.tunit.domain.contract.dto.ContractExcelUploadResultDto;
 import com.tunit.domain.contract.dto.ContractScheduleDto;
 import com.tunit.domain.contract.entity.ContractSchedule;
 import com.tunit.domain.contract.entity.StudentTutorContract;
@@ -13,7 +14,6 @@ import com.tunit.domain.lesson.define.LessonUploadFailReason;
 import com.tunit.domain.lesson.dto.*;
 import com.tunit.domain.lesson.exception.LessonDuplicationException;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
-import com.tunit.domain.lesson.repository.FixedLessonReservationRepository;
 import com.tunit.domain.lesson.service.LessonReserveProcessorService;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.tutor.service.TutorProfileService;
@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 public class ContractExcelService {
     private static final Pattern PHONE_PATTERN = Pattern.compile("^01[016789]-?\\d{3,4}-?\\d{4}$");
 
-    private final FixedLessonReservationRepository fixedLessonReservationRepository;
     private final UserService userService;
     private final TutorProfileService tutorProfileService;
     private final ContractExcelRowParser contractExcelRowParser;
@@ -50,7 +49,7 @@ public class ContractExcelService {
      * 계약 정보를 포함한 엑셀 업로드 (신규)
      */
     @Transactional
-    public FixedLessonUploadResultDto uploadExcelWithContract(@NonNull Long tutorProfileNo, MultipartFile file) {
+    public ContractExcelUploadResultDto uploadExcelWithContract(@NonNull Long tutorProfileNo, MultipartFile file) {
         List<ContractExcelSaveDto> rows = contractExcelRowParser.parseWithContract(file);
         List<FailedStudentDto> failList = new ArrayList<>();
 
@@ -109,7 +108,7 @@ public class ContractExcelService {
                 addFailedStudentWithContract(failList, dto, LessonUploadFailReason.UNKNOWN_ERROR);
             }
         }
-        return new FixedLessonUploadResultDto(failList.size(), failList);
+        return new ContractExcelUploadResultDto(failList.size(), failList);
     }
 
     /**

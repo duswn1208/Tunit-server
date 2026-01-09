@@ -108,35 +108,6 @@ public class LessonReservation {
         this.updatedAt = updatedAt;
     }
 
-    public static LessonReservation fromFixedLessonExcelUpload(FixedLessonReservation fixedLessonReservation) {
-        return LessonReservation.of()
-                .tutorProfileNo(fixedLessonReservation.getTutorProfileNo())
-                .studentNo(fixedLessonReservation.getStudentNo())
-                .fixedLessonReservationNo(fixedLessonReservation.getFixedLessonReservationNo())
-                .lessonCategory(fixedLessonReservation.getSubCategory())
-                .date(fixedLessonReservation.getStartDate())
-                .startTime(fixedLessonReservation.getStartTime())
-                .endTime(fixedLessonReservation.getEndTime())
-                .dayOfWeekNum(fixedLessonReservation.getDayOfWeekNum())
-                .status(fixedLessonReservation.getStatus())
-                .source(ReservationSource.IMPORT)
-                .build();
-    }
-
-    public static LessonReservation fromFixedLessonFromWeb(FixedLessonReservation fixedLessonReservation) {
-        return LessonReservation.of()
-                .tutorProfileNo(fixedLessonReservation.getTutorProfileNo())
-                .studentNo(fixedLessonReservation.getStudentNo())
-                .fixedLessonReservationNo(fixedLessonReservation.getFixedLessonReservationNo())
-                .lessonCategory(fixedLessonReservation.getSubCategory())
-                .date(fixedLessonReservation.getStartDate())
-                .startTime(fixedLessonReservation.getStartTime())
-                .endTime(fixedLessonReservation.getEndTime())
-                .dayOfWeekNum(fixedLessonReservation.getDayOfWeekNum())
-                .status(fixedLessonReservation.getStatus())
-                .source(ReservationSource.APP)
-                .build();
-    }
 
     public static LessonReservation fromLessonSaveDto(TutorProfileResponseDto tutorProfileInfo, UserMain student, LessonReserveSaveDto dto) {
         LocalDateTime startDateTime = LocalDateTime.of(dto.lessonDate(), dto.startTime());

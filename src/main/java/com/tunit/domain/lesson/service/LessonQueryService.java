@@ -5,10 +5,8 @@ import com.tunit.domain.lesson.dto.LessonFindRequestDto;
 import com.tunit.domain.lesson.dto.LessonFindSummaryDto;
 import com.tunit.domain.lesson.dto.LessonResponseDto;
 import com.tunit.domain.lesson.dto.LessonScheduleStatusDto;
-import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
-import com.tunit.domain.lesson.repository.FixedLessonReservationRepository;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.tutor.dto.TutorAvailExceptionResponseDto;
 import com.tunit.domain.tutor.dto.TutorAvailableTimeResponseDto;
@@ -31,7 +29,6 @@ public class LessonQueryService {
     private final LessonReservationRepository lessonReservationRepository;
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
-    private final FixedLessonReservationRepository fixedLessonReservationRepository;
 
     public LessonFindSummaryDto getLessonSummary(LessonFindRequestDto lessonFindRequestDto) {
         List<LessonResponseDto> lessonList = lessonReservationRepository.findByTutorProfileNoAndDateBetweenWithUser(
@@ -67,9 +64,8 @@ public class LessonQueryService {
         List<TutorAvailExceptionResponseDto> holidayDates = tutorHolidayService.findByTutorProfileNo(lessonFindRequestDto.getTutorProfileNo());
 
         List<LessonReservation> lessonReservations = lessonReservationRepository.findByTutorProfileNoAndDateBetweenAndStatusIn(lessonFindRequestDto.getTutorProfileNo(), lessonFindRequestDto.getStartDate(), lessonFindRequestDto.getEndDate(), ReservationStatus.VALID_LESSON_STATUSES);
-        List<FixedLessonReservation> fixedLessonReservations = fixedLessonReservationRepository.findByTutorProfileNo(lessonFindRequestDto.getTutorProfileNo());
 
-        return new LessonScheduleStatusDto(availableTimes, holidayDates, lessonReservations, fixedLessonReservations);
+        return new LessonScheduleStatusDto(availableTimes, holidayDates, lessonReservations);
     }
 
 }

@@ -2,22 +2,16 @@ package com.tunit.domain.lesson.service;
 
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
-import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.exception.LessonStatusException;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.lesson.validate.LessonValidate;
-import com.tunit.domain.tutor.service.TutorProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

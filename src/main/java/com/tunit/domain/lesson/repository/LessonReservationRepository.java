@@ -92,4 +92,26 @@ public interface LessonReservationRepository extends JpaRepository<LessonReserva
             @Param("endTime") LocalTime endTime,
             @Param("statuses") List<ReservationStatus> statuses
     );
+
+    // 배치 작업용: REQUESTED 상태이면서 날짜/시간이 지난 레슨 조회
+    @Query("SELECT lr FROM LessonReservation lr " +
+            "WHERE lr.status = :status " +
+            "AND (lr.date < :currentDate " +
+            "OR (lr.date = :currentDate AND lr.startTime < :currentTime))")
+    List<LessonReservation> findExpiredLessons(
+            @Param("status") ReservationStatus status,
+            @Param("currentDate") LocalDate currentDate,
+            @Param("currentTime") LocalTime currentTime
+    );
+
+    // 배치 작업용: ACTIVE 상태이면서 종료 시간이 지난 레슨 조회
+    @Query("SELECT lr FROM LessonReservation lr " +
+            "WHERE lr.status = :status " +
+            "AND (lr.date < :currentDate " +
+            "OR (lr.date = :currentDate AND lr.endTime < :currentTime))")
+    List<LessonReservation> findCompletedLessons(
+            @Param("status") ReservationStatus status,
+            @Param("currentDate") LocalDate currentDate,
+            @Param("currentTime") LocalTime currentTime
+    );
 }

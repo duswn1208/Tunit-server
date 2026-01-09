@@ -130,19 +130,10 @@ public class LessonStatusBatchJob {
     @Bean
     public ItemProcessor<LessonReservation, LessonReservation> completeLessonsProcessor() {
         return lesson -> {
-            // ACTIVE 상태이고 레슨 종료 시간이 지난 경우만 처리
-            if (lesson.getStatus() == ReservationStatus.ACTIVE) {
-                LocalDateTime lessonEndDateTime = LocalDateTime.of(lesson.getDate(), lesson.getEndTime());
-                LocalDateTime now = LocalDateTime.now();
-
-                if (lessonEndDateTime.isBefore(now)) {
-                    log.info("완료 처리: lessonReservationNo={}, date={}, endTime={}",
-                            lesson.getLessonReservationNo(), lesson.getDate(), lesson.getEndTime());
-                    lesson.updateStatus(ReservationStatus.COMPLETED);
-                    return lesson;
-                }
-            }
-            return null; // 처리할 필요 없는 레슨은 null 반환
+            log.info("완료 처리: lessonReservationNo={}, date={}, endTime={}",
+                    lesson.getLessonReservationNo(), lesson.getDate(), lesson.getEndTime());
+            lesson.updateStatus(ReservationStatus.COMPLETED);
+            return lesson;
         };
     }
 

@@ -6,7 +6,6 @@ import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.service.ContractQueryService;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
-import com.tunit.domain.lesson.entity.FixedLessonReservation;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.kafka.ReserveKafkaType;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -163,25 +161,5 @@ public class LessonReserveProcessorService {
                 student.getUserNo(), tutorProfile.tutorProfileNo(), reservations.size());
     }
 
-    public void saveLessonFromFixedLessonFromWeb(FixedLessonReservation fixedLessonReservation) {
-        LessonReservation lessonReservation = LessonReservation.fromFixedLessonFromWeb(fixedLessonReservation);
-        saveMonthlyLessonReservations(lessonReservation);
-    }
-
-    private void saveMonthlyLessonReservations(LessonReservation lessonReservation) {
-        LocalDate startDate = lessonReservation.getDate();
-        Integer dayOfWeekNum = lessonReservation.getDayOfWeekNum();
-        List<LessonReservation> reservations = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            // 요일이 같으려면 7일씩 더함
-            LocalDate targetDate = startDate.plusDays(i * 7);
-            if (targetDate.getDayOfWeek().getValue() == dayOfWeekNum) {
-                LessonReservation newLesson = lessonReservation.copyWithDate(targetDate);
-                tutorProfileService.checkBusinessAndHolidays(lessonReservation);
-                reservations.add(newLesson);
-            }
-        }
-        lessonReservationRepository.saveAll(reservations);
-    }
 
 }

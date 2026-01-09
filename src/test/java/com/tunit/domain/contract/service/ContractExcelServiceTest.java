@@ -4,15 +4,13 @@ import com.tunit.domain.contract.define.ContractStatus;
 import com.tunit.domain.contract.define.ContractType;
 import com.tunit.domain.contract.define.PaymentStatus;
 import com.tunit.domain.contract.dto.ContractExcelSaveDto;
+import com.tunit.domain.contract.dto.ContractExcelUploadResultDto;
 import com.tunit.domain.contract.dto.ContractScheduleDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.util.ContractExcelRowParser;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import com.tunit.domain.lesson.define.ReservationStatus;
-import com.tunit.domain.lesson.dto.FixedLessonUploadResultDto;
-import com.tunit.domain.lesson.repository.FixedLessonReservationRepository;
 import com.tunit.domain.lesson.service.LessonReserveProcessorService;
-import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.define.UserRole;
@@ -113,7 +111,7 @@ class ContractExcelServiceTest {
         when(tutorProfileService.findTutor(tutorProfileNo)).thenReturn(tutorProfile);
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(0);
@@ -170,7 +168,7 @@ class ContractExcelServiceTest {
         when(contractQueryService.createContract(any(), 60)).thenReturn(contract);
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(0);
@@ -227,7 +225,7 @@ class ContractExcelServiceTest {
         when(contractQueryService.createContract(any(), 60)).thenReturn(contract);
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(0);
@@ -264,7 +262,7 @@ class ContractExcelServiceTest {
         when(contractExcelRowParser.parseWithContract(file)).thenReturn(List.of(invalidDto));
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(1);
@@ -300,7 +298,7 @@ class ContractExcelServiceTest {
         when(contractExcelRowParser.parseWithContract(file)).thenReturn(List.of(invalidDto));
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(1);
@@ -338,7 +336,7 @@ class ContractExcelServiceTest {
                 .thenThrow(new RuntimeException("User creation failed"));
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(1);
@@ -419,7 +417,7 @@ class ContractExcelServiceTest {
         when(tutorProfileService.findTutor(tutorProfileNo)).thenReturn(tutorProfile);
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(1);
@@ -455,7 +453,7 @@ class ContractExcelServiceTest {
         when(contractExcelRowParser.parseWithContract(file)).thenReturn(List.of(dto));
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(1);
@@ -491,7 +489,7 @@ class ContractExcelServiceTest {
         when(contractExcelRowParser.parseWithContract(file)).thenReturn(List.of(dto));
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(1);
@@ -527,7 +525,7 @@ class ContractExcelServiceTest {
         when(contractExcelRowParser.parseWithContract(file)).thenReturn(List.of(dto));
 
         // when
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
 
         // then
         assertThat(result.failCount()).isEqualTo(1);

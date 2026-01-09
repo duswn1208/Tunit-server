@@ -1,8 +1,8 @@
 package com.tunit.domain.contract.controller;
 
 import com.tunit.common.session.annotation.LoginUser;
+import com.tunit.domain.contract.dto.ContractExcelUploadResultDto;
 import com.tunit.domain.contract.service.ContractExcelService;
-import com.tunit.domain.lesson.dto.FixedLessonUploadResultDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +21,10 @@ public class ContractExcelController {
      * 계약 정보를 포함한 엑셀 업로드
      */
     @PostMapping("/upload")
-    public ResponseEntity<FixedLessonUploadResultDto> uploadExcelWithContract(
+    public ResponseEntity<ContractExcelUploadResultDto> uploadExcelWithContract(
             @LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
             @RequestParam("file") MultipartFile file) {
-        FixedLessonUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
+        ContractExcelUploadResultDto result = contractExcelService.uploadExcelWithContract(tutorProfileNo, file);
         return ResponseEntity.ok(result);
     }
 
