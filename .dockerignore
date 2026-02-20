@@ -1,0 +1,7 @@
+.git
+.gradle
+.idea
+build
+node_modules
+h2db
+*.log

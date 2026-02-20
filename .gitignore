@@ -49,3 +49,5 @@ src/main/resources/firebase-service-account.json
 
 ### config ###
 application.yml
+
+/src/generated/prisma

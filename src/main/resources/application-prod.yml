@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://ep-shy-sound-ai0tk1qx.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_O7HZT0ScybvU
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 60000
+      max-lifetime: 600000
+      connection-timeout: 20000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+      pool-name: HikariPool
+      auto-commit: true
+      leak-detection-threshold: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        query:
+          plan_cache_max_size: 2048
+          plan_parameter_metadata_max_size: 128

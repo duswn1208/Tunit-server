@@ -33,8 +33,8 @@ public class SecurityConfig {
     SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(a -> a.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(a -> a
+                        .anyRequest().permitAll())
                 .exceptionHandling(e -> e.authenticationEntryPoint(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .oauth2Login(oauth -> oauth
@@ -48,8 +48,7 @@ public class SecurityConfig {
     SecurityFilterChain webChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/", "/error", "/public/**", "/login/**", "/oauth2/**").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(customOAuth2SuccessHandler)
