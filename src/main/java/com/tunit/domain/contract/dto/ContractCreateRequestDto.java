@@ -6,7 +6,9 @@ import com.tunit.domain.contract.define.ContractSource;
 import com.tunit.domain.lesson.define.LessonSubCategory;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -34,6 +36,9 @@ public class ContractCreateRequestDto {
     @Setter
     private ContractSource source; // 계약 신청 경로
 
+    // 체험 레슨용 후보 시간 (신규 추가)
+    private List<TrialCandidateTime> trialCandidates;
+
     /**
      * lessonName 자동 생성
      * - 정규/선착순레슨: "영어회화 정규레슨 (주2회)"
@@ -53,5 +58,28 @@ public class ContractCreateRequestDto {
 
         // 상담/선착순 레슨
         return categoryLabel + " " + typeLabel;
+    }
+
+    public boolean isTrial() {
+        return contractType != null && contractType == ContractType.TRIAL;
+    }
+
+    public boolean hasTrialCandidates() {
+        return trialCandidates != null && !trialCandidates.isEmpty();
+    }
+
+    // Inner class 추가
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class TrialCandidateTime {
+        private Integer priority;  // 1, 2, 3
+        
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        private LocalDate candidateDate;
+        
+        @JsonFormat(pattern = "HH:mm")
+        private LocalTime candidateStartTime;
     }
 }

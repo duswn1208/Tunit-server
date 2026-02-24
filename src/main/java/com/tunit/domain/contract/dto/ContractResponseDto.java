@@ -48,6 +48,12 @@ public class ContractResponseDto {
     private Integer paidAmount;
     private LocalDateTime paymentDt;
 
+    // 체험 레슨 관련
+    private List<CandidateTimeInfo> trialCandidates;
+    private List<ProposalTimeInfo> tutorProposals;
+    private LocalDate selectedCandidateDate;
+    private LocalTime selectedCandidateTime;
+
     private Integer currentLessonCount;
     private boolean isReservable;
 
@@ -58,8 +64,10 @@ public class ContractResponseDto {
     public ContractResponseDto(Long contractNo, Long tutorProfileNo, Long studentNo, String studentName, LocalDate startDt, LocalDate endDt,
                                List<ContractScheduleDto> scheduleList, ContractStatus contractStatus, ContractType contractType, LessonSubCategory lessonSubCategory,
                                Integer lessonCount, Integer weekCount, String lessonName, String level, String place, String emergencyContact, String memo,
-                               ContractSource source, Integer totalPrice, PaymentStatus paymentStatus, Integer paidAmount, LocalDateTime paymentDt, Integer currentLessonCount,
-                               boolean isReservable, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                               ContractSource source, Integer totalPrice, PaymentStatus paymentStatus, Integer paidAmount, LocalDateTime paymentDt,
+                               List<CandidateTimeInfo> trialCandidates, List<ProposalTimeInfo> tutorProposals,
+                               LocalDate selectedCandidateDate, LocalTime selectedCandidateTime,
+                               Integer currentLessonCount, boolean isReservable, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.contractNo = contractNo;
         this.tutorProfileNo = tutorProfileNo;
         this.studentNo = studentNo;
@@ -82,6 +90,10 @@ public class ContractResponseDto {
         this.paymentStatus = paymentStatus;
         this.paidAmount = paidAmount;
         this.paymentDt = paymentDt;
+        this.trialCandidates = trialCandidates;
+        this.tutorProposals = tutorProposals;
+        this.selectedCandidateDate = selectedCandidateDate;
+        this.selectedCandidateTime = selectedCandidateTime;
         this.currentLessonCount = currentLessonCount;
         this.isReservable = isReservable;
         this.createdAt = createdAt;
@@ -113,6 +125,27 @@ public class ContractResponseDto {
                 .paymentStatus(contract.getPaymentStatus())
                 .paidAmount(contract.getPaidAmount())
                 .paymentDt(contract.getPaymentDt())
+                .trialCandidates(contract.getTrialCandidates() != null && contract.isTrial() ? 
+                    contract.getTrialCandidates().stream()
+                        .map(c -> CandidateTimeInfo.builder()
+                            .id(c.getId())
+                            .priority(c.getPriority())
+                            .candidateDate(c.getCandidateDate())
+                            .candidateStartTime(c.getCandidateStartTime())
+                            .isAvailable(c.getIsAvailable())
+                            .build())
+                        .toList() : null)
+                .tutorProposals(contract.getTrialProposals() != null && contract.isTrial() ?
+                    contract.getTrialProposals().stream()
+                        .map(p -> ProposalTimeInfo.builder()
+                            .id(p.getId())
+                            .proposedDate(p.getProposedDate())
+                            .proposedStartTime(p.getProposedStartTime())
+                            .isAccepted(p.getIsAccepted())
+                            .build())
+                        .toList() : null)
+                .selectedCandidateDate(contract.getSelectedCandidateDate())
+                .selectedCandidateTime(contract.getSelectedCandidateTime())
                 .createdAt(contract.getCreatedAt())
                 .updatedAt(contract.getUpdatedAt())
                 .build();
@@ -157,5 +190,25 @@ public class ContractResponseDto {
         response.currentLessonCount = currentLessonCount;
         response.isReservable = isReservable;
         return response;
+    }
+
+    // Inner classes for trial lesson
+    @Getter
+    @Builder
+    public static class CandidateTimeInfo {
+        private Long id;
+        private Integer priority;
+        private LocalDate candidateDate;
+        private LocalTime candidateStartTime;
+        private Boolean isAvailable;
+    }
+
+    @Getter
+    @Builder
+    public static class ProposalTimeInfo {
+        private Long id;
+        private LocalDate proposedDate;
+        private LocalTime proposedStartTime;
+        private Boolean isAccepted;
     }
 }

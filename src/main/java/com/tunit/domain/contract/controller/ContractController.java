@@ -5,6 +5,8 @@ import com.tunit.domain.contract.define.ContractSource;
 import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.dto.ContractResponseDto;
 import com.tunit.domain.contract.dto.ContractStatusUpdateRequestDto;
+import com.tunit.domain.contract.dto.TrialConfirmDto;
+import com.tunit.domain.contract.dto.TrialRejectDto;
 import com.tunit.domain.contract.exception.ContractException;
 import com.tunit.domain.contract.service.ContractService;
 import com.tunit.domain.notification.annotation.SendNotification;
@@ -162,6 +164,113 @@ public class ContractController {
                 requestDto.getCancelReason(),
                 true
         );
+        return ResponseEntity.ok(response);
+    }
+
+    // ==================== 체험 레슨 관련 ====================
+
+    /**
+     * 체험 레슨 계약 생성 (학생)
+     */
+    @PostMapping("/trial")
+    @SendNotification(
+        type = NotificationType.CONTRACT_SIGNED,
+        title = "새로운 체험 레슨 요청",
+        message = "#{#requestDto.generateLessonName()} 요청이 도착했습니다.",
+        userNoField = "#result.body.tutorProfileNo",
+        deepLink = "/tutor/my/students"
+    )
+    public ResponseEntity<ContractResponseDto> createTrialContract(
+        @LoginUser(field = "userNo") Long studentNo,
+        @RequestBody ContractCreateRequestDto requestDto
+    ) {
+        log.info("체험 레슨 계약 생성 - studentNo: {}, tutorProfileNo: {}", 
+            studentNo, requestDto.getTutorProfileNo());
+        
+        requestDto.setStudentNo(studentNo);
+        requestDto.setSource(ContractSource.STUDENT_REQUEST);
+        
+        ContractResponseDto response = contractService.createTrialContract(requestDto);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * 체험 레슨 시간 확정 (튜터)
+     */
+    @PostMapping("/{contractNo}/trial/confirm")
+    @SendNotification(
+        type = NotificationType.CONTRACT_SIGNED,
+        title = "체험 레슨이 확정되었습니다",
+        message = "#{#dto.selectedDate} #{#dto.selectedStartTime} 레슨이 확정되었습니다",
+        userNoField = "#result.body.studentNo",
+        deepLink = "/student/contracts"
+    )
+    public ResponseEntity<ContractResponseDto> confirmTrialContract(
+        @PathVariable Long contractNo,
+        @LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+        @RequestBody TrialConfirmDto dto
+    ) {
+        log.info("체험 레슨 확정 - contractNo: {}, tutorProfileNo: {}", 
+            contractNo, tutorProfileNo);
+        
+        ContractResponseDto response = contractService.confirmTrialContract(
+            contractNo,
+            tutorProfileNo,
+            dto
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 체험 레슨 거절 (튜터)
+     * - reason만 제공: 단순 거절
+     * - alternativeTimes 제공: 대안 시간 제안
+     */
+    @PostMapping("/{contractNo}/trial/reject")
+    public ResponseEntity<ContractResponseDto> rejectTrialContract(
+        @PathVariable Long contractNo,
+        @LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
+        @RequestBody TrialRejectDto dto
+    ) {
+        log.info("체험 레슨 거절 - contractNo: {}, hasAlternatives: {}", 
+            contractNo, dto.hasAlternatives());
+        
+        ContractResponseDto response = contractService.rejectTrialContract(
+            contractNo,
+            tutorProfileNo,
+            dto
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 학생이 튜터 제안 시간 수락
+     */
+    @PostMapping("/{contractNo}/trial/accept-proposal/{proposalId}")
+    @SendNotification(
+        type = NotificationType.CONTRACT_SIGNED,
+        title = "체험 레슨이 확정되었습니다",
+        message = "학생이 제안 시간을 수락했습니다",
+        userNoField = "#result.body.tutorProfileNo",
+        deepLink = "/tutor/contracts"
+    )
+    public ResponseEntity<ContractResponseDto> acceptTutorProposal(
+        @PathVariable Long contractNo,
+        @PathVariable Long proposalId,
+        @LoginUser(field = "userNo") Long studentNo
+    ) {
+        log.info("튜터 제안 시간 수락 - contractNo: {}, proposalId: {}", 
+            contractNo, proposalId);
+        
+        ContractResponseDto response = contractService.acceptTutorProposal(
+            contractNo,
+            studentNo,
+            proposalId
+        );
+        
         return ResponseEntity.ok(response);
     }
 }
