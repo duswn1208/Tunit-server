@@ -4,14 +4,20 @@ import com.tunit.domain.contract.define.ContractStatus;
 import com.tunit.domain.contract.define.PaymentStatus;
 import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.dto.ContractResponseDto;
+import com.tunit.domain.contract.dto.TrialConfirmDto;
+import com.tunit.domain.contract.dto.TrialRejectDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
+import com.tunit.domain.contract.entity.TrialContractCandidate;
+import com.tunit.domain.contract.entity.TrialContractProposal;
 import com.tunit.domain.contract.exception.ContractException;
+import com.tunit.domain.contract.repository.TrialContractCandidateRepository;
+import com.tunit.domain.contract.repository.TrialContractProposalRepository;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.service.LessonManagementService;
 import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.lesson.service.LessonReserveProcessorService;
-import com.tunit.domain.lesson.service.LessonReserveService;
+import com.tunit.domain.tutor.service.TutorAvailableTimeService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +41,9 @@ public class ContractService {
     private final LessonQueryService lessonQueryService;
     private final TutorProfileService tutorProfileService;
     private final UserService userService;
+    private final TrialContractCandidateRepository trialCandidateRepository;
+    private final TrialContractProposalRepository trialProposalRepository;
+    private final TutorAvailableTimeService tutorAvailableTimeService;
 
     @Transactional
     public ContractResponseDto createContract(ContractCreateRequestDto requestDto) {
@@ -180,6 +192,347 @@ public class ContractService {
         }
 
         return currentCycleCount;
+    }
+
+    // ==================== 체험 레슨 관련 ====================
+
+    /**
+     * 체험 레슨 계약 생성
+     */
+    @Transactional
+    public ContractResponseDto createTrialContract(ContractCreateRequestDto dto) {
+        log.info("체험 레슨 계약 생성 시작 - tutorProfileNo: {}, studentNo: {}",
+                dto.getTutorProfileNo(), dto.getStudentNo());
+
+        // 1. 후보 시간 검증
+        validateTrialCandidates(dto.getTrialCandidates());
+
+        // 2. Contract 생성
+        StudentTutorContract contract = contractQueryService.createContract(
+                dto,
+                tutorProfileService.findDurationMinByTutorProfileNo(dto.getTutorProfileNo())
+        );
+
+        // 3. 후보 시간들 저장
+        List<TrialContractCandidate> candidates = saveTrialCandidates(
+                contract,
+                dto.getTrialCandidates()
+        );
+
+        // 4. 각 후보 시간의 가용성 체크
+        checkAndUpdateCandidateAvailability(dto.getTutorProfileNo(), candidates);
+
+        log.info("체험 레슨 계약 생성 완료 - contractNo: {}", contract.getContractNo());
+
+        return ContractResponseDto.fromEntity(contract);
+    }
+
+    /**
+     * 체험 레슨 시간 확정 (튜터가 후보 중 선택)
+     */
+    @Transactional
+    public ContractResponseDto confirmTrialContract(
+            Long contractNo,
+            Long tutorProfileNo,
+            TrialConfirmDto dto
+    ) {
+        log.info("체험 레슨 확정 - contractNo: {}", contractNo);
+
+        // 1. Contract 조회
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
+
+        // 2. 권한 체크
+        if (!contract.getTutorProfileNo().equals(tutorProfileNo)) {
+            throw new ContractException("권한이 없습니다");
+        }
+
+        // 3. 타입 및 상태 체크
+        if (!contract.isTrial()) {
+            throw new ContractException("체험 레슨이 아닙니다");
+        }
+
+        if (contract.getContractStatus() != ContractStatus.REQUESTED) {
+            throw new ContractException("이미 처리된 계약입니다");
+        }
+
+        // 4. 후보 시간 조회
+        List<TrialContractCandidate> candidates = trialCandidateRepository
+                .findByContract_ContractNoOrderByPriority(contractNo);
+
+        if (candidates.isEmpty()) {
+            throw new ContractException("후보 시간이 없습니다");
+        }
+
+        // 5. 선택한 시간 검증
+        TrialContractCandidate selected = candidates.stream()
+                .filter(c ->
+                        c.getCandidateDate().equals(dto.getSelectedDate()) &&
+                                c.getCandidateStartTime().equals(dto.getSelectedStartTime())
+                )
+                .findFirst()
+                .orElseThrow(() -> new ContractException("유효하지 않은 시간입니다"));
+
+        if (!selected.isAvailable()) {
+            throw new ContractException("선택한 시간은 불가능합니다");
+        }
+
+        // 6. Contract 확정
+        contract.confirmTrialTime(dto.getSelectedDate(), dto.getSelectedStartTime());
+
+        // 7. 선택되지 않은 후보들 삭제
+        List<TrialContractCandidate> toDelete = candidates.stream()
+                .filter(c -> !c.getId().equals(selected.getId()))
+                .collect(Collectors.toList());
+        trialCandidateRepository.deleteAll(toDelete);
+
+        log.info("체험 레슨 확정 완료 - contractNo: {}", contractNo);
+
+        return ContractResponseDto.fromEntity(contract);
+    }
+
+    /**
+     * 체험 레슨 거절 (+ 대안 시간 제안)
+     */
+    @Transactional
+    public ContractResponseDto rejectTrialContract(
+            Long contractNo,
+            Long tutorProfileNo,
+            TrialRejectDto dto
+    ) {
+        log.info("체험 레슨 거절 - contractNo: {}, hasAlternatives: {}",
+                contractNo, dto.hasAlternatives());
+
+        // 1. Contract 조회 및 권한 체크
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
+
+        if (!contract.getTutorProfileNo().equals(tutorProfileNo)) {
+            throw new ContractException("권한이 없습니다");
+        }
+
+        if (!contract.isTrial()) {
+            throw new ContractException("체험 레슨이 아닙니다");
+        }
+
+        // 2. 대안 시간 제안이 있는 경우
+        if (dto.hasAlternatives()) {
+            return rejectWithAlternatives(contract, dto);
+        }
+
+        // 3. 단순 거절
+        return rejectWithoutAlternatives(contract, dto.getReason());
+    }
+
+    /**
+     * 학생이 튜터 제안 시간 수락
+     */
+    @Transactional
+    public ContractResponseDto acceptTutorProposal(
+            Long contractNo,
+            Long studentNo,
+            Long proposalId
+    ) {
+        log.info("튜터 제안 시간 수락 - contractNo: {}, proposalId: {}",
+                contractNo, proposalId);
+
+        // 1. Contract 조회 및 권한 체크
+        StudentTutorContract contract = contractQueryService.getContract(contractNo);
+
+        if (!contract.getStudentNo().equals(studentNo)) {
+            throw new ContractException("권한이 없습니다");
+        }
+
+        // 2. Proposal 조회
+        TrialContractProposal proposal = trialProposalRepository.findById(proposalId)
+                .orElseThrow(() -> new ContractException("제안 시간을 찾을 수 없습니다"));
+
+        if (!proposal.getContract().getContractNo().equals(contractNo)) {
+            throw new ContractException("유효하지 않은 제안입니다");
+        }
+
+        // 3. Contract 확정
+        contract.confirmTrialTime(
+                proposal.getProposedDate(),
+                proposal.getProposedStartTime()
+        );
+
+        // 4. Proposal 수락 처리
+        proposal.setIsAccepted(true);
+        trialProposalRepository.save(proposal);
+
+        // 5. 나머지 제안들 거절 처리
+        List<TrialContractProposal> otherProposals = trialProposalRepository
+                .findByContract_ContractNoAndIsAcceptedIsNull(contractNo);
+
+        otherProposals.stream()
+                .filter(p -> !p.getId().equals(proposalId))
+                .forEach(p -> p.setIsAccepted(false));
+
+        trialProposalRepository.saveAll(otherProposals);
+
+        log.info("튜터 제안 시간 수락 완료 - contractNo: {}", contractNo);
+
+        return ContractResponseDto.fromEntity(contract);
+    }
+
+    // ========== Private 헬퍼 메서드들 ==========
+
+    private void validateTrialCandidates(
+            List<ContractCreateRequestDto.TrialCandidateTime> candidates
+    ) {
+        if (candidates == null || candidates.isEmpty()) {
+            throw new ContractException("최소 1개의 후보 시간을 선택해주세요");
+        }
+
+        if (candidates.size() > 3) {
+            throw new ContractException("최대 3개까지 선택 가능합니다");
+        }
+
+        // 우선순위 중복 체크
+        Set<Integer> priorities = candidates.stream()
+                .map(ContractCreateRequestDto.TrialCandidateTime::getPriority)
+                .collect(Collectors.toSet());
+
+        if (priorities.size() != candidates.size()) {
+            throw new ContractException("우선순위가 중복되었습니다");
+        }
+
+        // 과거 시간 체크
+        LocalDateTime now = LocalDateTime.now();
+        boolean hasPastTime = candidates.stream()
+                .anyMatch(c -> {
+                    LocalDateTime dt = LocalDateTime.of(
+                            c.getCandidateDate(),
+                            c.getCandidateStartTime()
+                    );
+                    return dt.isBefore(now);
+                });
+
+        if (hasPastTime) {
+            throw new ContractException("과거 시간은 선택할 수 없습니다");
+        }
+    }
+
+    private List<TrialContractCandidate> saveTrialCandidates(
+            StudentTutorContract contract,
+            List<ContractCreateRequestDto.TrialCandidateTime> candidateTimes
+    ) {
+        List<TrialContractCandidate> candidates = candidateTimes.stream()
+                .map(c -> TrialContractCandidate.of(
+                        contract,
+                        c.getPriority(),
+                        c.getCandidateDate(),
+                        c.getCandidateStartTime()
+                ))
+                .collect(Collectors.toList());
+
+        return trialCandidateRepository.saveAll(candidates);
+    }
+
+    private void checkAndUpdateCandidateAvailability(
+            Long tutorProfileNo,
+            List<TrialContractCandidate> candidates
+    ) {
+        for (TrialContractCandidate candidate : candidates) {
+            LocalDateTime candidateDateTime = LocalDateTime.of(
+                    candidate.getCandidateDate(),
+                    candidate.getCandidateStartTime()
+            );
+            int dayOfWeekNum = candidateDateTime.getDayOfWeek().getValue();
+
+            boolean isAvailable = tutorAvailableTimeService.isWithinAvailableTime(
+                    tutorProfileNo,
+                    dayOfWeekNum,
+                    candidate.getCandidateStartTime(),
+                    candidate.getCandidateStartTime().plusHours(1) // 1시간 기본
+            );
+            candidate.setIsAvailable(isAvailable);
+        }
+        trialCandidateRepository.saveAll(candidates);
+    }
+
+    private ContractResponseDto rejectWithAlternatives(
+            StudentTutorContract contract,
+            TrialRejectDto dto
+    ) {
+        log.info("대안 시간 제안과 함께 거절 - contractNo: {}, alternatives: {}",
+                contract.getContractNo(), dto.getAlternativeTimes().size());
+
+        // 1. 대안 시간 검증
+        validateAlternativeTimes(dto.getAlternativeTimes());
+
+        // 2. Contract memo에 거절 사유 추가 (상태는 PENDING 유지)
+        String updatedMemo = (contract.getMemo() != null ? contract.getMemo() + "\n" : "") +
+                "[튜터 응답] " + dto.getReason();
+        contract.setMemo(updatedMemo);
+
+        // 3. 대안 시간들 저장
+        List<TrialContractProposal> proposals = dto.getAlternativeTimes().stream()
+                .map(alt -> TrialContractProposal.of(
+                        contract,
+                        alt.getProposedDate(),
+                        alt.getProposedStartTime()
+                ))
+                .collect(Collectors.toList());
+
+        trialProposalRepository.saveAll(proposals);
+
+        log.info("대안 시간 제안 완료 - contractNo: {}, proposals: {}",
+                contract.getContractNo(), proposals.size());
+
+        return ContractResponseDto.fromEntity(contract);
+    }
+
+    private ContractResponseDto rejectWithoutAlternatives(
+            StudentTutorContract contract,
+            String reason
+    ) {
+        log.info("체험 레슨 단순 거절 - contractNo: {}", contract.getContractNo());
+
+        // 1. Contract 상태 변경
+        contract.updateContractStatus(ContractStatus.CANCELLED);
+
+        // 2. Memo에 거절 사유 추가
+        String updatedMemo = (contract.getMemo() != null ? contract.getMemo() + "\n" : "") +
+                "[튜터 거절] " + reason;
+        contract.setMemo(updatedMemo);
+
+        log.info("체험 레슨 거절 완료 - contractNo: {}", contract.getContractNo());
+
+        return ContractResponseDto.fromEntity(contract);
+    }
+
+    private void validateAlternativeTimes(List<TrialRejectDto.AlternativeTime> times) {
+        if (times == null || times.isEmpty()) {
+            throw new ContractException("대안 시간을 입력해주세요");
+        }
+
+        if (times.size() > 5) {
+            throw new ContractException("대안 시간은 최대 5개까지 제안 가능합니다");
+        }
+
+        // 과거 시간 체크
+        LocalDateTime now = LocalDateTime.now();
+        boolean hasPastTime = times.stream()
+                .anyMatch(t -> {
+                    LocalDateTime dt = LocalDateTime.of(
+                            t.getProposedDate(),
+                            t.getProposedStartTime()
+                    );
+                    return dt.isBefore(now);
+                });
+
+        if (hasPastTime) {
+            throw new ContractException("과거 시간은 제안할 수 없습니다");
+        }
+
+        // 중복 체크
+        Set<String> uniqueTimes = times.stream()
+                .map(t -> t.getProposedDate() + "T" + t.getProposedStartTime())
+                .collect(Collectors.toSet());
+
+        if (uniqueTimes.size() != times.size()) {
+            throw new ContractException("중복된 시간이 있습니다");
+        }
     }
 
 }

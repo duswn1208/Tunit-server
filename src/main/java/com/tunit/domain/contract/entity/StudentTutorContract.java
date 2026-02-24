@@ -51,6 +51,7 @@ public class StudentTutorContract {
     private String place; // 레슨 장소
     private String emergencyContact; // 비상 연락처
 
+    @Setter
     private String memo;
 
     // 계약 신청 경로
@@ -63,6 +64,16 @@ public class StudentTutorContract {
 
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ContractSchedule> scheduleList = new ArrayList<>();
+
+    // 체험 레슨 관련
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TrialContractCandidate> trialCandidates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TrialContractProposal> trialProposals = new ArrayList<>();
+
+    private LocalDate selectedCandidateDate;
+    private LocalTime selectedCandidateTime;
 
     // 결제 정보
     @Enumerated(EnumType.STRING)
@@ -259,6 +270,28 @@ public class StudentTutorContract {
 
     public void updateTotalAmount(Integer newTotalAmount) {
         this.totalPrice = newTotalAmount;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 체험 레슨 여부 확인
+     */
+    public boolean isTrial() {
+        return this.contractType == ContractType.TRIAL;
+    }
+
+    /**
+     * 체험 레슨 시간 확정
+     */
+    public void confirmTrialTime(LocalDate date, LocalTime time) {
+        if (!this.isTrial()) {
+            throw new ContractException("체험 레슨이 아닙니다");
+        }
+        this.selectedCandidateDate = date;
+        this.selectedCandidateTime = time;
+        this.contractStatus = ContractStatus.ACTIVE;
+        this.startDt = date;
+        this.endDt = date;
         this.updatedAt = LocalDateTime.now();
     }
 }
