@@ -136,4 +136,9 @@ public class UserMain {
         this.userStatus = UserStatus.ACTIVE;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

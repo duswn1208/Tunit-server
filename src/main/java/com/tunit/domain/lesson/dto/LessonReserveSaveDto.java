@@ -29,11 +29,14 @@ public record LessonReserveSaveDto(
 
         ReservationStatus reservationStatus,
 
-        String memo
+        String memo,
+
+        Integer price,       // 계약 가격
+        Integer weeklyCount  // 주당 레슨 횟수
 ) {
 
         @Builder(builderMethodName = "of")
-        public LessonReserveSaveDto(Long tutorProfileNo, Long studentNo, Long contractNo, String studentName, String phone, LocalDate lessonDate, LocalTime startTime, Integer tutorLessonNo, LessonSubCategory lesson, ReservationStatus reservationStatus, String memo) {
+        public LessonReserveSaveDto(Long tutorProfileNo, Long studentNo, Long contractNo, String studentName, String phone, LocalDate lessonDate, LocalTime startTime, Integer tutorLessonNo, LessonSubCategory lesson, ReservationStatus reservationStatus, String memo, Integer price, Integer weeklyCount) {
                 this.tutorProfileNo = tutorProfileNo;
                 this.studentNo = studentNo;
                 this.contractNo = contractNo;
@@ -45,6 +48,8 @@ public record LessonReserveSaveDto(
                 this.lesson = lesson;
                 this.reservationStatus = reservationStatus;
                 this.memo = memo;
+                this.price = price;
+                this.weeklyCount = weeklyCount;
         }
 
         public static LessonReserveSaveDto excelOf(Long contractNo, ContractExcelSaveDto dto) {

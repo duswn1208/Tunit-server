@@ -45,6 +45,10 @@ public class ContractCreateRequestDto {
      * - 상담/체험레슨: "영어회화 상담/체험레슨"
      */
     public String generateLessonName() {
+        return generateLessonName(lessonCategory, contractType, weekCount, lessonName);
+    }
+
+    public static String generateLessonName(LessonSubCategory lessonCategory, ContractType contractType, Integer weekCount, String lessonName) {
         if (lessonName != null && !lessonName.isBlank()) {
             return lessonName;
         }
@@ -52,11 +56,10 @@ public class ContractCreateRequestDto {
         String categoryLabel = lessonCategory.getLabel();
         String typeLabel = contractType.getLabel();
 
-        if (contractType.isRegular() && contractType.isFirstCome() && weekCount != null) {
+        if ((contractType.isRegular() || contractType.isFirstCome()) && weekCount != null) {
             return categoryLabel + " " + typeLabel + " (주" + weekCount + "회)";
         }
 
-        // 상담/선착순 레슨
         return categoryLabel + " " + typeLabel;
     }
 

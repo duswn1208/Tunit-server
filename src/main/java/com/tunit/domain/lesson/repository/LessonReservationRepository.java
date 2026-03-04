@@ -15,7 +15,9 @@ import java.util.Optional;
 public interface LessonReservationRepository extends JpaRepository<LessonReservation, Long> {
     boolean existsByTutorProfileNo(Long tutorProfileNo);
 
-    @Query("SELECT new com.tunit.domain.lesson.dto.LessonResponseDto(lr, u.name, c.lessonSubCategory) FROM LessonReservation lr JOIN UserMain u ON lr.studentNo = u.userNo JOIN StudentTutorContract c ON lr.contractNo = c.contractNo WHERE lr.tutorProfileNo = :tutorProfileNo AND lr.date BETWEEN :startDate AND :endDate")
+    @Query("SELECT new com.tunit.domain.lesson.dto.LessonResponseDto(lr, u.name, COALESCE(c.lessonSubCategory, lr.lessonCategory)) " +
+            "FROM LessonReservation lr JOIN UserMain u ON lr.studentNo = u.userNo LEFT JOIN StudentTutorContract c ON lr.contractNo = c.contractNo " +
+            "WHERE lr.tutorProfileNo = :tutorProfileNo AND lr.date BETWEEN :startDate AND :endDate")
     List<LessonResponseDto> findByTutorProfileNoAndDateBetweenWithUser(
             @Param("tutorProfileNo") Long tutorProfileNo,
             @Param("startDate") LocalDate startDate,

@@ -2,7 +2,12 @@ package com.tunit.domain.lesson.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tunit.domain.contract.define.ContractSource;
+import com.tunit.domain.contract.define.ContractStatus;
+import com.tunit.domain.contract.define.ContractType;
+import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
+import com.tunit.domain.contract.repository.StudentTutorContractRepository;
 import com.tunit.domain.contract.service.ContractQueryService;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
@@ -37,7 +42,8 @@ public class LessonReserveProcessorService {
     private final LessonValidate lessonValidate;
     private final LessonReservationRepository lessonReservationRepository;
     private final LessonManagementService lessonManagementService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final StudentTutorContractRepository contractRepository;
+    private final ObjectMapper objectMapper;
 
     public void processReserveLesson(String message) {
         try {
@@ -100,10 +106,33 @@ public class LessonReserveProcessorService {
     public void processTutorCreate(Long tutorProfileNo, LessonReserveSaveDto dto) {
         try {
             UserMain student = userService.getOrCreateWaitingStudent(dto.studentName(), dto.phone());
-
             TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutor(tutorProfileNo);
 
-            LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, dto);
+            // 기존 계약 조회, 없으면 직접 등록용 계약 생성
+            Long contractNo = contractRepository
+                    .findByStudentNoAndTutorProfileNo(student.getUserNo(), tutorProfileNo)
+                    .stream()
+                    .filter(c -> c.getContractStatus() != ContractStatus.CANCELLED
+                            && c.getContractStatus() != ContractStatus.END)
+                    .findFirst()
+                    .map(StudentTutorContract::getContractNo)
+                    .orElseGet(() -> {
+                        StudentTutorContract newContract = StudentTutorContract.builder()
+                                .tutorProfileNo(tutorProfileNo)
+                                .studentNo(student.getUserNo())
+                                .contractStatus(ContractStatus.ACTIVE)
+                                .contractType(ContractType.REGULAR)
+                                .lessonSubCategory(dto.lesson())
+                                .lessonName(ContractCreateRequestDto.generateLessonName(dto.lesson(), ContractType.REGULAR, dto.weeklyCount(), null))
+                                .source(ContractSource.TUTOR_OFFER)
+                                .totalPrice(dto.price())
+                                .weekCount(dto.weeklyCount())
+                                .emergencyContact(dto.phone())
+                                .build();
+                        return contractRepository.save(newContract).getContractNo();
+                    });
+
+            LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, dto, contractNo);
             if (lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
                     tutorProfileNo,
                     lessonReservation.getDate(),

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class LessonReserveService {
     private static final Logger log = LoggerFactory.getLogger(LessonReserveService.class);
     private final ReservationKafkaProducer reservationKafkaProducer;
+    private final ObjectMapper objectMapper;
 
     public void reserveLessonKafka(Long userNo, LessonReserveSaveDto dto) {
         sendKafkaMessage(ReserveKafkaType.CREATE, userNo, null, dto, null);
@@ -33,7 +34,6 @@ public class LessonReserveService {
     }
 
     private void sendKafkaMessage(ReserveKafkaType type, Long userNo, Long lessonReservationNo, LessonReserveSaveDto dto, Long tutorProfileNo) {
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             KafkaReserveMessage message = new KafkaReserveMessage(type, userNo, lessonReservationNo, dto, tutorProfileNo);
             String json = objectMapper.writeValueAsString(message);
