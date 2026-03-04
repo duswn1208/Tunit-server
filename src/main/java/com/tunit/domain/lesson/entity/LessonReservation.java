@@ -110,11 +110,16 @@ public class LessonReservation {
 
 
     public static LessonReservation fromLessonSaveDto(TutorProfileResponseDto tutorProfileInfo, UserMain student, LessonReserveSaveDto dto) {
+        return fromLessonSaveDto(tutorProfileInfo, student, dto, null);
+    }
+
+    public static LessonReservation fromLessonSaveDto(TutorProfileResponseDto tutorProfileInfo, UserMain student, LessonReserveSaveDto dto, Long contractNo) {
         LocalDateTime startDateTime = LocalDateTime.of(dto.lessonDate(), dto.startTime());
         DayOfWeek day = DayOfWeek.of(startDateTime.getDayOfWeek().getValue());
         return LessonReservation.of()
                 .tutorProfileNo(tutorProfileInfo.tutorProfileNo())
                 .studentNo(student.getUserNo())
+                .contractNo(contractNo)
                 .lessonCategory(dto.lesson())
                 .dayOfWeekNum(day.getValue())
                 .date(dto.lessonDate())

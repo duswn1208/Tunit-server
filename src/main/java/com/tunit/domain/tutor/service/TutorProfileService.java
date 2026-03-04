@@ -199,5 +199,7 @@ public class TutorProfileService {
     public void updateTutorProfile(Long userNo, TutorProfileModifyDto tutorProfileModifyDto) {
         TutorProfile tutorProfile = this.findByUserNo(userNo);
         tutorProfile.updateProfile(tutorProfileModifyDto);
+        UserMain userMain = userService.findByUserNo(userNo);
+        userMain.updateNickname(tutorProfileModifyDto.getNickname());
     }
 }

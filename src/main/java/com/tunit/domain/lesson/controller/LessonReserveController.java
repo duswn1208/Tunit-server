@@ -5,6 +5,7 @@ import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.dto.LessonStatusRequestDto;
 import com.tunit.domain.lesson.service.LessonManagementService;
+import com.tunit.domain.lesson.service.LessonReserveProcessorService;
 import com.tunit.domain.lesson.service.LessonReserveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class LessonReserveController {
     private final LessonReserveService lessonReservationService;
     private final LessonManagementService lessonManagementService;
+    private final LessonReserveProcessorService lessonReserveProcessorService;
 
     /**
      * 레슨 예약 요청
@@ -60,8 +62,8 @@ public class LessonReserveController {
     @PostMapping("/tutor/create")
     public ResponseEntity<?> createLesson(@LoginUser(field = "tutorProfileNo") Long tutorProfileNo,
                                           @RequestBody LessonReserveSaveDto lessonReserveSaveDto) {
-        lessonReservationService.createLessonKafka(tutorProfileNo, lessonReserveSaveDto);
-        return ResponseEntity.ok("레슨 생성 요청이 접수되었습니다. 잠시 후 결과를 확인하세요.");
+        lessonReserveProcessorService.processTutorCreate(tutorProfileNo, lessonReserveSaveDto);
+        return ResponseEntity.ok("레슨이 등록되었습니다.");
     }
 
     @DeleteMapping("/{lessonNo}")
