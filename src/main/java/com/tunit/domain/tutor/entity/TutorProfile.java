@@ -40,6 +40,9 @@ public class TutorProfile {
     private Integer careerYears;
     private Integer pricePerHour;
     private Integer durationMin;
+    private String bankName;
+    private String accountNumber;
+    private String accountHolder;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "tutor_profile_no")
@@ -51,7 +54,9 @@ public class TutorProfile {
 
     @Builder(builderMethodName = "of")
     public TutorProfile(Long tutorProfileNo, Long userNo, String introduce, LessonCategory lessonCategory, Set<TutorLessons> tutorLessons, Set<TutorRegion> tutorRegions,
-                        Integer careerYears, Integer pricePerHour, Integer durationMin, List<TutorFaq> faqList, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                        Integer careerYears, Integer pricePerHour, Integer durationMin,
+                        String bankName, String accountNumber, String accountHolder,
+                        List<TutorFaq> faqList, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.tutorProfileNo = tutorProfileNo;
         this.userNo = userNo;
         this.introduce = introduce;
@@ -61,6 +66,9 @@ public class TutorProfile {
         this.careerYears = careerYears;
         this.pricePerHour = pricePerHour;
         this.durationMin = durationMin;
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
         this.faqList = faqList;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -74,6 +82,9 @@ public class TutorProfile {
                 .careerYears(tutorProfileSaveDto.getCareerYears())
                 .pricePerHour(tutorProfileSaveDto.getPricePerHour())
                 .durationMin(tutorProfileSaveDto.getDurationMin())
+                .bankName(tutorProfileSaveDto.getBankName())
+                .accountNumber(tutorProfileSaveDto.getAccountNumber())
+                .accountHolder(tutorProfileSaveDto.getAccountHolder())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -112,6 +123,9 @@ public class TutorProfile {
         this.careerYears = tutorProfileModifyDto.getCareerYears();
         this.pricePerHour = tutorProfileModifyDto.getPricePerHour();
         this.durationMin = tutorProfileModifyDto.getDurationMin();
+        this.bankName = tutorProfileModifyDto.getBankName();
+        this.accountNumber = tutorProfileModifyDto.getAccountNumber();
+        this.accountHolder = tutorProfileModifyDto.getAccountHolder();
         this.updatedAt = LocalDateTime.now();
     }
 }

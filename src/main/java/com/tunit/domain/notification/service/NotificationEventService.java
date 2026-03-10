@@ -125,6 +125,29 @@ public class NotificationEventService {
     }
 
     /**
+     * 입금 계좌 안내 알림
+     */
+    public void sendPaymentAccountNotification(Long studentNo, Long contractNo, String tutorName, int totalPrice,
+                                               String bankName, String accountNumber, String accountHolder) {
+        String data = String.format(
+                "{\"contractNo\":%d,\"bankName\":\"%s\",\"accountNumber\":\"%s\",\"accountHolder\":\"%s\",\"totalPrice\":%d}",
+                contractNo, bankName, accountNumber, accountHolder, totalPrice
+        );
+
+        PushNotificationDto dto = PushNotificationDto.builder()
+                .userNo(studentNo)
+                .notificationType(NotificationType.PAYMENT_ACCOUNT_INFO)
+                .title("입금 계좌 안내")
+                .message(String.format("%s 튜터의 계좌로 %,d원을 입금해 주세요.", tutorName, totalPrice))
+                .deepLink("/contracts/" + contractNo)
+                .data(data)
+                .build();
+
+        pushNotificationService.sendPushNotification(dto);
+        log.info("입금 계좌 안내 알림 전송 - StudentNo: {}, ContractNo: {}", studentNo, contractNo);
+    }
+
+    /**
      * 시스템 공지 알림 (전체 사용자)
      */
     public void sendSystemNoticeToAll(String title, String message) {

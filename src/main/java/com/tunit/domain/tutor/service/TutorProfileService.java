@@ -47,11 +47,13 @@ public class TutorProfileService {
         return TutorProfileResponseDto.from(tutorProfile, "",  null, null);
     }
 
-    public Integer findDurationMinByTutorProfileNo(@NonNull Long tutorProfileNo) {
-        TutorProfile tutorProfile = tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
+    public TutorProfile findByTutorProfileNo(@NonNull Long tutorProfileNo) {
+        return tutorProfileRepository.findByTutorProfileNo(tutorProfileNo)
                 .orElseThrow();
+    }
 
-        return tutorProfile.getDurationMin();
+    public Integer findDurationMinByTutorProfileNo(@NonNull Long tutorProfileNo) {
+        return findByTutorProfileNo(tutorProfileNo).getDurationMin();
     }
 
     public TutorProfileDetailInfo findTutorDetailInfo(@NonNull Long tutorProfileNo) {

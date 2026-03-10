@@ -102,7 +102,7 @@ class ContractExcelServiceTest {
 
         TutorProfileResponseDto tutorProfile = new TutorProfileResponseDto(
                 1L, tutorProfileNo, "튜터1", null, null, null, null, null, null,
-                5, 50000, 60
+                5, 50000, 60, null, null, null
         );
 
         when(contractExcelRowParser.parseWithContract(file)).thenReturn(List.of(dto));
@@ -408,7 +408,7 @@ class ContractExcelServiceTest {
 
         TutorProfileResponseDto tutorProfile = new TutorProfileResponseDto(
                 1L, tutorProfileNo, "튜터1", null, null, null, null, null, null,
-                5, 50000, 60
+                5, 50000, 60, null, null, null
         );
 
         when(contractExcelRowParser.parseWithContract(file)).thenReturn(List.of(validDto, invalidDto));

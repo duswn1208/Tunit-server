@@ -11,6 +11,7 @@ public enum NotificationType {
     CONTRACT_SIGNED,        // 계약 체결
     CONTRACT_EXPIRED,       // 계약 만료
     PAYMENT_COMPLETED,      // 결제 완료
+    PAYMENT_ACCOUNT_INFO,   // 입금 계좌 안내
     SYSTEM_NOTICE,          // 시스템 공지
     MARKETING              // 마케팅 알림
 }

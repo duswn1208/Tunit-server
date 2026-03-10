@@ -23,6 +23,12 @@ public class ContractResponseDto {
     private Long studentNo;
     @Setter
     private String studentName;
+    @Setter
+    private String tutorBankName;
+    @Setter
+    private String tutorAccountNumber;
+    @Setter
+    private String tutorAccountHolder;
 
     private LocalDate startDt;
     private LocalDate endDt;

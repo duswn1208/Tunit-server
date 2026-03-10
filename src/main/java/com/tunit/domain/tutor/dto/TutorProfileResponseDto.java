@@ -24,7 +24,10 @@ public record TutorProfileResponseDto(
         List<TutorAvailExceptionResponseDto> tutorHolidayList,
         Integer careerYears,
         Integer pricePerHour,
-        Integer durationMin
+        Integer durationMin,
+        String bankName,
+        String accountNumber,
+        String accountHolder
 ) {
 
     public static TutorProfileResponseDto from(TutorProfile tutorProfile) {
@@ -40,7 +43,10 @@ public record TutorProfileResponseDto(
                 List.of(),
                 tutorProfile.getCareerYears(),
                 tutorProfile.getPricePerHour(),
-                tutorProfile.getDurationMin()
+                tutorProfile.getDurationMin(),
+                tutorProfile.getBankName(),
+                tutorProfile.getAccountNumber(),
+                tutorProfile.getAccountHolder()
         );
     }
 
@@ -57,7 +63,10 @@ public record TutorProfileResponseDto(
                 tutorHolidayResponseList,
                 tutorProfile.getCareerYears(),
                 tutorProfile.getPricePerHour(),
-                tutorProfile.getDurationMin()
+                tutorProfile.getDurationMin(),
+                tutorProfile.getBankName(),
+                tutorProfile.getAccountNumber(),
+                tutorProfile.getAccountHolder()
         );
     }
 
@@ -72,6 +81,9 @@ public record TutorProfileResponseDto(
                 Set.of(),
                 List.of(),
                 List.of(),
+                null,
+                null,
+                null,
                 null,
                 null,
                 null

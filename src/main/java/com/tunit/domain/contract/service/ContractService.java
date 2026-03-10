@@ -17,6 +17,8 @@ import com.tunit.domain.lesson.entity.LessonReservation;
 import com.tunit.domain.lesson.service.LessonManagementService;
 import com.tunit.domain.lesson.service.LessonQueryService;
 import com.tunit.domain.lesson.service.LessonReserveProcessorService;
+import com.tunit.domain.notification.service.NotificationEventService;
+import com.tunit.domain.tutor.entity.TutorProfile;
 import com.tunit.domain.tutor.service.TutorAvailableTimeService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.service.UserService;
@@ -41,6 +43,7 @@ public class ContractService {
     private final LessonQueryService lessonQueryService;
     private final TutorProfileService tutorProfileService;
     private final UserService userService;
+    private final NotificationEventService notificationEventService;
     private final TrialContractCandidateRepository trialCandidateRepository;
     private final TrialContractProposalRepository trialProposalRepository;
     private final TutorAvailableTimeService tutorAvailableTimeService;
@@ -64,7 +67,19 @@ public class ContractService {
         // 추가 레슨 생성 가능 여부 확인
         boolean isReservable = this.canGenerateAdditionalLessons(contractNo);
 
-        return ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size(), isReservable);
+        ContractResponseDto response = ContractResponseDto.withCurrentLessonCount(contract, activeLessonList.size(), isReservable);
+
+        // 계약 승인 후 미결제 상태일 때 계좌 정보 포함
+        if (contract.getContractStatus() == ContractStatus.APPROVED
+                && (contract.getPaymentStatus() == PaymentStatus.PENDING
+                    || contract.getPaymentStatus() == PaymentStatus.CONFIRMING)) {
+            TutorProfile tutorProfile = tutorProfileService.findByTutorProfileNo(contract.getTutorProfileNo());
+            response.setTutorBankName(tutorProfile.getBankName());
+            response.setTutorAccountNumber(tutorProfile.getAccountNumber());
+            response.setTutorAccountHolder(tutorProfile.getAccountHolder());
+        }
+
+        return response;
     }
 
     public List<ContractResponseDto> getStudentContracts(Long studentNo) {
@@ -126,6 +141,21 @@ public class ContractService {
             case APPROVED -> {
                 contract.updateContractStatus(afterStatus);
                 contract.updatePaymentStatus(PaymentStatus.PENDING);
+                TutorProfile tutorProfile = tutorProfileService.findByTutorProfileNo(contract.getTutorProfileNo());
+                if (tutorProfile.getBankName() != null && tutorProfile.getAccountNumber() != null) {
+                    String tutorName = userService.findByUserNo(tutorProfile.getUserNo()).getName();
+                    notificationEventService.sendPaymentAccountNotification(
+                            contract.getStudentNo(),
+                            contract.getContractNo(),
+                            tutorName,
+                            contract.getTotalPrice(),
+                            tutorProfile.getBankName(),
+                            tutorProfile.getAccountNumber(),
+                            tutorProfile.getAccountHolder()
+                    );
+                } else {
+                    log.warn("튜터 계좌 미등록 - tutorProfileNo: {}, contractNo: {}", contract.getTutorProfileNo(), contractNo);
+                }
             }
             case ACTIVE -> {
                 contract.updateContractStatus(afterStatus);

@@ -21,12 +21,17 @@ public class TutorProfileSaveDto {
     private Integer careerYears;
     private Integer pricePerHour;
     private Integer durationMin;
+    private String bankName;
+    private String accountNumber;
+    private String accountHolder;
 
     private List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList;
 
     @Builder(builderMethodName = "of")
     public TutorProfileSaveDto(Long userNo, String nickname, String introduce, LessonCategory mainCategory, List<LessonSubCategory> subCategoryList, List<RegionSaveDto> regionList,
-                               Integer careerYears, Integer pricePerHour, Integer durationMin, List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {
+                               Integer careerYears, Integer pricePerHour, Integer durationMin,
+                               String bankName, String accountNumber, String accountHolder,
+                               List<TutorAvailableTimeSaveDto> tutorAvailableTimeSaveDtoList) {
         this.userNo = userNo;
         this.nickname = nickname;
         this.introduce = introduce;
@@ -36,6 +41,9 @@ public class TutorProfileSaveDto {
         this.careerYears = careerYears;
         this.pricePerHour = pricePerHour;
         this.durationMin = durationMin;
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
         this.tutorAvailableTimeSaveDtoList = tutorAvailableTimeSaveDtoList;
     }
 
