@@ -1,6 +1,8 @@
 package com.tunit.domain.contract.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.tunit.common.util.LenientLocalTimeDeserializer;
 import com.tunit.domain.contract.define.ContractType;
 import com.tunit.domain.contract.define.ContractSource;
 import com.tunit.domain.lesson.define.LessonSubCategory;
@@ -78,11 +80,12 @@ public class ContractCreateRequestDto {
     @Builder
     public static class TrialCandidateTime {
         private Integer priority;  // 1, 2, 3
-        
+
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate candidateDate;
-        
+
         @JsonFormat(pattern = "HH:mm")
+        @JsonDeserialize(using = LenientLocalTimeDeserializer.class)
         private LocalTime candidateStartTime;
     }
 }

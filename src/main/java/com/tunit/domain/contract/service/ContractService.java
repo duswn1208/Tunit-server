@@ -86,12 +86,28 @@ public class ContractService {
         return contractQueryService.getStudentContracts(studentNo);
     }
 
+    @Transactional
     public List<ContractResponseDto> getTutorContracts(Long tutorProfileNo) {
+        // 1. 시간 선택 전인 체험 계약들의 후보 시간 가능 여부 재평가
+        //    (가능 시간대 설정이 바뀌었거나, 과거 버그로 저장된 stale 값을 보정)
+        refreshPendingTrialAvailability(tutorProfileNo);
+
+        // 2. 응답 조회
         List<ContractResponseDto> tutorContracts = contractQueryService.getTutorContracts(tutorProfileNo);
         tutorContracts.forEach(contract -> {
             contract.setStudentName(userService.findByUserNo(contract.getStudentNo()).getName());
         });
         return tutorContracts;
+    }
+
+    private void refreshPendingTrialAvailability(Long tutorProfileNo) {
+        List<StudentTutorContract> pending = contractQueryService
+                .findPendingTrialContractsByTutor(tutorProfileNo);
+        for (StudentTutorContract contract : pending) {
+            List<TrialContractCandidate> candidates = trialCandidateRepository
+                    .findByContract_ContractNoOrderByPriority(contract.getContractNo());
+            checkAndUpdateCandidateAvailability(tutorProfileNo, candidates);
+        }
     }
 
     @Transactional
@@ -281,7 +297,13 @@ public class ContractService {
             throw new ContractException("체험 레슨이 아닙니다");
         }
 
-        if (contract.getContractStatus() != ContractStatus.REQUESTED) {
+        // REQUESTED 또는 (APPROVED 이면서 아직 시간 미확정)일 때만 허용
+        ContractStatus status = contract.getContractStatus();
+        boolean isPendingSelection =
+            status == ContractStatus.REQUESTED
+                || (status == ContractStatus.APPROVED
+                    && contract.getSelectedCandidateDate() == null);
+        if (!isPendingSelection) {
             throw new ContractException("이미 처리된 계약입니다");
         }
 
@@ -302,14 +324,33 @@ public class ContractService {
                 .findFirst()
                 .orElseThrow(() -> new ContractException("유효하지 않은 시간입니다"));
 
-        if (!selected.isAvailable()) {
-            throw new ContractException("선택한 시간은 불가능합니다");
+        // 가능 여부를 fresh 하게 재계산 (저장된 값이 stale 일 수 있음)
+        int dayOfWeekNum = selected.getCandidateDate().getDayOfWeek().getValue();
+        boolean currentlyAvailable = tutorAvailableTimeService.isWithinAvailableTime(
+                contract.getTutorProfileNo(),
+                dayOfWeekNum,
+                selected.getCandidateStartTime(),
+                selected.getCandidateStartTime().plusHours(1)
+        );
+        // 저장값과 어긋나면 동기화
+        if (currentlyAvailable != selected.isAvailable()) {
+            selected.setIsAvailable(currentlyAvailable);
+        }
+
+        if (!currentlyAvailable) {
+            throw new ContractException("선택한 시간은 튜터님의 가능 시간대를 벗어납니다");
         }
 
         // 6. Contract 확정
         contract.confirmTrialTime(dto.getSelectedDate(), dto.getSelectedStartTime());
 
-        // 7. 선택되지 않은 후보들 삭제
+        // 7. 레슨 예약 생성 (튜터 일정에 노출되도록)
+        lessonReserveService.reserveLessonsBatch(
+                contract,
+                List.of(LocalDateTime.of(dto.getSelectedDate(), dto.getSelectedStartTime()))
+        );
+
+        // 8. 선택되지 않은 후보들 삭제
         List<TrialContractCandidate> toDelete = candidates.stream()
                 .filter(c -> !c.getId().equals(selected.getId()))
                 .collect(Collectors.toList());
@@ -383,6 +424,15 @@ public class ContractService {
         contract.confirmTrialTime(
                 proposal.getProposedDate(),
                 proposal.getProposedStartTime()
+        );
+
+        // 3-1. 레슨 예약 생성 (튜터 일정에 노출되도록)
+        lessonReserveService.reserveLessonsBatch(
+                contract,
+                List.of(LocalDateTime.of(
+                        proposal.getProposedDate(),
+                        proposal.getProposedStartTime()
+                ))
         );
 
         // 4. Proposal 수락 처리
@@ -490,12 +540,26 @@ public class ContractService {
         // 1. 대안 시간 검증
         validateAlternativeTimes(dto.getAlternativeTimes());
 
-        // 2. Contract memo에 거절 사유 추가 (상태는 PENDING 유지)
+        // 2. Contract memo에 거절 사유 추가 (상태는 REQUESTED 유지)
         String updatedMemo = (contract.getMemo() != null ? contract.getMemo() + "\n" : "") +
                 "[튜터 응답] " + dto.getReason();
         contract.setMemo(updatedMemo);
 
-        // 3. 대안 시간들 저장
+        // 3. 학생이 처음 제안한 후보 시간 정리(튜터가 새 대안을 제시했으므로 더 이상 의미 없음)
+        List<TrialContractCandidate> existingCandidates = trialCandidateRepository
+                .findByContract_ContractNoOrderByPriority(contract.getContractNo());
+        if (!existingCandidates.isEmpty()) {
+            trialCandidateRepository.deleteAll(existingCandidates);
+        }
+
+        // 4. 기존에 미수락 상태로 남아있는 제안이 있다면 정리(중복 누적 방지)
+        List<TrialContractProposal> staleProposals = trialProposalRepository
+                .findByContract_ContractNoAndIsAcceptedIsNull(contract.getContractNo());
+        if (!staleProposals.isEmpty()) {
+            trialProposalRepository.deleteAll(staleProposals);
+        }
+
+        // 5. 대안 시간들 저장
         List<TrialContractProposal> proposals = dto.getAlternativeTimes().stream()
                 .map(alt -> TrialContractProposal.of(
                         contract,

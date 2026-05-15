@@ -20,7 +20,8 @@ public class TutorAvailableTimeService {
     private final TutorAvailableTimeRepository tutorAvailableTimeRepository;
 
     public boolean isWithinAvailableTime(Long tutorProfileNo, Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime) {
-        return tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(
+        // 튜터의 가능 시간대(slot) 중 [startTime, endTime] 구간 전체를 포함하는 슬롯이 있는지 확인
+        return tutorAvailableTimeRepository.existsByTutorProfileNoAndDayOfWeekNumAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
                 tutorProfileNo, dayOfWeekNum, startTime, endTime
         );
     }
