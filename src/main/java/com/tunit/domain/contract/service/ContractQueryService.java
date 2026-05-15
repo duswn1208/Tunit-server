@@ -1,5 +1,7 @@
 package com.tunit.domain.contract.service;
 
+import com.tunit.domain.contract.define.ContractStatus;
+import com.tunit.domain.contract.define.ContractType;
 import com.tunit.domain.contract.dto.ContractCreateRequestDto;
 import com.tunit.domain.contract.dto.ContractResponseDto;
 import com.tunit.domain.contract.entity.StudentTutorContract;
@@ -49,6 +51,21 @@ public class ContractQueryService {
     public List<ContractResponseDto> getTutorContracts(Long tutorProfileNo) {
         return contractRepository.findByTutorProfileNo(tutorProfileNo).stream()
                 .map(ContractResponseDto::fromEntity)
+                .toList();
+    }
+
+    /**
+     * 시간 미확정 상태인 체험 계약 조회 (REQUESTED + APPROVED 중 selectedCandidateDate 가 없는 것)
+     */
+    public List<StudentTutorContract> findPendingTrialContractsByTutor(Long tutorProfileNo) {
+        return contractRepository.findByTutorProfileNo(tutorProfileNo).stream()
+                .filter(c -> c.getContractType() == ContractType.TRIAL)
+                .filter(c -> {
+                    ContractStatus status = c.getContractStatus();
+                    boolean pending = status == ContractStatus.REQUESTED
+                            || status == ContractStatus.APPROVED;
+                    return pending && c.getSelectedCandidateDate() == null;
+                })
                 .toList();
     }
 

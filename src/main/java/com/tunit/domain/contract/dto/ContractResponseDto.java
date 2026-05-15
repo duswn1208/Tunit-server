@@ -1,5 +1,6 @@
 package com.tunit.domain.contract.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tunit.domain.contract.define.ContractStatus;
 import com.tunit.domain.contract.define.ContractType;
 import com.tunit.domain.contract.define.ContractSource;
@@ -58,6 +59,7 @@ public class ContractResponseDto {
     private List<CandidateTimeInfo> trialCandidates;
     private List<ProposalTimeInfo> tutorProposals;
     private LocalDate selectedCandidateDate;
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime selectedCandidateTime;
 
     private Integer currentLessonCount;
@@ -205,6 +207,7 @@ public class ContractResponseDto {
         private Long id;
         private Integer priority;
         private LocalDate candidateDate;
+        @JsonFormat(pattern = "HH:mm")
         private LocalTime candidateStartTime;
         private Boolean isAvailable;
     }
@@ -214,6 +217,7 @@ public class ContractResponseDto {
     public static class ProposalTimeInfo {
         private Long id;
         private LocalDate proposedDate;
+        @JsonFormat(pattern = "HH:mm")
         private LocalTime proposedStartTime;
         private Boolean isAccepted;
     }

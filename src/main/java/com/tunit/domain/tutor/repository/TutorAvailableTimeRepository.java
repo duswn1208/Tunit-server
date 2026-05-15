@@ -16,7 +16,12 @@ public interface TutorAvailableTimeRepository extends JpaRepository<TutorAvailab
 
     List<TutorAvailableTime> findAllByTutorProfileNoOrderByDayOfWeekNumAscStartTimeAsc(Long tutorProfileNo);
 
-    boolean existsByTutorProfileNoAndDayOfWeekNumAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(Long tutorProfileNo, Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime);
+    /**
+     * 튜터의 가능 시간대(slot) 중 [startTime, endTime] 구간 전체를 포함하는 슬롯이 있는지 확인.
+     *  - slot.startTime <= startTime
+     *  - slot.endTime   >= endTime
+     */
+    boolean existsByTutorProfileNoAndDayOfWeekNumAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(Long tutorProfileNo, Integer dayOfWeekNum, LocalTime startTime, LocalTime endTime);
 
     boolean existsByTutorProfileNoAndTutorAvailableTimeNoIn(@NonNull Long tutorProfileNo, List<Long> tutorAvailableTimeNos);
 

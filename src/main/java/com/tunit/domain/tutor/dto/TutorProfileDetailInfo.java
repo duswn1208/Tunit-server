@@ -21,6 +21,7 @@ public record TutorProfileDetailInfo(
         List<TutorAvailableTimeResponseDto> tutorAvailableTimeList,
         List<TutorAvailExceptionResponseDto> tutorHolidayList,
         List<TutorFaqResponseDto> tutorFaqList,
+        List<TutorCareerHistoryResponseDto> careerHistoryList,
         Integer careerYears,
         Integer pricePerHour,
         Integer durationMin,
@@ -29,8 +30,10 @@ public record TutorProfileDetailInfo(
 ) {
 
     //static from method
-    public static TutorProfileDetailInfo from(TutorProfile tutorProfile, UserMainResponseDto userMain, List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList,
+    public static TutorProfileDetailInfo from(TutorProfile tutorProfile, UserMainResponseDto userMain,
+                                              List<TutorAvailableTimeResponseDto> tutorAvailableTimeResponseList,
                                               List<TutorAvailExceptionResponseDto> tutorHolidayResponseList,
+                                              List<TutorCareerHistoryResponseDto> careerHistoryList,
                                               Double averageRating, Long totalReviews) {
         return new TutorProfileDetailInfo(
                 tutorProfile.getUserNo(),
@@ -43,6 +46,7 @@ public record TutorProfileDetailInfo(
                 tutorAvailableTimeResponseList,
                 tutorHolidayResponseList,
                 tutorProfile.getFaqList().stream().map(TutorFaqResponseDto::new).toList(),
+                careerHistoryList,
                 tutorProfile.getCareerYears(),
                 tutorProfile.getPricePerHour(),
                 tutorProfile.getDurationMin(),

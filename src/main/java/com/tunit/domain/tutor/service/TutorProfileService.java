@@ -31,6 +31,7 @@ public class TutorProfileService {
     private final TutorProfileRepository tutorProfileRepository;
     private final TutorAvailableTimeService tutorAvailableTimeService;
     private final TutorHolidayService tutorHolidayService;
+    private final TutorCareerHistoryService tutorCareerHistoryService;
     private final UserService userService;
     private final LessonReviewService lessonReviewService;
 
@@ -63,12 +64,13 @@ public class TutorProfileService {
         UserMainResponseDto dtoByUserNo = userService.findDtoByUserNo(tutorProfile.getUserNo());
 
         List<TutorAvailableTimeResponseDto> availableTimes = tutorAvailableTimeService.findByTutorProfileNo(tutorProfileNo);
+        List<TutorCareerHistoryResponseDto> careerHistoryList = tutorCareerHistoryService.findByTutorProfileNo(tutorProfileNo);
 
         // 캐싱된 리뷰 통계 사용
         Double averageRating = lessonReviewService.getAverageRatingByTutorProfileNo(tutorProfileNo);
         Long reviewCount = lessonReviewService.getReviewCountByTutorProfileNo(tutorProfileNo);
 
-        return TutorProfileDetailInfo.from(tutorProfile, dtoByUserNo, availableTimes, null, averageRating, reviewCount);
+        return TutorProfileDetailInfo.from(tutorProfile, dtoByUserNo, availableTimes, null, careerHistoryList, averageRating, reviewCount);
     }
 
     public List<TutorLessonsResponseDto> findTutorLessonsByTutorProfileNo(@NonNull Long tutorProfileNo) {
