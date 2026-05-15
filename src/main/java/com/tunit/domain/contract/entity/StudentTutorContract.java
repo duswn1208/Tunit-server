@@ -177,17 +177,19 @@ public class StudentTutorContract {
 
         validate(requestDto);
 
-        // 정규레슨의 경우 가장 빠른 레슨 일정 기준으로 시작일만 설정
-        LocalDateTime earliestLesson = requestDto.getLessonDtList().stream()
+        // 체험 레슨은 튜터 확정 시점에 schedule/startDt가 결정되므로 lessonDtList 기반 처리 생략
+        boolean isTrial = requestDto.getContractType().isTrial();
+        LocalDate startDt = isTrial ? null : requestDto.getLessonDtList().stream()
                 .min(Comparator.naturalOrder())
-                .orElseThrow(() -> new ContractException("레슨 일정이 비어있습니다."));
+                .orElseThrow(() -> new ContractException("레슨 일정이 비어있습니다."))
+                .toLocalDate();
 
         StudentTutorContract contract = StudentTutorContract.builder()
                 .tutorProfileNo(requestDto.getTutorProfileNo())
                 .studentNo(requestDto.getStudentNo())
                 .contractStatus(ContractStatus.REQUESTED)
                 .contractType(requestDto.getContractType())
-                .startDt(earliestLesson.toLocalDate())
+                .startDt(startDt)
                 .lessonSubCategory(requestDto.getLessonCategory())
                 .weekCount(requestDto.getWeekCount())
                 .lessonCount(requestDto.getLessonCount())
@@ -201,7 +203,9 @@ public class StudentTutorContract {
                 .paymentStatus(PaymentStatus.PENDING)
                 .build();
 
-        extractLessonSchedule(requestDto.getLessonDtList(), durationMin, contract);
+        if (!isTrial) {
+            extractLessonSchedule(requestDto.getLessonDtList(), durationMin, contract);
+        }
         return contract;
     }
 
@@ -225,6 +229,10 @@ public class StudentTutorContract {
     }
 
     private static void validate(ContractCreateRequestDto requestDto) {
+        // 체험 레슨은 trialCandidates만 받음 (ContractService.validateTrialCandidates에서 별도 검증)
+        if (requestDto.getContractType() != null && requestDto.getContractType().isTrial()) {
+            return;
+        }
         if (requestDto.getLessonDtList() == null || requestDto.getLessonDtList().isEmpty()) {
             throw new ContractException("레슨 매칭은 최소 하나 이상의 레슨 일정이 필요합니다.");
         }
