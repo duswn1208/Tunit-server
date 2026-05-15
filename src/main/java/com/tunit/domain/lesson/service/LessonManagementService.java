@@ -32,6 +32,8 @@ public class LessonManagementService {
         lessonValidate.validateTutorAvailability(studentNo, byLessonReservationNo.getTutorProfileNo(), dto.lessonDate(), dto.startTime(), dto.startTime().plusMinutes(1));
 
         byLessonReservationNo.updateLessonInfo(dto.lessonDate(), dto.startTime(), dto.startTime().plusHours(1));
+        // EXCLUDE 제약 충돌을 호출자가 잡을 수 있도록 메서드 종료 전에 flush
+        lessonReservationRepository.saveAndFlush(byLessonReservationNo);
         log.info("레슨 예약 변경 완료. studentNo: {}, lessonReservationNo: {}, newDate: {}", studentNo, lessonReservationNo, dto.lessonDate());
     }
 

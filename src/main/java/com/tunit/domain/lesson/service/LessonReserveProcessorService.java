@@ -1,22 +1,17 @@
 package com.tunit.domain.lesson.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tunit.domain.contract.define.ContractSource;
 import com.tunit.domain.contract.define.ContractStatus;
 import com.tunit.domain.contract.define.ContractType;
 import com.tunit.domain.contract.dto.ContractCreateRequestDto;
-import com.tunit.domain.contract.define.ContractSource;
-import com.tunit.domain.contract.define.ContractStatus;
-import com.tunit.domain.contract.define.ContractType;
 import com.tunit.domain.contract.entity.StudentTutorContract;
 import com.tunit.domain.contract.repository.StudentTutorContractRepository;
 import com.tunit.domain.contract.service.ContractQueryService;
 import com.tunit.domain.lesson.define.ReservationStatus;
 import com.tunit.domain.lesson.dto.LessonReserveSaveDto;
 import com.tunit.domain.lesson.entity.LessonReservation;
+import com.tunit.domain.lesson.exception.LessonDuplicationException;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
-import com.tunit.domain.lesson.kafka.ReserveKafkaType;
 import com.tunit.domain.lesson.repository.LessonReservationRepository;
 import com.tunit.domain.lesson.validate.LessonValidate;
 import com.tunit.domain.tutor.dto.TutorProfileResponseDto;
@@ -26,6 +21,7 @@ import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,41 +42,6 @@ public class LessonReserveProcessorService {
     private final LessonReservationRepository lessonReservationRepository;
     private final LessonManagementService lessonManagementService;
     private final StudentTutorContractRepository contractRepository;
-    private final ObjectMapper objectMapper;
-
-    public void processReserveLesson(String message) {
-        try {
-            JsonNode node = objectMapper.readTree(message);
-            ReserveKafkaType type = ReserveKafkaType.valueOf(node.get("type").asText());
-            switch (type) {
-                case CREATE:
-                    Long userNo = node.get("userNo").asLong();
-                    LessonReserveSaveDto createDto = objectMapper.treeToValue(node.get("lessonReserveSaveDto"), LessonReserveSaveDto.class);
-                    processCreate(userNo, createDto);
-                    break;
-                case RESCHEDULE:
-                    Long rescheduleUserNo = node.get("userNo").asLong();
-                    Long rescheduleReservationNo = node.get("lessonReservationNo").asLong();
-                    LessonReserveSaveDto rescheduleDto = objectMapper.treeToValue(node.get("lessonReserveSaveDto"), LessonReserveSaveDto.class);
-                    processReschedule(rescheduleUserNo, rescheduleReservationNo, rescheduleDto);
-                    break;
-                case CANCEL:
-                    Long cancelUserNo = node.get("userNo").asLong();
-                    Long cancelReservationNo = node.get("lessonReservationNo").asLong();
-                    processCancel(cancelUserNo, cancelReservationNo);
-                    break;
-                case TUTOR_CREATE:
-                    Long tutorProfileNo = node.get("tutorProfileNo").asLong();
-                    LessonReserveSaveDto tutorCreateDto = objectMapper.treeToValue(node.get("lessonReserveSaveDto"), LessonReserveSaveDto.class);
-                    processTutorCreate(tutorProfileNo, tutorCreateDto);
-                    break;
-                default:
-                    log.warn("Unknown Kafka reservation type: {}", type);
-            }
-        } catch (Exception e) {
-            log.error("Kafka 예약 메시지 처리 실패: {}", message, e);
-        }
-    }
 
     @Transactional
     public void processCreate(Long studentNo, LessonReserveSaveDto dto) {
@@ -89,13 +50,22 @@ public class LessonReserveProcessorService {
         LocalTime endTime = dto.startTime().plusMinutes(tutor.durationMin());
         lessonValidate.validateTutorAvailability(studentNo, tutor.tutorProfileNo(), dto.lessonDate(), dto.startTime(), endTime);
         LessonReservation reservation = LessonReservation.fromReserveLesson(dto, tutor.tutorProfileNo(), contract.getLessonSubCategory(), studentNo, endTime);
-        lessonReservationRepository.save(reservation);
+        try {
+            // DB EXCLUDE 제약(no_overlap_lesson_reservation)으로 동시성 충돌 최종 차단
+            lessonReservationRepository.saveAndFlush(reservation);
+        } catch (DataIntegrityViolationException e) {
+            throw new LessonDuplicationException();
+        }
         log.info("레슨 예약 완료. studentNo: {}, tutorProfileNo: {}, date: {}", studentNo, dto.tutorProfileNo(), dto.lessonDate());
     }
 
     @Transactional
     public void processReschedule(Long userNo, Long lessonReservationNo, LessonReserveSaveDto dto) {
-        lessonManagementService.reschedule(userNo, lessonReservationNo, dto);
+        try {
+            lessonManagementService.reschedule(userNo, lessonReservationNo, dto);
+        } catch (DataIntegrityViolationException e) {
+            throw new LessonDuplicationException();
+        }
         log.info("레슨 예약 변경 완료. userNo: {}, lessonReservationNo: {}", userNo, lessonReservationNo);
     }
 
@@ -107,49 +77,39 @@ public class LessonReserveProcessorService {
 
     @Transactional
     public void processTutorCreate(Long tutorProfileNo, LessonReserveSaveDto dto) {
+        UserMain student = userService.getOrCreateWaitingStudent(dto.studentName(), dto.phone());
+        TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutor(tutorProfileNo);
+
+        // 기존 계약 조회, 없으면 직접 등록용 계약 생성
+        Long contractNo = contractRepository
+                .findByStudentNoAndTutorProfileNo(student.getUserNo(), tutorProfileNo)
+                .stream()
+                .filter(c -> c.getContractStatus() != ContractStatus.CANCELLED
+                        && c.getContractStatus() != ContractStatus.END)
+                .findFirst()
+                .map(StudentTutorContract::getContractNo)
+                .orElseGet(() -> {
+                    StudentTutorContract newContract = StudentTutorContract.builder()
+                            .tutorProfileNo(tutorProfileNo)
+                            .studentNo(student.getUserNo())
+                            .contractStatus(ContractStatus.ACTIVE)
+                            .contractType(ContractType.REGULAR)
+                            .lessonSubCategory(dto.lesson())
+                            .lessonName(ContractCreateRequestDto.generateLessonName(dto.lesson(), ContractType.REGULAR, dto.weeklyCount(), null))
+                            .source(ContractSource.TUTOR_OFFER)
+                            .totalPrice(dto.price())
+                            .weekCount(dto.weeklyCount())
+                            .emergencyContact(dto.phone())
+                            .build();
+                    return contractRepository.save(newContract).getContractNo();
+                });
+
+        LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, dto, contractNo);
         try {
-            UserMain student = userService.getOrCreateWaitingStudent(dto.studentName(), dto.phone());
-            TutorProfileResponseDto tutorProfileInfo = tutorProfileService.findTutor(tutorProfileNo);
-
-            // 기존 계약 조회, 없으면 직접 등록용 계약 생성
-            Long contractNo = contractRepository
-                    .findByStudentNoAndTutorProfileNo(student.getUserNo(), tutorProfileNo)
-                    .stream()
-                    .filter(c -> c.getContractStatus() != ContractStatus.CANCELLED
-                            && c.getContractStatus() != ContractStatus.END)
-                    .findFirst()
-                    .map(StudentTutorContract::getContractNo)
-                    .orElseGet(() -> {
-                        StudentTutorContract newContract = StudentTutorContract.builder()
-                                .tutorProfileNo(tutorProfileNo)
-                                .studentNo(student.getUserNo())
-                                .contractStatus(ContractStatus.ACTIVE)
-                                .contractType(ContractType.REGULAR)
-                                .lessonSubCategory(dto.lesson())
-                                .lessonName(ContractCreateRequestDto.generateLessonName(dto.lesson(), ContractType.REGULAR, dto.weeklyCount(), null))
-                                .source(ContractSource.TUTOR_OFFER)
-                                .totalPrice(dto.price())
-                                .weekCount(dto.weeklyCount())
-                                .emergencyContact(dto.phone())
-                                .build();
-                        return contractRepository.save(newContract).getContractNo();
-                    });
-
-            LessonReservation lessonReservation = LessonReservation.fromLessonSaveDto(tutorProfileInfo, student, dto, contractNo);
-            if (lessonReservationRepository.existsByTutorProfileNoAndDateAndStartTimeAndEndTimeAndStatusIn(
-                    tutorProfileNo,
-                    lessonReservation.getDate(),
-                    lessonReservation.getStartTime(),
-                    lessonReservation.getEndTime(),
-                    List.of(ReservationStatus.ACTIVE, ReservationStatus.REQUESTED, ReservationStatus.COMPLETED)
-            )) {
-                throw new IllegalStateException("해당 시간대에 이미 예약된 레슨이 있습니다.");
-            }
-
-            lessonReservationRepository.save(lessonReservation);
-        } catch (Exception e) {
-            log.error("레슨 예약 저장 중 에러 발생", e);
-            throw e;
+            // DB EXCLUDE 제약(no_overlap_lesson_reservation)으로 동시성 충돌 최종 차단
+            lessonReservationRepository.saveAndFlush(lessonReservation);
+        } catch (DataIntegrityViolationException e) {
+            throw new LessonDuplicationException();
         }
     }
 

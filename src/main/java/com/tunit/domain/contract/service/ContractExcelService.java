@@ -15,7 +15,6 @@ import com.tunit.domain.lesson.dto.*;
 import com.tunit.domain.lesson.exception.LessonDuplicationException;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.lesson.service.LessonReserveProcessorService;
-import com.tunit.domain.lesson.service.LessonReserveService;
 import com.tunit.domain.tutor.service.TutorProfileService;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.service.UserService;
