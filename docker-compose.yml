@@ -1,9 +1,23 @@
 version: '3.8'
 
 services:
+  app:
+    build: .
+    container_name: tunit-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    env_file:
+      - .env.docker
+    restart: unless-stopped
+
+  # 로컬 개발용 PostgreSQL. 외부 Supabase DB로 배포할 때는 띄울 필요 없음.
+  # 실행: docker compose --profile local up
   postgres:
     image: postgres:15-alpine
     container_name: tunit-postgres
+    profiles: ["local"]
     environment:
       POSTGRES_DB: tunit
       POSTGRES_USER: tunit
