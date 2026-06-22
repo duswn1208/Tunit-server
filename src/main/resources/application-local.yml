@@ -12,3 +12,22 @@ spring:
       connection-timeout: 30000
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  # 소셜 로그인 자격증명 (개발 환경). env 로 오버라이드 가능.
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            client-id: ${NAVER_CLIENT_ID:gZ2Fgj4_IIvlZ71wKV0U}
+            client-secret: ${NAVER_CLIENT_SECRET:P_p8w85Esw}
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID:a12aad6b421acd6662e797a6343122ab}  # REST API 키
+            client-secret: ${KAKAO_CLIENT_SECRET:ukSRNFVQulgUgG1iXifuCpjOUfg50nHa}  # 보안 > Client Secret
+          google:
+            # 구글 client-id/secret 은 GitHub 시크릿 스캐닝에 막혀 커밋 불가
+            # → 로컬은 gitignore 된 application.yml 또는 환경변수로 주입
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+          apple:
+            client-id: ${APPLE_CLIENT_ID:YOUR_APPLE_SERVICE_ID}  # Service ID
+            client-secret: ${APPLE_CLIENT_SECRET:YOUR_APPLE_CLIENT_SECRET}  # JWT 형태
