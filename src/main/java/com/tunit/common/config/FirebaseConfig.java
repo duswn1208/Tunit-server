@@ -10,9 +10,10 @@ import org.springframework.util.StringUtils;
 
 import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
@@ -25,7 +26,8 @@ public class FirebaseConfig {
     @Value("${firebase.config.base64:}")
     private String firebaseConfigBase64;
 
-    // 로컬 개발용 fallback: classpath 에 위치한 서비스 계정 키 파일 경로
+    // 서비스 계정 키 파일 경로. Render Secret File(/etc/secrets/..) 같은 외부 파일이면 파일시스템에서,
+    // 아니면 classpath(로컬 개발)에서 읽는다.
     @Value("${firebase.config.path:firebase-service-account.json}")
     private String firebaseConfigPath;
 
@@ -45,10 +47,17 @@ public class FirebaseConfig {
     }
 
     private InputStream resolveCredentialsStream() throws IOException {
+        // 1순위: base64 env (선택)
         if (StringUtils.hasText(firebaseConfigBase64)) {
             byte[] decoded = Base64.getDecoder().decode(firebaseConfigBase64.trim());
             return new ByteArrayInputStream(decoded);
         }
+        // 2순위: 파일시스템 경로 (Render Secret File 등 외부 파일)
+        File file = new File(firebaseConfigPath);
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        // 3순위: classpath (로컬 개발)
         return new ClassPathResource(firebaseConfigPath).getInputStream();
     }
 }

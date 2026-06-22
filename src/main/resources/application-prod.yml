@@ -1,7 +1,9 @@
-# Firebase (FCM): 서비스 계정 키(JSON)를 base64 인코딩해 환경변수로 주입
+# Firebase (FCM): Render Secret File 로 올린 서비스 계정 키를 파일 경로로 읽음.
+# (base64 env 를 채우면 그쪽이 우선)
 firebase:
   config:
     base64: ${FIREBASE_CONFIG_BASE64:}
+    path: ${FIREBASE_CONFIG_PATH:/etc/secrets/firebase-service-account.json}
 
 # 배포 도메인. Render 환경변수로 실제 도메인 주입
 service-url:
