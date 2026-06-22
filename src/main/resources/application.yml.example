@@ -19,6 +19,9 @@ service-url:
 
 firebase:
   config:
+    # 배포 환경: 서비스 계정 키(JSON)를 base64 로 인코딩해 환경변수로 주입
+    base64: ${FIREBASE_CONFIG_BASE64:}
+    # 로컬 개발 fallback: classpath 파일 (base64 미설정 시 사용)
     path: firebase-service-account.json
 
 spring:
