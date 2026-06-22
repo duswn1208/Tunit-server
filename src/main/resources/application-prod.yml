@@ -58,7 +58,7 @@ spring:
           naver:
             client-id: ${NAVER_CLIENT_ID:YOUR_NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET:}
-            redirect-uri: "{baseUrl}/login/oauth2/code/naver"
+            redirect-uri: "${service-url.web}/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             scope:
               - name
@@ -70,7 +70,7 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID:YOUR_KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET:}
-            redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
+            redirect-uri: "${service-url.web}/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             scope:
               - account_email
@@ -83,7 +83,7 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID:YOUR_GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET:}
-            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            redirect-uri: "${service-url.web}/login/oauth2/code/google"
             scope:
               - profile
               - email
@@ -94,7 +94,7 @@ spring:
           apple:
             client-id: ${APPLE_CLIENT_ID:YOUR_APPLE_SERVICE_ID}
             client-secret: ${APPLE_CLIENT_SECRET:}
-            redirect-uri: "{baseUrl}/login/oauth2/code/apple"
+            redirect-uri: "${service-url.web}/login/oauth2/code/apple"
             authorization-grant-type: authorization_code
             scope:
               - name
