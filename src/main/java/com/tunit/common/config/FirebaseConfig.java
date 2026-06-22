@@ -49,7 +49,9 @@ public class FirebaseConfig {
     private InputStream resolveCredentialsStream() throws IOException {
         // 1순위: base64 env (선택)
         if (StringUtils.hasText(firebaseConfigBase64)) {
-            byte[] decoded = Base64.getDecoder().decode(firebaseConfigBase64.trim());
+            // 환경변수에 줄바꿈/공백이 섞여도 디코딩되도록 모든 공백 제거 후 MIME 디코더 사용
+            String cleaned = firebaseConfigBase64.replaceAll("\\s", "");
+            byte[] decoded = Base64.getMimeDecoder().decode(cleaned);
             return new ByteArrayInputStream(decoded);
         }
         // 2순위: 파일시스템 경로 (Render Secret File 등 외부 파일)

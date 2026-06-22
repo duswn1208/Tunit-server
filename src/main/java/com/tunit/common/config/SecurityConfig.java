@@ -4,6 +4,7 @@ import com.tunit.common.handler.CustomOAuth2FailureHandler;
 import com.tunit.common.handler.CustomOAuth2SuccessHandler;
 import com.tunit.domain.user.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -28,6 +29,10 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
+
+    // 배포 프론트 도메인. 로컬은 기본값(localhost:5173) 사용.
+    @Value("${service-url.web:http://localhost:5173}")
+    private String webOrigin;
 
     @Bean @Order(1)
     SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
@@ -59,7 +64,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", webOrigin));
         config.setAllowedMethods(List.of(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name()));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
