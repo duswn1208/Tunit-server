@@ -39,7 +39,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         Object providerIdObj = oAuth2User.getAttribute(provider.getNameAttributeKey());
         String providerId = providerIdObj != null ? String.valueOf(providerIdObj) : null;
 
-        UserMain user = userService.findByProviderId(providerId);
+        UserMain user = userService.findByProviderAndProviderId(provider, providerId);
         if (user == null) {
             response.sendRedirect(ONBOARDING_PATH);
             return;

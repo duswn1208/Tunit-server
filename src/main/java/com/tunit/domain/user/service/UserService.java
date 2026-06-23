@@ -1,5 +1,6 @@
 package com.tunit.domain.user.service;
 
+import com.tunit.domain.user.define.UserProvider;
 import com.tunit.domain.user.dto.UserMainResponseDto;
 import com.tunit.domain.user.entity.UserMain;
 import com.tunit.domain.user.exception.UserException;
@@ -22,8 +23,8 @@ public class UserService {
         return userRepository.save(userMain);
     }
 
-    public UserMain findByProviderId(String providerId) {
-        return userRepository.findByProviderId(providerId).orElse(null);
+    public UserMain findByProviderAndProviderId(UserProvider provider, String providerId) {
+        return userRepository.findByProviderAndProviderId(provider, providerId).orElse(null);
     }
 
     public UserMain findByUserNo(Long userNo) {
