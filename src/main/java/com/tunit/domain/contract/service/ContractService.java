@@ -56,7 +56,16 @@ public class ContractService {
         // 대기 레슨 예약 생성
         lessonReserveService.reserveLessonsBatch(contract, requestDto.getLessonDtList());
 
-        return ContractResponseDto.fromEntity(contract);
+        return withTutorUserNo(ContractResponseDto.fromEntity(contract));
+    }
+
+    /**
+     * 알림 발송 대상이 튜터인 응답에 튜터의 userNo를 채워준다.
+     * (tutorProfileNo 는 프로필 PK 이므로 @SendNotification 의 userNo 로 사용할 수 없음)
+     */
+    private ContractResponseDto withTutorUserNo(ContractResponseDto response) {
+        response.setTutorUserNo(tutorProfileService.findByTutorProfileNo(response.getTutorProfileNo()).getUserNo());
+        return response;
     }
 
     public ContractResponseDto getContract(Long contractNo) {
@@ -183,7 +192,7 @@ public class ContractService {
             }
         }
 
-        return ContractResponseDto.fromEntity(contract);
+        return withTutorUserNo(ContractResponseDto.fromEntity(contract));
     }
 
     private void validateContractOwnership(StudentTutorContract contract, Long userNo, boolean isTutor) {
@@ -270,7 +279,7 @@ public class ContractService {
 
         log.info("체험 레슨 계약 생성 완료 - contractNo: {}", contract.getContractNo());
 
-        return ContractResponseDto.fromEntity(contract);
+        return withTutorUserNo(ContractResponseDto.fromEntity(contract));
     }
 
     /**
@@ -451,7 +460,7 @@ public class ContractService {
 
         log.info("튜터 제안 시간 수락 완료 - contractNo: {}", contractNo);
 
-        return ContractResponseDto.fromEntity(contract);
+        return withTutorUserNo(ContractResponseDto.fromEntity(contract));
     }
 
     // ========== Private 헬퍼 메서드들 ==========

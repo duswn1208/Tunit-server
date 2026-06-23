@@ -21,6 +21,8 @@ public class ContractResponseDto {
     private Long contractNo;
 
     private Long tutorProfileNo;
+    @Setter
+    private Long tutorUserNo;
     private Long studentNo;
     @Setter
     private String studentName;

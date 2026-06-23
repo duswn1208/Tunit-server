@@ -35,7 +35,7 @@ public class ContractController {
             type = NotificationType.CONTRACT_SIGNED,
             title = "새로운 레슨 요청이 도착했습니다.",
             message = "#{#requestDto.generateLessonName()} 요청이 도착했습니다. 확인해주세요.",
-            userNoField = "#result.body.tutorProfileNo",
+            userNoField = "#result.body.tutorUserNo",
             deepLink = "/tutor/my/students"
     )
     public ResponseEntity<ContractResponseDto> createContract(
@@ -114,7 +114,7 @@ public class ContractController {
             type = NotificationType.CONTRACT_SIGNED,
             title = "계약 상태가 변경되었습니다.",
             message = "계약 상태가 #{#requestDto.contractStatus.label}(으)로 변경되었습니다.",
-            userNoField = "#result.body.tutorProfileNo",
+            userNoField = "#result.body.tutorUserNo",
             deepLink = "/student/my/tutors"
     )
     public ResponseEntity<ContractResponseDto> updateContractStatusByStudent(
@@ -177,7 +177,7 @@ public class ContractController {
         type = NotificationType.CONTRACT_SIGNED,
         title = "새로운 체험 레슨 요청",
         message = "#{#requestDto.generateLessonName()} 요청이 도착했습니다.",
-        userNoField = "#result.body.tutorProfileNo",
+        userNoField = "#result.body.tutorUserNo",
         deepLink = "/tutor/my/students"
     )
     public ResponseEntity<ContractResponseDto> createTrialContract(
@@ -254,7 +254,7 @@ public class ContractController {
         type = NotificationType.CONTRACT_SIGNED,
         title = "체험 레슨이 확정되었습니다",
         message = "학생이 제안 시간을 수락했습니다",
-        userNoField = "#result.body.tutorProfileNo",
+        userNoField = "#result.body.tutorUserNo",
         deepLink = "/tutor/contracts"
     )
     public ResponseEntity<ContractResponseDto> acceptTutorProposal(
