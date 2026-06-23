@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(name = "tutor_profile", uniqueConstraints = @UniqueConstraint(name = "uk_tutor_profile_user_no", columnNames = "user_no"))
 @NoArgsConstructor
 @Getter
 public class TutorProfile {

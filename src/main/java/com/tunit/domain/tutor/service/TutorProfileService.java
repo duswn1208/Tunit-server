@@ -99,6 +99,10 @@ public class TutorProfileService {
 
     @Transactional
     public Long save(Long userNo, TutorProfileSaveDto tutorProfileSaveDto) {
+        if (tutorProfileRepository.findByUserNo(userNo) != null) {
+            throw new TutorProfileException("이미 등록된 튜터 프로필이 있습니다. userNo=" + userNo);
+        }
+
         UserMain userMain = userService.findByUserNo(userNo);
         userMain.joinTutor(tutorProfileSaveDto.getNickname());
 
