@@ -12,10 +12,11 @@ public record LessonFindSummaryDto(
         Integer nextWeekLessonCount,
         Integer thisMonthLessonCount,
         Integer totalLessonCount,
-        List<LessonResponseDto> lessonList
+        List<LessonResponseDto> lessonList,
+        List<TrialCandidateLessonDto> trialCandidates
 ) {
 
-    public static LessonFindSummaryDto from(List<LessonResponseDto> lessonList) {
+    public static LessonFindSummaryDto from(List<LessonResponseDto> lessonList, List<TrialCandidateLessonDto> trialCandidates) {
         int todayCount = countByPeriod(lessonList, LessonPeriodType.TODAY);
         int thisWeekAfterTodayCount = countByPeriod(lessonList, LessonPeriodType.THIS_WEEK_AFTER_TODAY);
         int nextWeekCount = countByPeriod(lessonList, LessonPeriodType.NEXT_WEEK);
@@ -27,7 +28,8 @@ public record LessonFindSummaryDto(
                 nextWeekCount,
                 thisMonthCount,
                 totalCount,
-                lessonList
+                lessonList,
+                trialCandidates
         );
     }
 
