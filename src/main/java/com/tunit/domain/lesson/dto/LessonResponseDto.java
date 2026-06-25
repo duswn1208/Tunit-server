@@ -9,6 +9,7 @@ import java.time.LocalTime;
 
 public record LessonResponseDto(
     Long lessonReservationNo,
+    Long contractNo,
     String studentName,
     LocalTime startTime,
     LocalTime endTime,
@@ -20,6 +21,7 @@ public record LessonResponseDto(
     public LessonResponseDto(LessonReservation lessonReservation, String studentName, LessonSubCategory lessonSubCategory) {
         this(
             lessonReservation.getLessonReservationNo(),
+            lessonReservation.getContractNo(),
             studentName,
             lessonReservation.getStartTime(),
             lessonReservation.getEndTime(),
