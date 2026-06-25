@@ -2,6 +2,8 @@ package com.tunit.common.handler;
 
 import com.tunit.common.session.exception.SessionNotFoundException;
 import com.tunit.domain.lesson.exception.LessonDuplicationException;
+import com.tunit.domain.lesson.exception.LessonLogAlreadyExistsException;
+import com.tunit.domain.lesson.exception.LessonLogNotFoundException;
 import com.tunit.domain.lesson.exception.LessonNotFoundException;
 import com.tunit.domain.review.exception.InvalidReviewException;
 import com.tunit.domain.review.exception.ReviewAlreadyExistsException;
@@ -48,5 +50,15 @@ public class GlobalApiExceptionHandler {
     @ExceptionHandler(InvalidReviewException.class)
     public ResponseEntity<?> handleInvalidReviewException(InvalidReviewException e) {
         return ResponseEntity.status(400).body(Map.of("message", e.getMessage()));
+    }
+
+    @ExceptionHandler(LessonLogNotFoundException.class)
+    public ResponseEntity<?> handleLessonLogNotFoundException(LessonLogNotFoundException e) {
+        return ResponseEntity.status(404).body(Map.of("message", e.getMessage()));
+    }
+
+    @ExceptionHandler(LessonLogAlreadyExistsException.class)
+    public ResponseEntity<?> handleLessonLogAlreadyExistsException(LessonLogAlreadyExistsException e) {
+        return ResponseEntity.status(409).body(Map.of("message", e.getMessage()));
     }
 }
